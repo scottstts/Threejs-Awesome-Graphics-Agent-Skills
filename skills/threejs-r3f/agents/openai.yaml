@@ -1,0 +1,4 @@
+interface:
+  display_name: "React Three Fiber"
+  short_description: "Build maintainable, efficient R3F applications"
+  default_prompt: "Use $threejs-r3f to implement this React Three Fiber feature with correct lifecycle and performance."

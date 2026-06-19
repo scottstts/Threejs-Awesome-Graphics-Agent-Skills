@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Materials and Lighting"
+  short_description: "Author strong PBR materials, light, and shadows"
+  default_prompt: "Use $threejs-materials-lighting to build a cohesive material and lighting system."

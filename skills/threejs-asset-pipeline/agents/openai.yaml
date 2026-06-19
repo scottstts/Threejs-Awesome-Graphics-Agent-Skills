@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Asset Pipeline"
+  short_description: "Load, optimize, validate, and retire 3D assets"
+  default_prompt: "Use $threejs-asset-pipeline to design a reliable Three.js asset workflow for this project."

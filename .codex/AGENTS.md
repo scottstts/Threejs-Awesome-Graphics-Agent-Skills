@@ -6,6 +6,8 @@ This repo is for developing and maintaining a "super three.js agent skill pack".
 - 50% great graphics: mesh design, lighting, PBR materials, textures, shaders, TSL/WebGPU, GLSL, post-processing, realism, stylization, particles, procedural visuals, color management, tone mapping
 - 30% good game design and playability: game loop, controls, camera feel, responsiveness, collisions, physics, UI/HUD, feedback, ergonomics, mobile/touch/gamepad, game feel
 
+BTW, the percentages are only rough markers, the goal is not to optimize towards that exact composition
+
 This is NOT a shallow API cheat sheet, it's a production-oriented visual/game skill that helps an agent produce scenes that are technically correct, visually strong, aesthetically beautiful, performant, interactive, and pleasant to see/play/use.
 
 ## Developing Approach

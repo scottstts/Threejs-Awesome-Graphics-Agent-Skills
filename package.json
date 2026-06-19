@@ -1,0 +1,8 @@
+{
+  "name": "threejs-agent-skills-mega-pack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-pack.mjs"
+  }
+}

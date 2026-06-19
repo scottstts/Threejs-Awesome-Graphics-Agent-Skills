@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Quality Audit"
+  short_description: "Audit technical, visual, and playability quality"
+  default_prompt: "Use $threejs-quality-audit to review this Three.js experience and prioritize concrete fixes."

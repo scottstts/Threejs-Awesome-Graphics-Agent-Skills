@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Visual Design"
+  short_description: "Create authored composition and visual direction"
+  default_prompt: "Use $threejs-visual-design to improve the scene composition, silhouette, depth, and art direction."

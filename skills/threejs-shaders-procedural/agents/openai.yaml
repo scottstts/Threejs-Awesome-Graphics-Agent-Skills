@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Shaders and Procedural FX"
+  short_description: "Build GLSL, particles, and procedural visuals"
+  default_prompt: "Use $threejs-shaders-procedural to design and implement this shader or procedural effect."

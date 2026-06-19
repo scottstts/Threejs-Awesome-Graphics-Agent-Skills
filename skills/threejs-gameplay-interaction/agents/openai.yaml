@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Gameplay and Interaction"
+  short_description: "Build responsive controls, cameras, and game feel"
+  default_prompt: "Use $threejs-gameplay-interaction to make this Three.js experience responsive and playable."
