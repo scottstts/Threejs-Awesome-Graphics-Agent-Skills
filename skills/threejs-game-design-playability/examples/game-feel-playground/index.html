@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Three.js Game Feel Playground</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1018; }
+      canvas { display: block; }
+      aside {
+        position: fixed; left: 18px; top: 18px; padding: 13px 15px; color: #edf7ff;
+        background: rgba(7, 12, 20, .8); border: 1px solid #46647f; border-radius: 9px;
+        font: 13px/1.5 system-ui, sans-serif; pointer-events: none;
+      }
+      strong { display: block; font-size: 15px; }
+      #mode { color: #7ee6ff; }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js" } }
+    </script>
+  </head>
+  <body>
+    <aside>
+      <strong>Game feel playground — <span id="mode">tuned</span></strong>
+      WASD / arrows move, Space jumps, T compares raw and tuned response.<br />
+      Tuned mode adds acceleration shaping, coyote time, jump buffering, landing response, and damped camera follow.
+    </aside>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Game Design"
+  short_description: "Design readable, satisfying, accessible browser games"
+  default_prompt: "Use $threejs-game-design-playability to improve the core loop, feel, readability, and accessibility."

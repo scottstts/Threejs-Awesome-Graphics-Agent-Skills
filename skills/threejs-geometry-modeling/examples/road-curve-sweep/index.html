@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Indexed Road Curve Sweep</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #11151b; color: #eef2f6; font: 14px system-ui; }
+      canvas { display: block; }
+      aside { position: fixed; inset: 16px auto auto 16px; max-width: 330px; padding: 12px 14px; background: #10151ddd; border: 1px solid #ffffff1f; border-radius: 10px; }
+      strong { color: #ffd36a; }
+    </style>
+    <script type="importmap">
+      {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+    </script>
+  </head>
+  <body>
+    <aside><strong>Indexed curve sweep</strong><br />Parallel-transport-like frames, distance UVs, banking, separate shoulder geometry. Drag to orbit.</aside>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

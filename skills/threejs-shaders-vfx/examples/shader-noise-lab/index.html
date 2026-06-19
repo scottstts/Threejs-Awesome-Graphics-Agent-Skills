@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Three.js Shader Noise Lab</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #05070a; }
+      canvas { display: block; }
+      aside {
+        position: fixed; inset: 18px auto auto 18px; max-width: 330px; padding: 14px 16px;
+        color: #e9f4ff; background: rgba(4, 8, 14, .76); border: 1px solid rgba(132, 199, 255, .25);
+        border-radius: 10px; font: 13px/1.45 system-ui, sans-serif; backdrop-filter: blur(10px);
+      }
+      strong { display: block; margin-bottom: 4px; font-size: 15px; }
+      kbd { padding: 1px 5px; border: 1px solid #64788a; border-radius: 4px; }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js" } }
+    </script>
+  </head>
+  <body>
+    <aside>
+      <strong>Domain-warped noise lab</strong>
+      Pointer movement changes warp strength and contour density. Press <kbd>Space</kbd> to pause.
+      The shader uses analytic screen-space derivatives to keep contour edges stable.
+    </aside>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

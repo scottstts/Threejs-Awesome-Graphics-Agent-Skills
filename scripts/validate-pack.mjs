@@ -6,6 +6,24 @@ const root = process.cwd();
 const skillsRoot = path.join(root, "skills");
 const errors = [];
 
+async function existsAsFile(filePath) {
+  try {
+    return (await stat(filePath)).isFile();
+  } catch {
+    return false;
+  }
+}
+
+async function collectFiles(directory) {
+  const files = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...await collectFiles(entryPath));
+    else files.push(entryPath);
+  }
+  return files;
+}
+
 const skillNames = (await readdir(skillsRoot)).sort();
 const routerText = await readFile(
   path.join(skillsRoot, "threejs-skill-router", "SKILL.md"),
@@ -67,15 +85,35 @@ for (const skillName of skillNames) {
     errors.push(`${skillName}: references directory is empty`);
   }
 
-  for (const match of skillText.matchAll(/\]\((references\/[^)#]+)(?:#[^)]+)?\)/g)) {
-    const referencePath = path.join(skillPath, match[1]);
-    try {
-      if (!(await stat(referencePath)).isFile()) {
-        errors.push(`${skillName}: missing reference ${match[1]}`);
-      }
-    } catch {
-      errors.push(`${skillName}: missing reference ${match[1]}`);
+  for (const match of skillText.matchAll(/\]\((?!https?:|#)([^)#]+)(?:#[^)]+)?\)/g)) {
+    const relativePath = decodeURIComponent(match[1]);
+    if (!(await existsAsFile(path.join(skillPath, relativePath)))) {
+      errors.push(`${skillName}: missing linked file ${relativePath}`);
     }
+  }
+
+  const examplesPath = path.join(skillPath, "examples");
+  try {
+    const exampleFiles = await collectFiles(examplesPath);
+    for (const htmlPath of exampleFiles.filter((file) => file.endsWith("index.html"))) {
+      const html = await readFile(htmlPath, "utf8");
+      const relativeHtml = path.relative(skillPath, htmlPath);
+      if (!skillText.includes(relativeHtml)) {
+        errors.push(`${skillName}: example not linked from SKILL.md: ${relativeHtml}`);
+      }
+      if (!/three@0\.\d+\.\d+/.test(html)) {
+        errors.push(`${skillName}: example must pin a Three.js version: ${relativeHtml}`);
+      }
+      if (!/src="\.\/main\.js"/.test(html)) {
+        errors.push(`${skillName}: example must load ./main.js: ${relativeHtml}`);
+      }
+      const mainPath = path.join(path.dirname(htmlPath), "main.js");
+      if (!(await existsAsFile(mainPath))) {
+        errors.push(`${skillName}: example missing main.js: ${relativeHtml}`);
+      }
+    }
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
   }
 
   if (skillName !== "threejs-skill-router" && !routerText.includes(`$${skillName}`)) {

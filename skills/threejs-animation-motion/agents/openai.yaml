@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Animation and Motion"
+  short_description: "Build expressive animation, springs, blending, and IK"
+  default_prompt: "Use $threejs-animation-motion to design and implement expressive, readable motion."

@@ -32,6 +32,30 @@ Version-sensitive Three.js guidance must be checked against the installed projec
 - [WebGL Fundamentals](https://webglfundamentals.org/) and [WebGL2 Fundamentals](https://webgl2fundamentals.org/) — graphics-pipeline fundamentals.
 - [Spector.js](https://spector.babylonjs.com/) and [Spector.js GitHub](https://github.com/BabylonJS/Spector.js) — GPU frame inspection.
 - [three on npm](https://www.npmjs.com/package/three), [React Three Fiber on npm](https://www.npmjs.com/package/@react-three/fiber), [Drei on npm](https://www.npmjs.com/package/@react-three/drei), [React Three Rapier on npm](https://www.npmjs.com/package/@react-three/rapier), and [postprocessing on npm](https://www.npmjs.com/package/postprocessing) — package-version snapshots.
+- [three-mesh-bvh](https://github.com/gkjohnson/three-mesh-bvh) — accelerated raycasting, closest-point queries, shapecasts, workers, serialization, and shader BVHs; reviewed at commit `dca2b52`.
+- [three-bvh-csg](https://github.com/gkjohnson/three-bvh-csg) — browser CSG architecture and limitations; reviewed at commit `26729f0` and treated as experimental.
+- [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer) — progressive reference rendering and raster-versus-path-traced lookdev comparison; reviewed at commit `171a224`.
+- [glTF Transform](https://github.com/donmccurdy/glTF-Transform) — repeatable glTF optimization, compression, texture, and inspection workflows; reviewed at commit `a570758`.
+- [three-custom-shader-material](https://github.com/FarazzShaikh/THREE-CustomShaderMaterial) — standard-material extension patterns and tradeoffs; reviewed at commit `cf86e95`.
+- [postprocessing](https://github.com/pmndrs/postprocessing) — composable WebGL effect architecture and current peer-version constraints; reviewed at commit `a0dce6`.
+- [Filament rendering notes](https://google.github.io/filament/main/filament.html) and [Filament Materials Guide](https://google.github.io/filament/Materials.md.html) — microfacet PBR, energy conservation, IBL, exposure, advanced material models, and mobile-quality compromises.
+- [Disney Physically-Based Shading at Disney](https://disneyanimation.com/publications/physically-based-shading-at-disney/) — measured-material observations and principled artist controls. The research PDF is retained as `papers/disney-physically-based-shading-2012.pdf`.
+- [meshoptimizer](https://meshoptimizer.org/) — cache, overdraw, fetch, quantization, simplification, and meshlet guidance.
+- [Catlike Coding procedural meshes](https://catlikecoding.com/unity/tutorials/procedural-meshes/) — topology-first procedural mesh progression.
+- [Red Blob Games Mapgen2](https://www.redblobgames.com/maps/mapgen2/) — purpose-driven procedural map and world generation.
+- [GPU Gems: Effective Water Simulation](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models) — geometric and normal-wave decomposition, analytic derivatives, and Gerstner waves.
+- [GPU Gems 2: Accurate Atmospheric Scattering](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering) — Rayleigh/Mie scattering, phase functions, sampling, and lookup tradeoffs.
+- [Real-Time Samurai Cinema](https://advances.realtimerendering.com/s2021/jpatry_advances2021/index.html) — production lighting, atmosphere, exposure, and tone-mapping system design.
+- [Real-Time Camera Design Fundamentals](https://www.gdcvault.com/play/1020460/Real-Time-Cameras) — camera intent, framing, movement, and player information. The research PDF is retained as `papers/real-time-camera-design-fundamentals.pdf`.
+- [Game Feel: The Secret Ingredient](https://www.gamedeveloper.com/design/game-feel-the-secret-ingredient) — input, response, context, polish, metaphor, and rules as separately tunable contributors.
+- [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/) — remapping, camera sensitivity, FOV, reduced motion, readable UI, subtitles, alternatives to color-only information, and assist options.
+- [Little Polygon: Analytical Two-Bone IK](https://blog.littlepolygon.com/posts/twobone/) — law-of-cosines IK, stable pole planes, reach clamping, and transform-space consistency.
+- [Orange Duck: Spring Roll Call](https://theorangeduck.com/page/spring-roll-call) — frame-rate-independent damping, half-life controls, springs, quaternion motion, and inertialization.
+
+## Reviewed with constraints
+
+- [N8AO](https://github.com/N8Programs/n8ao) — current AO implementation patterns; reviewed at commit `6481f6`. Repository/package license metadata was inconsistent during review, so no code was copied and it is not used as a normative source.
+- [realism-effects](https://github.com/0beqz/realism-effects) — useful SSGI, HBAO, and temporal concepts; reviewed at commit `061daea`. Its declared Three.js peer range is substantially older than the June 2026 research baseline, so it is treated as conceptual only.
 
 ## Supplied candidate backlog
 

@@ -22,6 +22,12 @@ Select focused skills before implementation. Avoid loading the whole pack.
 | composition, art direction, silhouette, world building | `$threejs-visual-design` |
 | PBR, environments, lights, shadows, exposure | `$threejs-materials-lighting` |
 | GLSL, procedural patterns, particles, raymarching | `$threejs-shaders-procedural` |
+| custom meshes, sweeps, roads, terrain, CSG, BVH, LOD | `$threejs-geometry-modeling` |
+| reference-driven surfaces, glass, coatings, wear, lookdev | `$threejs-material-lookdev` |
+| advanced water, atmosphere, volumetrics, trails, impact VFX | `$threejs-shaders-vfx` |
+| camera taste, framing, focal hierarchy, cinematic light | `$threejs-cinematic-lighting-composition` |
+| verbs, core loop, feel, fairness, pacing, UI, accessibility | `$threejs-game-design-playability` |
+| clip blending, springs, procedural motion, IK, contact | `$threejs-animation-motion` |
 | WebGPURenderer, TSL, node materials, compute | `$threejs-webgpu-tsl` |
 | bloom, grading, AA, DOF, AO, pipeline order | `$threejs-postprocessing` |
 | input, picking, controls, camera feel, game loop | `$threejs-gameplay-interaction` |
@@ -32,14 +38,20 @@ Select focused skills before implementation. Avoid loading the whole pack.
 
 ## Common combinations
 
-- New polished scene: foundations → visual design → materials/lighting → quality audit.
-- Asset-heavy product viewer: foundations → asset pipeline → materials/lighting → performance → quality audit.
-- Custom visual effect: foundations → shaders or WebGPU/TSL → post-processing → performance.
-- Browser game: foundations → gameplay → physics when justified → visual design → performance → quality audit.
+- New polished scene: foundations → visual design → cinematic composition → material lookdev → quality audit.
+- Asset-heavy product viewer: foundations → asset pipeline → material lookdev → cinematic composition → performance → quality audit.
+- Procedural environment: foundations → geometry modeling → visual design → material lookdev → performance.
+- Custom visual effect: foundations → shaders/VFX or WebGPU/TSL → post-processing → performance.
+- Browser game: foundations → game design/playability → gameplay implementation → physics when justified → animation → visual design → performance → quality audit.
 - R3F experience: R3F first, then the same domain skills as vanilla Three.js.
 
 ## Routing rules
 
+- Use broad foundation skills for architecture and API contracts; use specialist skills when the task requires authored quality, diagnosis, or advanced techniques.
+- Load `$threejs-materials-lighting` for scene-lighting fundamentals; add `$threejs-material-lookdev` when a specific surface must be believable.
+- Load `$threejs-shaders-procedural` for shader construction fundamentals; add `$threejs-shaders-vfx` when timing, integration, temporal stability, or quality tiers define the effect.
+- Load `$threejs-gameplay-interaction` to implement input and state; add `$threejs-game-design-playability` to determine whether the game is readable, fair, and satisfying.
+- Load `$threejs-visual-design` for art direction across the whole scene; add `$threejs-cinematic-lighting-composition` for shot-level camera and image diagnosis.
 - Do not select WebGPU merely because it is newer. Require a TSL, compute, renderer, or measurable capability benefit.
 - Do not select physics for simple triggers or arcade overlap checks.
 - Do not use post-processing as a substitute for authored geometry, material response, lighting, or composition.

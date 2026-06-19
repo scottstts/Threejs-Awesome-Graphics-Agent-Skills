@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Geometry Modeling"
+  short_description: "Author procedural meshes, terrain, CSG, and LOD"
+  default_prompt: "Use $threejs-geometry-modeling to design and implement this production-ready mesh system."
