@@ -1,6 +1,6 @@
 ---
 name: threejs-visual-design
-description: "Direct the visual design of Three.js scenes and games through composition, camera language, silhouette, scale cues, depth layering, shape rhythm, authored geometry, procedural modeling, color hierarchy, and gameplay readability. Use when a scene looks generic, sparse, primitive-heavy, flat, confusing, aesthetically weak, or needs a coherent stylized or realistic art direction."
+description: "Define scene-wide Three.js art direction through shape language, silhouette, scale cues, prop families, world building, color hierarchy, and gameplay readability. Use when the environment or asset language is generic or incoherent; use threejs-cinematic-lighting-composition for shot-level camera, framing, light, and exposure."
 ---
 
 # Three.js Visual Design

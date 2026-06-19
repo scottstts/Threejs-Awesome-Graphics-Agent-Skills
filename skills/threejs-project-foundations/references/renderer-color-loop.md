@@ -4,7 +4,11 @@
 
 Use WebGLRenderer when broad compatibility, established add-ons, and ordinary rendering are sufficient. Use WebGPURenderer when the project needs TSL-first materials, compute, or a specific capability that has been verified against target browsers.
 
-Do not create both renderers as an unexamined fallback. Their material, post-processing, and initialization paths may differ. Encapsulate renderer-specific setup behind a narrow interface.
+Current WebGPURenderer releases can target WebGPU and fall back to a WebGL 2
+backend. Do not confuse that backend fallback with maintaining a separate
+WebGLRenderer application path. Create both renderer implementations only when
+materials, post-processing, browser coverage, or behavior require it, and
+encapsulate renderer-specific setup behind a narrow interface.
 
 ## Color pipeline
 

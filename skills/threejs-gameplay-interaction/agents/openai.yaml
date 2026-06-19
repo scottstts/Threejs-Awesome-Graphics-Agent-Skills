@@ -1,4 +1,4 @@
 interface:
   display_name: "Three.js Gameplay and Interaction"
-  short_description: "Build responsive controls, cameras, and game feel"
-  default_prompt: "Use $threejs-gameplay-interaction to make this Three.js experience responsive and playable."
+  short_description: "Implement input, cameras, and gameplay state"
+  default_prompt: "Use $threejs-gameplay-interaction to implement this responsive interaction or gameplay system."

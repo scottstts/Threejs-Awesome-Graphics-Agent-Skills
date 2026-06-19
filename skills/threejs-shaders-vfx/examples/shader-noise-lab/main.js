@@ -1,17 +1,22 @@
 import * as THREE from "three";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 document.body.append(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const uniforms = {
   uTime: { value: 0 },
-  uResolution: { value: new THREE.Vector2(innerWidth, innerHeight) },
+  uResolution: { value: new THREE.Vector2(1, 1) },
   uControl: { value: new THREE.Vector2(0.55, 0.55) },
 };
+const runtime = createLabRuntime({
+  renderer,
+  scene,
+  camera,
+  onResize: () => renderer.getDrawingBufferSize(uniforms.uResolution.value),
+});
 
 const material = new THREE.ShaderMaterial({
   uniforms,
@@ -90,15 +95,12 @@ const material = new THREE.ShaderMaterial({
 scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
 
 let paused = false;
-addEventListener("pointermove", (event) => {
-  uniforms.uControl.value.set(event.clientX / innerWidth, 1 - event.clientY / innerHeight);
+runtime.listen(renderer.domElement, "pointermove", (event) => {
+  const pointer = runtime.pointerNdc(event);
+  uniforms.uControl.value.set((pointer.x + 1) * 0.5, (pointer.y + 1) * 0.5);
 });
-addEventListener("keydown", (event) => {
+runtime.listen(window, "keydown", (event) => {
   if (event.code === "Space") paused = !paused;
-});
-addEventListener("resize", () => {
-  renderer.setSize(innerWidth, innerHeight);
-  uniforms.uResolution.value.set(innerWidth, innerHeight);
 });
 
 let previousTime = performance.now();

@@ -1,14 +1,14 @@
 import * as THREE from "three";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.append(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+const runtime = createLabRuntime({ renderer, scene, camera });
 
 const world = new THREE.Group();
 scene.add(world);
@@ -103,20 +103,15 @@ function applyMode() {
 }
 applyMode();
 
-document.querySelector("#toggle").addEventListener("click", () => {
+runtime.listen(document.querySelector("#toggle"), "click", () => {
   cinematic = !cinematic;
   applyMode();
 });
-addEventListener("keydown", (event) => {
+runtime.listen(window, "keydown", (event) => {
   if (event.code === "KeyC") {
     cinematic = !cinematic;
     applyMode();
   }
-});
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });
 
 renderer.setAnimationLoop((time) => {

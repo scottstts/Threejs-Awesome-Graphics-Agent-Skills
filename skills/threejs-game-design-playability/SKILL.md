@@ -1,6 +1,6 @@
 ---
 name: threejs-game-design-playability
-description: "Design and evaluate satisfying Three.js browser games through player verbs, core loops, meaningful choices, game feel, input response, spatial context, camera support, collision fairness, telegraphing, level readability, challenge pacing, difficulty, HUD and menu hierarchy, mobile and gamepad ergonomics, accessibility, feedback, failure, and restart. Use when a technically functioning game needs to become understandable, expressive, fair, engaging, and pleasant to play."
+description: "Design and evaluate Three.js browser-game verbs, core loops, meaningful choices, fairness, telegraphing, level readability, challenge pacing, HUD, ergonomics, accessibility, failure, and recovery. Use to make a functioning game satisfying; use threejs-gameplay-interaction for input, raycasting, camera rigs, update state, and restart code."
 ---
 
 # Three.js Game Design and Playability

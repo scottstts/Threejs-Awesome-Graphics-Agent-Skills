@@ -1,8 +1,49 @@
 {
-  "name": "threejs-agent-skills-mega-pack",
-  "private": true,
+  "name": "threejs-gamedev-mega-skills",
+  "version": "0.1.0",
+  "description": "Production-oriented Three.js design, rendering, gameplay, and performance skills for coding agents.",
+  "license": "MIT",
+  "author": "Scott",
+  "keywords": [
+    "agent-skills",
+    "threejs",
+    "three.js",
+    "codex",
+    "claude-code",
+    "cursor",
+    "copilot",
+    "gemini-cli",
+    "windsurf"
+  ],
   "type": "module",
+  "bin": {
+    "threejs-gamedev-mega-skills": "./bin/threejs-gamedev-mega-skills.mjs"
+  },
+  "files": [
+    ".codex-plugin/",
+    "bin/",
+    "skills/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "validate": "node scripts/validate-pack.mjs"
+    "validate": "node scripts/validate-pack.mjs",
+    "test": "npm run validate && npm run test:installer && npm run test:scripts",
+    "test:examples": "node scripts/smoke-examples.mjs",
+    "test:installer": "node scripts/test-installer.mjs",
+    "test:scripts": "node scripts/test-skill-scripts.mjs",
+    "check:freshness": "node scripts/check-three-freshness.mjs",
+    "test:all": "npm test && npm run test:examples && npm run check:freshness",
+    "prepack": "npm test",
+    "prepublishOnly": "npm run check:freshness"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
   }
 }

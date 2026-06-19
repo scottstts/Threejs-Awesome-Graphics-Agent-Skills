@@ -1,8 +1,7 @@
 import * as THREE from "three";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
@@ -11,8 +10,9 @@ document.body.append(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b1018);
 scene.fog = new THREE.Fog(0x0b1018, 14, 42);
-const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
 camera.position.set(7, 6, 10);
+const runtime = createLabRuntime({ renderer, scene, camera });
 
 scene.add(new THREE.HemisphereLight(0xa8d8ff, 0x27180d, 2.1));
 const sun = new THREE.DirectionalLight(0xffd7a3, 3.2);
@@ -74,7 +74,7 @@ const velocity = new THREE.Vector3();
 const desired = new THREE.Vector3();
 const cameraTarget = new THREE.Vector3();
 
-addEventListener("keydown", (event) => {
+runtime.listen(window, "keydown", (event) => {
   keys.add(event.code);
   if (event.code === "Space") jumpBuffer = 0.12;
   if (event.code === "KeyT" && !event.repeat) {
@@ -82,7 +82,11 @@ addEventListener("keydown", (event) => {
     document.querySelector("#mode").textContent = tuned ? "tuned" : "raw";
   }
 });
-addEventListener("keyup", (event) => keys.delete(event.code));
+runtime.listen(window, "keyup", (event) => keys.delete(event.code));
+runtime.listen(window, "blur", () => keys.clear());
+runtime.listen(document, "visibilitychange", () => {
+  if (document.hidden) keys.clear();
+});
 
 function inputAxis(negative, positive) {
   return (keys.has(positive) ? 1 : 0) - (keys.has(negative) ? 1 : 0);
@@ -155,10 +159,4 @@ renderer.setAnimationLoop((time) => {
   else camera.position.copy(cameraTarget);
   camera.lookAt(player.position.x, player.position.y + 1, player.position.z);
   renderer.render(scene, camera);
-});
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });

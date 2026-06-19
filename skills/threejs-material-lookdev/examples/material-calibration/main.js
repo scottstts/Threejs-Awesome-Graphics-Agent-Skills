@@ -1,27 +1,34 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x17191d);
 
-const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
 camera.position.set(0, 4, 15);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 document.body.append(renderer.domElement);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const environmentTarget = pmrem.fromScene(new RoomEnvironment(), 0.04);
+scene.environment = environmentTarget.texture;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.target.set(0, 0.5, 0);
+createLabRuntime({
+  renderer,
+  scene,
+  camera,
+  controls,
+  resources: [pmrem, environmentTarget],
+});
 
 const geometry = new THREE.SphereGeometry(0.82, 96, 64);
 const roughnesses = [0.08, 0.28, 0.55, 0.9];
@@ -62,10 +69,4 @@ scene.add(rim);
 renderer.setAnimationLoop(() => {
   controls.update();
   renderer.render(scene, camera);
-});
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });

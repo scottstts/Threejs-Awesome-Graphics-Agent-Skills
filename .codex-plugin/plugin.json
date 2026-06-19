@@ -1,0 +1,33 @@
+{
+  "name": "threejs-gamedev-mega-skills",
+  "version": "0.1.0",
+  "description": "Production-oriented Three.js design, rendering, gameplay, and performance skills.",
+  "author": {
+    "name": "Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "threejs",
+    "webgl",
+    "webgpu",
+    "r3f",
+    "browser-games"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Three.js Gamedev Mega Skills",
+    "shortDescription": "Production Three.js design and development workflows",
+    "longDescription": "A modular skill pack for technically correct, visually authored, performant, interactive Three.js scenes, applications, and browser games.",
+    "developerName": "Scott",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Plan a polished Three.js experience.",
+      "Audit this Three.js scene and prioritize fixes.",
+      "Build a responsive browser-game vertical slice."
+    ]
+  }
+}

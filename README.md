@@ -1,4 +1,4 @@
-# Three.js Agent Skills Mega Pack
+# Three.js GameDev Mega Skills
 
 A modular, production-oriented skill pack for agents building Three.js scenes, interactive experiences, and browser games.
 
@@ -53,12 +53,58 @@ Use $threejs-cinematic-lighting-composition to diagnose why this scene feels fla
 then translate the critique into camera, lighting, atmosphere, and exposure changes.
 ```
 
+## Install
+
+The package installs the same standards-compliant skill folders into each
+agent's documented discovery directory.
+
+```sh
+# User-wide installation
+npx threejs-gamedev-mega-skills install --agent codex
+npx threejs-gamedev-mega-skills install --agent claude-code
+npx threejs-gamedev-mega-skills install --agent cursor
+
+# Project installation
+npx threejs-gamedev-mega-skills install --agent github-copilot --scope project
+
+# Any custom-built agent
+npx threejs-gamedev-mega-skills install --agent custom --path ~/.my-agent/skills
+```
+
+Supported named targets:
+
+| Target | User scope | Project scope |
+| --- | --- | --- |
+| `universal` | `~/.agents/skills` | `.agents/skills` |
+| `codex` | `~/.agents/skills` | `.agents/skills` |
+| `claude-code` | `~/.claude/skills` | `.claude/skills` |
+| `cursor` | `~/.cursor/skills` | `.cursor/skills` |
+| `github-copilot` | `~/.copilot/skills` | `.github/skills` |
+| `gemini-cli` | `~/.gemini/skills` | `.gemini/skills` |
+| `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| `custom` | exact `--path` | exact `--path` |
+
+Use `--skills name-a,name-b` for a partial install, `--force` to replace an
+existing installation, and `--dry-run` to inspect changes. The installer
+tracks only the directories it owns so selective uninstall remains safe:
+
+```sh
+npx threejs-gamedev-mega-skills uninstall --agent cursor
+```
+
+The repository also contains a Codex plugin manifest at
+`.codex-plugin/plugin.json` for plugin and marketplace distribution.
+
 ## Development
 
 Validate the complete pack:
 
 ```sh
 npm run validate
+npm test
+npm run test:examples
+npm run check:freshness
+npm pack --dry-run
 ```
 
 External research inputs are recorded in [`source_materials/README.md`](source_materials/README.md). Downloaded repositories remain ignored under `source_materials/`.
@@ -70,4 +116,4 @@ The pack has two layers:
 - foundation skills for correct architecture and common Three.js workflows;
 - specialist skills for authored geometry, look development, VFX, cinematography, game design, and motion.
 
-Specialist references include quality ladders, diagnosis tables, implementation choices, failure modes, and runnable calibration labs. Future development should continue forward-testing those judgments against real scenes and games, then strengthen asset/performance tooling where repeated project work justifies automation.
+Specialist references include quality ladders, diagnosis tables, implementation choices, failure modes, and runnable calibration labs. Future development should continue forward-testing those judgments against real scenes and games, then add deterministic tooling where repeated project work justifies automation.

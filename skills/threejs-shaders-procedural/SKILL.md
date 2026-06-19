@@ -1,6 +1,6 @@
 ---
 name: threejs-shaders-procedural
-description: "Design, implement, debug, and optimize Three.js GLSL shaders and procedural effects including custom materials, noise, signed-distance fields, particles, dissolve, water, fire, atmosphere, raymarching, vertex deformation, and screen-space effects. Use when work requires ShaderMaterial, RawShaderMaterial, shader injection, GPU-authored motion, procedural texture logic, or custom visual effects outside standard materials."
+description: "Implement and debug foundational Three.js shader logic: ShaderMaterial, injection, coordinate spaces, uniforms, vertex deformation, procedural fields, numerical stability, and GPU cost. Use for shader construction or math bugs; use threejs-shaders-vfx for authored production effects, timing, integration, and quality tiers."
 ---
 
 # Three.js Shaders and Procedural FX

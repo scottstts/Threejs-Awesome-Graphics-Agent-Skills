@@ -2,3 +2,5 @@ source_materials/*
 !source_materials/README.md
 .playwright-mcp/
 .DS_Store
+node_modules/
+*.tgz

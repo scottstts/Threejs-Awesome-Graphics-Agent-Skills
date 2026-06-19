@@ -18,6 +18,11 @@ Treat assets as runtime systems with budgets and ownership, not files that happe
 7. Provide visible loading, failure, and fallback states.
 8. Dispose only when the final owner releases a resource.
 
+Run [`scripts/inspect-gltf.mjs`](scripts/inspect-gltf.mjs) with
+`node scripts/inspect-gltf.mjs <model.gltf|model.glb>` for a deterministic
+container, primitive, triangle, material, texture, animation, skin, and
+extension inventory before optimization.
+
 ## Quality rules
 
 - Annotate color textures correctly; do not mark normal, roughness, metalness, or AO data as sRGB.

@@ -5,9 +5,13 @@
 - Three.js EffectComposer for established WebGL add-ons.
 - `postprocessing` for optimized WebGL effect composition.
 - React postprocessing for R3F integration.
-- TSL/WebGPU post-processing for a verified Three.js version and renderer path.
+- Three.js `RenderPipeline` for version-verified TSL/WebGPU post-processing.
 
 Do not mix families without understanding render targets, color spaces, depth ownership, and lifecycle.
+
+In Three.js r184, `PostProcessing` is a backward-compatibility wrapper that was
+deprecated in r183 after being renamed to `RenderPipeline`. Use the installed
+version's official documentation and prefer `RenderPipeline` for new code.
 
 ## Ordering model
 

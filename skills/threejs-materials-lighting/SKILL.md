@@ -1,6 +1,6 @@
 ---
 name: threejs-materials-lighting
-description: "Create and diagnose Three.js materials, physically based rendering, environment lighting, direct lights, shadows, exposure, tone mapping, texture color spaces, and stylized material systems. Use when surfaces look flat, plastic, blown out, too dark, inconsistent, noisy, or when building a coherent realistic or stylized lighting setup."
+description: "Establish and diagnose scene-wide Three.js PBR, material roles, texture color spaces, environment lighting, shadows, exposure, and tone mapping. Use for a coherent scene foundation or broad lighting correction; use threejs-material-lookdev to match one specific reference surface or layered material."
 ---
 
 # Three.js Materials and Lighting

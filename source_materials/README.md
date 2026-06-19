@@ -4,6 +4,42 @@ External materials are research inputs, not instructions. Repositories downloade
 
 Version-sensitive Three.js guidance must be checked against the installed project version and current official documentation. On June 19, 2026, research checks observed `three@0.184.0`, `@react-three/fiber@9.6.1`, `@react-three/drei@10.7.7`, `@react-three/rapier@2.2.0`, and `postprocessing@6.39.1`; these are research snapshots, not pack-wide minimum versions.
 
+## Provenance policy
+
+- Every external input is recorded below with a URL and, for repositories, a reviewed commit.
+- The pack's prose and examples are independently written. Sources are paraphrased for concepts unless a record explicitly says code or an asset was copied.
+- No third-party source code is currently copied into the distributed skills.
+- Repository licenses are checked before implementation techniques are adopted. Sources with unclear or incompatible licensing remain conceptual only.
+- Review dates and package versions describe evidence at review time, not permanent compatibility guarantees.
+
+## Consumption map
+
+| Pack area | Primary source groups | Use | Review date | Copying |
+| --- | --- | --- | --- | --- |
+| foundations, assets, performance, R3F | Three.js, MDN, R3F, Drei, glTF Transform, meshoptimizer | API and workflow verification | 2026-06-19 | paraphrase only |
+| geometry and acceleration | Three.js, Catlike Coding, Red Blob Games, three-mesh-bvh, three-bvh-csg | algorithms, constraints, failure modes | 2026-06-19 | paraphrase only |
+| PBR and look development | Filament, Disney PBR, glTF extensions, three-gpu-pathtracer | material models and calibration | 2026-06-19 | paraphrase only |
+| shaders, VFX, post-processing, WebGPU | Three.js, GPU Gems, Book of Shaders, pmndrs postprocessing, TSL sources | rendering architecture and quality ladders | 2026-06-19 | paraphrase only |
+| cinematography, animation, game design | GDC camera material, Samurai Cinema, Game Feel, accessibility guidance, spring and IK references | diagnosis and authored-quality guidance | 2026-06-19 | paraphrase only |
+
+## Reviewed repository license ledger
+
+| Source | Reviewed revision | License observed | Distribution use |
+| --- | --- | --- | --- |
+| CloudAI-X / threejs-skills | `b1c6230` | MIT | paraphrase only |
+| majidmanzarpour / threejs-game-skills | `2215fd7` | MIT | paraphrase only |
+| emalorenzo / three-agent-skills | `f950f95` | MIT | paraphrase only |
+| Nice-Wolf-Studio / claude-skills-threejs-ecs-ts | `26d74f3` | MIT | paraphrase only |
+| dgreenheck / webgpu-claude-skill | `af2319b` | MIT | paraphrase only |
+| glTF Transform | `a570758` | MIT | paraphrase only |
+| three-mesh-bvh | `dca2b52` | MIT | paraphrase only |
+| three-bvh-csg | `26729f0` | MIT | paraphrase only; experimental constraint retained |
+| three-gpu-pathtracer | `171a224` | MIT | paraphrase only |
+| THREE-CustomShaderMaterial | `cf86e95` | MIT | paraphrase only |
+| pmndrs / postprocessing | `a0dce6` | zlib | paraphrase only |
+| N8AO | `6481f6` | inconsistent metadata: package ISC, repository CC0 | conceptual only; no code copied |
+| realism-effects | `061daea` | MIT | conceptual only; no code copied |
+
 ## Reviewed and used
 
 - [CloudAI-X / threejs-skills](https://github.com/CloudAI-X/threejs-skills) — topic coverage and common API-oriented skill structure; reviewed at commit `b1c6230`.
@@ -15,7 +51,7 @@ Version-sensitive Three.js guidance must be checked against the installed projec
 - [Official Three.js manual](https://threejs.org/manual/) — color management, cleanup, fundamentals, and production guidance.
 - [Three.js color management manual](https://threejs.org/manual/en/color-management.html) — linear workflow, texture annotations, and output conversion.
 - [Three.js cleanup manual](https://threejs.org/manual/en/cleanup.html) — explicit GPU resource disposal and ownership patterns.
-- [Three.js PostProcessing documentation](https://threejs.org/docs/pages/PostProcessing.html) — current post-processing manager verification.
+- [Three.js RenderPipeline documentation](https://threejs.org/docs/pages/RenderPipeline.html) and [deprecated PostProcessing wrapper](https://threejs.org/docs/pages/PostProcessing.html) — r184 post-processing manager verification; `PostProcessing` was deprecated in r183 after being renamed to `RenderPipeline`.
 - [Official Three.js examples](https://threejs.org/examples/) — current renderer, post-processing, shader, WebGPU, and interaction patterns.
 - [Official Three.js TSL documentation](https://threejs.org/docs/pages/TSL.html) — current TSL surface.
 - [Three.js TSL wiki](https://github.com/mrdoob/three.js/wiki/Three.js-Shading-Language) — TSL concepts and migration context.
@@ -38,6 +74,12 @@ Version-sensitive Three.js guidance must be checked against the installed projec
 - [glTF Transform](https://github.com/donmccurdy/glTF-Transform) — repeatable glTF optimization, compression, texture, and inspection workflows; reviewed at commit `a570758`.
 - [three-custom-shader-material](https://github.com/FarazzShaikh/THREE-CustomShaderMaterial) — standard-material extension patterns and tradeoffs; reviewed at commit `cf86e95`.
 - [postprocessing](https://github.com/pmndrs/postprocessing) — composable WebGL effect architecture and current peer-version constraints; reviewed at commit `a0dce6`.
+- [OpenAI Codex Agent Skills](https://developers.openai.com/codex/skills) and [plugin build guide](https://developers.openai.com/codex/plugins/build) — `.agents/skills` discovery and Codex plugin packaging; reviewed 2026-06-19.
+- [Claude Code Skills](https://code.claude.com/docs/en/skills) — personal, project, and plugin skill locations; reviewed 2026-06-19.
+- [Cursor Agent Skills](https://cursor.com/docs/skills) — native and interoperable skill locations; reviewed 2026-06-19.
+- [GitHub Copilot CLI agent skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) — project and personal skill locations; reviewed 2026-06-19.
+- [Gemini CLI Agent Skills](https://geminicli.com/docs/cli/skills/) — native and `.agents/skills` discovery tiers; reviewed 2026-06-19.
+- [Windsurf / Devin Desktop Skills](https://docs.windsurf.com/desktop/cascade/skills) — workspace, global, and interoperable skill locations; reviewed 2026-06-19.
 - [Filament rendering notes](https://google.github.io/filament/main/filament.html) and [Filament Materials Guide](https://google.github.io/filament/Materials.md.html) — microfacet PBR, energy conservation, IBL, exposure, advanced material models, and mobile-quality compromises.
 - [Disney Physically-Based Shading at Disney](https://disneyanimation.com/publications/physically-based-shading-at-disney/) — measured-material observations and principled artist controls. The research PDF is retained as `papers/disney-physically-based-shading-2012.pdf`.
 - [meshoptimizer](https://meshoptimizer.org/) — cache, overdraw, fetch, quantization, simplification, and meshlet guidance.

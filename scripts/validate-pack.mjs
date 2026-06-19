@@ -1,10 +1,25 @@
 import { readdir, readFile, stat } from "node:fs/promises";
+import { execFile } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import { promisify } from "node:util";
 
 const root = process.cwd();
 const skillsRoot = path.join(root, "skills");
 const errors = [];
+const execFileAsync = promisify(execFile);
+const packageJson = JSON.parse(
+  await readFile(path.join(root, "package.json"), "utf8"),
+);
+const pluginJson = JSON.parse(
+  await readFile(path.join(root, ".codex-plugin", "plugin.json"), "utf8"),
+);
+const sourceManifest = await readFile(
+  path.join(root, "source_materials", "README.md"),
+  "utf8",
+);
+const researchThreeVersion = sourceManifest.match(/`three@(0\.\d+\.\d+)`/)?.[1];
+const exampleVersions = new Set();
 
 async function existsAsFile(filePath) {
   try {
@@ -84,6 +99,12 @@ for (const skillName of skillNames) {
   if (references.filter((name) => name.endsWith(".md")).length === 0) {
     errors.push(`${skillName}: references directory is empty`);
   }
+  for (const reference of references.filter((name) => name.endsWith(".md"))) {
+    const relativeReference = `references/${reference}`;
+    if (!skillText.includes(relativeReference)) {
+      errors.push(`${skillName}: reference not linked from SKILL.md: ${relativeReference}`);
+    }
+  }
 
   for (const match of skillText.matchAll(/\]\((?!https?:|#)([^)#]+)(?:#[^)]+)?\)/g)) {
     const relativePath = decodeURIComponent(match[1]);
@@ -103,6 +124,8 @@ for (const skillName of skillNames) {
       }
       if (!/three@0\.\d+\.\d+/.test(html)) {
         errors.push(`${skillName}: example must pin a Three.js version: ${relativeHtml}`);
+      } else {
+        exampleVersions.add(html.match(/three@(0\.\d+\.\d+)/)[1]);
       }
       if (!/src="\.\/main\.js"/.test(html)) {
         errors.push(`${skillName}: example must load ./main.js: ${relativeHtml}`);
@@ -110,6 +133,17 @@ for (const skillName of skillNames) {
       const mainPath = path.join(path.dirname(htmlPath), "main.js");
       if (!(await existsAsFile(mainPath))) {
         errors.push(`${skillName}: example missing main.js: ${relativeHtml}`);
+      } else {
+        const main = await readFile(mainPath, "utf8");
+        if (/\binner(?:Width|Height)\b/.test(main)) {
+          errors.push(`${skillName}: example must size from its host, not innerWidth/innerHeight: ${relativeHtml}`);
+        }
+        if (/^(?!.*runtime\.listen).*addEventListener\(/m.test(main)) {
+          errors.push(`${skillName}: example has an untracked event listener: ${relativeHtml}`);
+        }
+        if (!main.includes("lab-runtime.js")) {
+          errors.push(`${skillName}: example must use the lifecycle harness: ${relativeHtml}`);
+        }
       }
     }
   } catch (error) {
@@ -118,6 +152,65 @@ for (const skillName of skillNames) {
 
   if (skillName !== "threejs-skill-router" && !routerText.includes(`$${skillName}`)) {
     errors.push(`${skillName}: not reachable from threejs-skill-router`);
+  }
+}
+
+if (packageJson.name !== "threejs-gamedev-mega-skills") {
+  errors.push("package.json: unexpected package name");
+}
+if (packageJson.private === true) {
+  errors.push("package.json: publishable package must not be private");
+}
+if (!packageJson.bin?.["threejs-gamedev-mega-skills"]) {
+  errors.push("package.json: missing installer bin entry");
+}
+if (pluginJson.name !== packageJson.name) {
+  errors.push("plugin.json: name must match package.json");
+}
+if (pluginJson.version !== packageJson.version) {
+  errors.push("plugin.json: version must match package.json");
+}
+if (pluginJson.skills !== "./skills/") {
+  errors.push("plugin.json: skills must point to ./skills/");
+}
+if (!(await existsAsFile(path.join(root, "LICENSE")))) {
+  errors.push("package: LICENSE is missing");
+}
+if (exampleVersions.size !== 1) {
+  errors.push(`examples: expected one pinned Three.js version, found ${[...exampleVersions].join(", ")}`);
+}
+if (
+  researchThreeVersion &&
+  !exampleVersions.has(researchThreeVersion)
+) {
+  errors.push(
+    `examples: pinned version must match research snapshot ${researchThreeVersion}`,
+  );
+}
+if (
+  !sourceManifest.includes("RenderPipeline") ||
+  !sourceManifest.includes("deprecated in r183")
+) {
+  errors.push("source manifest: record the PostProcessing to RenderPipeline deprecation");
+}
+
+const syntaxRoots = [
+  path.join(root, "bin"),
+  path.join(root, "scripts"),
+  path.join(root, "skills"),
+];
+for (const syntaxRoot of syntaxRoots) {
+  const codeFiles = (await collectFiles(syntaxRoot)).filter(
+    (file) => file.endsWith(".js") || file.endsWith(".mjs"),
+  );
+  for (const codeFile of codeFiles) {
+    try {
+      await execFileAsync(process.execPath, ["--check", codeFile]);
+    } catch (error) {
+      errors.push(
+        `${path.relative(root, codeFile)}: JavaScript syntax error: ${error.stderr?.trim() ?? error.message}`,
+      );
+    }
   }
 }
 

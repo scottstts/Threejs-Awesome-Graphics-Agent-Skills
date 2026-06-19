@@ -1,4 +1,4 @@
-# Three.js Agent Skills Mega Pack
+# Three.js Gamedev Mega Skills
 
 ## Intent
 

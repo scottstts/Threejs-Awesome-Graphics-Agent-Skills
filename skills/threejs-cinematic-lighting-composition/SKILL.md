@@ -1,6 +1,6 @@
 ---
 name: threejs-cinematic-lighting-composition
-description: "Diagnose and improve Three.js scene aesthetics through camera lens choice, framing, blocking, focal hierarchy, value grouping, motivated key/fill/rim/practical lighting, exposure, color temperature, atmosphere, scale cues, depth layering, tone mapping, and restrained post-processing. Use when a scene feels flat, cheap, generic, noisy, random, overprocessed, scale-less, unfocused, or like a debug camera, and subjective critique must become concrete technical changes."
+description: "Diagnose a Three.js frame through lens choice, framing, focal hierarchy, motivated lighting, exposure, atmosphere, depth, and restrained post-processing. Use when a shot feels flat, unfocused, or like a debug camera; use threejs-visual-design for whole-world shape language and asset art direction."
 ---
 
 # Three.js Cinematic Lighting and Composition

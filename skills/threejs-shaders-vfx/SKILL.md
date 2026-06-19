@@ -1,6 +1,6 @@
 ---
 name: threejs-shaders-vfx
-description: "Design advanced Three.js GLSL or TSL shaders and real-time VFX with visual-purpose-driven architecture, including noise and domain warping, SDFs and raymarching, water and foam, atmosphere and aerial perspective, volumetric fog/clouds/smoke/fire, temporal stability, screen-space effects, particles, ribbons, trails, flipbooks, decals, shockwaves, distortion, and impact timing. Use when an effect needs production depth, quality tiers, diagnosis, or mobile fallback beyond basic shader syntax."
+description: "Author production Three.js VFX: layered particles, trails, decals, impact timing, water, atmosphere, volumetrics, screen-space effects, temporal stability, and device quality tiers. Use for effect design, integration, readability, fallback, or polish; use threejs-shaders-procedural for shader construction and math bugs."
 ---
 
 # Three.js Shaders and VFX

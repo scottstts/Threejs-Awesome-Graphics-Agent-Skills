@@ -1,17 +1,17 @@
 import * as THREE from "three";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.append(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b0d12);
-const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
 camera.position.set(0, 7.5, 15);
 camera.lookAt(0, 0, 0);
+const runtime = createLabRuntime({ renderer, scene, camera });
 scene.add(new THREE.HemisphereLight(0xaec9ff, 0x17110c, 2.2));
 const key = new THREE.DirectionalLight(0xffffff, 3);
 key.position.set(4, 8, 5);
@@ -55,11 +55,11 @@ scene.add(targetMarker);
 let targetX = 5;
 
 function setTargetFromPointer(event) {
-  const normalized = event.clientX / innerWidth * 2 - 1;
-  targetX = THREE.MathUtils.clamp(normalized * 6.4, -5.5, 5.5);
+  const pointer = runtime.pointerNdc(event);
+  targetX = THREE.MathUtils.clamp(pointer.x * 6.4, -5.5, 5.5);
   targetMarker.position.x = targetX;
 }
-addEventListener("pointerdown", setTargetFromPointer);
+runtime.listen(renderer.domElement, "pointerdown", setTargetFromPointer);
 
 function updateSpring(state, target, dt) {
   const frequency = 2.2;
@@ -82,10 +82,4 @@ renderer.setAnimationLoop((time) => {
   );
   updateSpring(movers[2], targetX, dt);
   renderer.render(scene, camera);
-});
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });

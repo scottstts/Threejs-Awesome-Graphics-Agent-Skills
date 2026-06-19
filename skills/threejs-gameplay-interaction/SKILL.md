@@ -1,6 +1,6 @@
 ---
 name: threejs-gameplay-interaction
-description: "Build responsive Three.js interaction and gameplay systems: pointer and touch input, raycasting, keyboard and gamepad intents, camera rigs, update order, animation state, HUD feedback, accessibility, fail/retry flow, pacing, and game feel. Use when creating interactive scenes or browser games, fixing controls or cameras, adding picking and manipulation, or turning a rendered scene into a playable experience."
+description: "Implement Three.js interaction systems: pointer/touch input, raycasting, keyboard/gamepad intents, camera rigs, update order, gameplay state, picking, feedback hooks, and restart lifecycle. Use to make a scene responsive or playable; use threejs-game-design-playability to evaluate verbs, fairness, pacing, HUD, and accessibility."
 ---
 
 # Three.js Gameplay and Interaction

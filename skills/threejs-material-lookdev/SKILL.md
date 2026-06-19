@@ -1,6 +1,6 @@
 ---
 name: threejs-material-lookdev
-description: "Translate photographic or concept references into believable Three.js surfaces using PBR response, calibrated base color, roughness structure, Fresnel/specular behavior, metals and dielectrics, clearcoat, sheen, anisotropy, transmission, volume, IOR, absorption, micro-normal detail, layered dirt, wear, wetness, and standard-material extension. Use when materials look plastic, flat, synthetic, noisy, ungrounded, or need realistic and stylized look development."
+description: "Match a specific reference with believable Three.js surface response: calibrated roughness, Fresnel, clearcoat, anisotropy, transmission, volume, microdetail, dirt, wear, and wetness. Use when one material looks plastic or generic; use threejs-materials-lighting for scene-wide PBR, lights, shadows, and exposure."
 ---
 
 # Three.js Material Lookdev

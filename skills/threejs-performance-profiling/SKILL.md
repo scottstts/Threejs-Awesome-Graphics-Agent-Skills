@@ -17,6 +17,11 @@ Measure before optimizing. Preserve the visual and gameplay intent while removin
 6. Test startup, steady state, stress state, and teardown.
 7. Keep a quality ladder rather than one global low-quality switch.
 
+Import
+[`scripts/capture-renderer-snapshot.js`](scripts/capture-renderer-snapshot.js)
+when repeatable `renderer.info`, renderer configuration, viewport, and
+quality-state evidence should be saved before and after a change.
+
 ## Optimization order
 
 1. Remove accidental work: duplicate loops, rerenders, allocations, recompiles, unnecessary passes.

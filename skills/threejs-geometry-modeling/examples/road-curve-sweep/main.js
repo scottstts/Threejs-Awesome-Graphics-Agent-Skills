@@ -1,16 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x11151b);
 scene.fog = new THREE.Fog(0x11151b, 35, 90);
 
-const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 160);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 160);
 camera.position.set(18, 14, 24);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.append(renderer.domElement);
@@ -18,6 +17,7 @@ document.body.append(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, -4);
 controls.enableDamping = true;
+createLabRuntime({ renderer, scene, camera, controls });
 
 scene.add(new THREE.HemisphereLight(0xbfdcff, 0x342d26, 1.5));
 const sun = new THREE.DirectionalLight(0xffe2b8, 3.2);
@@ -113,10 +113,4 @@ scene.add(terrain);
 renderer.setAnimationLoop(() => {
   controls.update();
   renderer.render(scene, camera);
-});
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });

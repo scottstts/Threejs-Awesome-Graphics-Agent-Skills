@@ -1,9 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createLabRuntime } from "../lab-runtime.js";
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -13,11 +12,12 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x08090c);
 scene.fog = new THREE.FogExp2(0x08090c, 0.045);
 
-const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 100);
 camera.position.set(8, 7, 10);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0.7, 0);
 controls.enableDamping = true;
+const runtime = createLabRuntime({ renderer, scene, camera, controls });
 
 scene.add(new THREE.HemisphereLight(0x7895c7, 0x17110c, 1.4));
 const key = new THREE.DirectionalLight(0xffd4a3, 4);
@@ -99,14 +99,15 @@ function emitImpact(point) {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-renderer.domElement.addEventListener("pointerdown", (event) => {
-  pointer.set(event.clientX / innerWidth * 2 - 1, -(event.clientY / innerHeight) * 2 + 1);
+runtime.listen(renderer.domElement, "pointerdown", (event) => {
+  const normalized = runtime.pointerNdc(event);
+  pointer.set(normalized.x, normalized.y);
   raycaster.setFromCamera(pointer, camera);
   const hit = raycaster.intersectObject(floor, false)[0];
   if (hit) emitImpact(hit.point);
 });
 emitImpact(new THREE.Vector3());
-setInterval(() => {
+runtime.scheduleInterval(() => {
   emitImpact(new THREE.Vector3(
     THREE.MathUtils.randFloatSpread(8),
     0,
@@ -170,10 +171,4 @@ renderer.setAnimationLoop((time) => {
   camera.position.add(shake);
   renderer.render(scene, camera);
   camera.position.sub(shake);
-});
-
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
 });

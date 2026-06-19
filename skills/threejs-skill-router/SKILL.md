@@ -21,16 +21,16 @@ Select focused skills before implementation. Avoid loading the whole pack.
 | models, textures, loading, compression, disposal | `$threejs-asset-pipeline` |
 | composition, art direction, silhouette, world building | `$threejs-visual-design` |
 | PBR, environments, lights, shadows, exposure | `$threejs-materials-lighting` |
-| GLSL, procedural patterns, particles, raymarching | `$threejs-shaders-procedural` |
+| shader construction, coordinate spaces, uniforms, procedural fields | `$threejs-shaders-procedural` |
 | custom meshes, sweeps, roads, terrain, CSG, BVH, LOD | `$threejs-geometry-modeling` |
 | reference-driven surfaces, glass, coatings, wear, lookdev | `$threejs-material-lookdev` |
-| advanced water, atmosphere, volumetrics, trails, impact VFX | `$threejs-shaders-vfx` |
+| authored water, atmosphere, volumetrics, trails, impact VFX | `$threejs-shaders-vfx` |
 | camera taste, framing, focal hierarchy, cinematic light | `$threejs-cinematic-lighting-composition` |
-| verbs, core loop, feel, fairness, pacing, UI, accessibility | `$threejs-game-design-playability` |
+| evaluate verbs, fairness, challenge, pacing, UI, accessibility | `$threejs-game-design-playability` |
 | clip blending, springs, procedural motion, IK, contact | `$threejs-animation-motion` |
 | WebGPURenderer, TSL, node materials, compute | `$threejs-webgpu-tsl` |
 | bloom, grading, AA, DOF, AO, pipeline order | `$threejs-postprocessing` |
-| input, picking, controls, camera feel, game loop | `$threejs-gameplay-interaction` |
+| implement input, picking, controls, camera rigs, gameplay state | `$threejs-gameplay-interaction` |
 | collision, rigid bodies, Rapier, fixed stepping | `$threejs-physics-collisions` |
 | profiling, draw calls, frame time, GPU, memory | `$threejs-performance-profiling` |
 | React Three Fiber, Drei, Zustand, Suspense | `$threejs-r3f` |
