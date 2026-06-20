@@ -1,0 +1,91 @@
+{
+  "title": "Spectral Cascade Ocean",
+  "description": "An independently implemented inspection path for the reviewed Poseidon mechanisms: deterministic directional JONSWAP/TMA spectra, three disjoint wavelength cascades, packed complex displacement fields, staged two-dimensional GPU IFFTs, choppy derivatives, persistent Jacobian whitecaps, fold-aware normals, shared analytic sky reflection, crest scatter, and filtered micro-detail.",
+  "backend": "WebGL2 fragment FFT inspection path",
+  "techniques": [
+    "three disjoint directional spectrum cascades",
+    "GPU staged two-dimensional inverse FFT",
+    "packed horizontal displacement fields",
+    "finite-difference derivative map assembly",
+    "persistent Jacobian whitecaps",
+    "fold-aware normal reconstruction",
+    "shared sky and reflection radiance"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    {
+      "value": "final",
+      "label": "Final"
+    },
+    {
+      "value": "cascade-bands",
+      "label": "Cascade bands"
+    },
+    {
+      "value": "normals",
+      "label": "Resolved normals"
+    },
+    {
+      "value": "jacobian",
+      "label": "Jacobian / foam history"
+    },
+    {
+      "value": "spectrum-0",
+      "label": "250 m spectrum"
+    },
+    {
+      "value": "spectrum-1",
+      "label": "17 m spectrum"
+    },
+    {
+      "value": "spectrum-2",
+      "label": "5 m spectrum"
+    }
+  ],
+  "controls": [
+    "orbit",
+    "pause",
+    "timeScale",
+    "dpr",
+    "debugMode",
+    "capture"
+  ],
+  "sourceTrace": [
+    {
+      "source": "poseidon",
+      "files": [
+        "src/ocean/Ocean.js",
+        "src/ocean/OceanCascade.js",
+        "src/ocean/fft.js",
+        "src/ocean/spectrum.js",
+        "src/ocean/maps.js",
+        "src/ocean/oceanSurfaceMaterial.js",
+        "src/ocean/params.js",
+        "src/ocean/detailTexture.js",
+        "src/ocean/sky.js",
+        "src/ocean/debugView.js",
+        "src/main.js"
+      ],
+      "mechanisms": [
+        "disjoint 250 m, 17 m, and 5 m directional spectrum cascades",
+        "independently validated staged inverse FFT architecture",
+        "complex packing of horizontal displacement fields",
+        "choppy displacement with derivative-map normal reconstruction",
+        "horizontal-displacement Jacobian driving persistent whitecaps",
+        "shared analytic sky radiance for dome and reflection",
+        "fixed ocean camera, fog horizon, and dense displaced surface presentation"
+      ],
+      "boundary": "conceptual-only",
+      "divergences": [
+        "uses WebGL2 fragment render-target FFT stages because the repository gallery Chromium has no WebGPU adapter",
+        "uses 64 squared simulation grids for deterministic inspection instead of the reviewed 256 squared WebGPU grids",
+        "derivatives are assembled by spatial finite differences after transforming height and horizontal displacement instead of transforming every derivative spectrum",
+        "spray particles and live GUI controls are omitted from this focused ocean-system parity surface"
+      ]
+    }
+  ]
+}

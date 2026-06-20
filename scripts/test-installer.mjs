@@ -55,7 +55,7 @@ for (const [agent, relativePath] of Object.entries(targetPaths)) {
     agent,
   ], { env: { ...process.env, HOME: home } });
   await stat(path.join(home, ...relativePath, "threejs-skill-router", "SKILL.md"));
-  await stat(path.join(home, ...relativePath, "threejs-project-foundations", "SKILL.md"));
+  await stat(path.join(home, ...relativePath, "threejs-procedural-fields", "SKILL.md"));
 }
 
 for (const [agent, relativePath] of Object.entries(projectPaths)) {
@@ -71,7 +71,7 @@ for (const [agent, relativePath] of Object.entries(projectPaths)) {
     project,
   ]);
   await stat(path.join(project, ...relativePath, "threejs-skill-router", "SKILL.md"));
-  await stat(path.join(project, ...relativePath, "threejs-project-foundations", "SKILL.md"));
+  await stat(path.join(project, ...relativePath, "threejs-procedural-fields", "SKILL.md"));
 }
 
 await execFileAsync(process.execPath, [
@@ -84,7 +84,7 @@ await execFileAsync(process.execPath, [
 ]);
 
 await stat(path.join(customRoot, "threejs-skill-router", "SKILL.md"));
-await stat(path.join(customRoot, "threejs-project-foundations", "SKILL.md"));
+await stat(path.join(customRoot, "threejs-procedural-fields", "SKILL.md"));
 const manifest = JSON.parse(
   await readFile(
     path.join(customRoot, ".threejs-gamedev-mega-skills.json"),

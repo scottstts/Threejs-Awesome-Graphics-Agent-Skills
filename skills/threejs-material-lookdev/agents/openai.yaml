@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Material Lookdev"
-  short_description: "Translate material reference into believable surfaces"
-  default_prompt: "Use $threejs-material-lookdev to diagnose and build this believable Three.js material."

@@ -1,73 +1,63 @@
 ---
 name: threejs-skill-router
-description: "Route broad Three.js, WebGL, WebGPU, React Three Fiber, 3D product, visualization, and browser-game tasks to the smallest useful set of skills in this pack. Use when a request crosses multiple concerns, starts a new Three.js project, asks for a polished or production-ready result, or does not clearly identify the required rendering, visual, gameplay, performance, or QA specialty."
+description: Route ambitious Three.js graphics work to atomic procedural-rendering skills. Use for new visual experiences, graphics rewrites, reference matching, or requests spanning procedural geometry, shaders, atmosphere, shadows, temporal effects, and final image treatment.
 ---
 
-# Three.js Skill Router
+# Three.js Visual Skill Router
 
-Select focused skills before implementation. Avoid loading the whole pack.
+Treat the model's Three.js knowledge and official documentation as prerequisites. Load only the expertise that changes the visual result.
 
-## Route the task
+## Route by the visual system being authored
 
-1. Inspect the project stack, installed package versions, runtime targets, existing architecture, and acceptance criteria.
-2. Identify the primary user outcome: scene, application, visualization, configurator, effect, game, audit, or optimization.
-3. Select one primary skill and only the supporting skills required by concrete scope.
-4. State the execution order when more than two skills are needed.
-5. Re-route if evidence reveals a different bottleneck.
-
-| Need | Load |
+| Required result | Load |
 | --- | --- |
-| setup, renderer, loop, resize, render targets, portals, mirrors, minimaps, cleanup | `$threejs-project-foundations` |
-| models, textures, loading, deployment, CORS/CSP/MIME, compression, disposal | `$threejs-asset-pipeline` |
-| composition, art direction, silhouette, world building | `$threejs-visual-design` |
-| PBR, environments, lights, baked lighting, lightmaps, probes, progressive lookdev | `$threejs-materials-lighting` |
-| shader construction, coordinate spaces, uniforms, procedural fields | `$threejs-shaders-procedural` |
-| custom meshes, sweeps, roads, terrain, CSG, BVH, LOD | `$threejs-geometry-modeling` |
-| reference-driven surfaces, glass, coatings, wear, lookdev | `$threejs-material-lookdev` |
-| authored water, atmosphere, volumetrics, trails, impact VFX | `$threejs-shaders-vfx` |
-| camera taste, framing, focal hierarchy, cinematic light | `$threejs-cinematic-lighting-composition` |
-| evaluate verbs, fairness, challenge, pacing, UI, accessibility | `$threejs-game-design-playability` |
-| clip blending, springs, procedural motion, IK, contact | `$threejs-animation-motion` |
-| WebGPURenderer, TSL, node materials, compute | `$threejs-webgpu-tsl` |
-| bloom, grading, AA, DOF, AO, pipeline order | `$threejs-postprocessing` |
-| implement input, picking, controls, camera rigs, gameplay state | `$threejs-gameplay-interaction` |
-| collision, rigid bodies, Rapier, fixed stepping | `$threejs-physics-collisions` |
-| profiling, draw calls, frame time, GPU, memory | `$threejs-performance-profiling` |
-| React Three Fiber, Drei, Zustand, Suspense | `$threejs-r3f` |
-| browser tests, screenshots, runtime defects, context loss, leaks, behavior/navigation inspection | `$threejs-testing-debugging` |
-| HUD, menus, labels, text strategy, focus, keyboard, accessible canvas alternatives | `$threejs-ui-text-accessibility` |
-| browser audio, positional sound, pooling, mixing, interaction feedback | `$threejs-audio-feedback` |
-| point clouds, graphs, scientific/geospatial views, data picking and streaming | `$threejs-data-visualization` |
-| review, score, verify, prioritize defects | `$threejs-quality-audit` |
+| reusable scalar/vector fields, domain warping, causal masks, procedural normals | `$threejs-procedural-fields` |
+| layered PBR identity, wear, wetness, derivative filtering, specular AA | `$threejs-procedural-materials` |
+| profile sweeps, rails, frames, semantic mesh writers, UV density, mesh LOD | `$threejs-procedural-geometry` |
+| trees, branching organisms, roots, foliage, wind deformation | `$threejs-procedural-vegetation` |
+| buildings, façade grammars, profiles, ornaments, modular mesh writers | `$threejs-procedural-architecture` |
+| planets, terrain, craters, biome fields, coastlines, spherical detail | `$threejs-procedural-planets` |
+| sky scattering, planetary shells, depth-based aerial perspective | `$threejs-atmosphere-aerial-perspective` |
+| weather-driven raymarched clouds and cloud shadows | `$threejs-volumetric-clouds` |
+| FFT oceans, spectral cascades, choppy derivatives, Jacobian whitecaps | `$threejs-spectral-ocean` |
+| bounded analytic waves, depth absorption, Fresnel, refraction, shore/wake foam | `$threejs-water-optics` |
+| curved-ray black holes, accretion disks, wormholes | `$threejs-raymarched-space-effects` |
+| particles, trails, plasma, shockwaves, layered event effects | `$threejs-procedural-vfx` |
+| holograms, dissolves, scans, glitch bands, materialization | `$threejs-stylized-shader-transitions` |
+| accumulated frost, wetness, paint, footprints, trails, reveal masks | `$threejs-temporal-surfaces` |
+| stable large-world shadows, cascades, clipmaps, cached updates | `$threejs-shadow-systems` |
+| GTAO, bent normals, bilateral reconstruction | `$threejs-screen-space-ambient-occlusion` |
+| HDR bloom and selective emission contribution | `$threejs-bloom` |
+| eye adaptation, tone mapping, LUT grading, output color | `$threejs-exposure-color-grading` |
+| shared depth/normal/velocity ownership and multi-pass ordering | `$threejs-image-pipeline` |
+| fixed-view diagnostics, seed sweeps, temporal and budget evidence | `$threejs-visual-validation` |
 
-## Common combinations
+## Execution order
 
-- New polished scene: foundations → visual design → cinematic composition → material lookdev → quality audit.
-- Asset-heavy product viewer: foundations → asset pipeline → materials/lighting → material lookdev → cinematic composition → performance → quality audit.
-- Procedural environment: foundations → geometry modeling → visual design → material lookdev → performance.
-- Custom visual effect: foundations → shaders/VFX or WebGPU/TSL → post-processing → performance.
-- Browser game: foundations → game design/playability → gameplay implementation → physics when justified → animation → UI/accessibility → audio → visual design → performance → testing/debugging → quality audit.
-- Data application: foundations → data visualization → UI/accessibility → performance → testing/debugging → quality audit.
-- R3F experience: R3F first, then the same domain skills as vanilla Three.js.
+For a new procedural scene:
 
-## Routing rules
+1. Define a visual contract: subject, scale, camera distance, motion, and target frame budget.
+2. Load the subject-generation skill.
+3. Add `$threejs-procedural-fields` when multiple visual channels must share coherent structure.
+4. Add lighting/shadows and atmosphere only after silhouette and material masks read without effects.
+5. Add `$threejs-image-pipeline` last.
+6. Load only the atomic image effects actually needed.
+7. Use `$threejs-visual-validation` for a deterministic evidence set.
 
-- Use broad foundation skills for architecture and API contracts; use specialist skills when the task requires authored quality, diagnosis, or advanced techniques.
-- Load `$threejs-materials-lighting` for scene-lighting fundamentals; add `$threejs-material-lookdev` when a specific surface must be believable.
-- Keep render-to-texture ownership, secondary cameras, portals, mirrors, minimaps, and debug targets in `$threejs-project-foundations`; add `$threejs-postprocessing` only when the target belongs to an image-effect pipeline.
-- Load `$threejs-asset-pipeline` for deployed asset paths, CORS, MIME, CSP, service-worker caching, worker/WASM decoder delivery, and user-facing asset failure states.
-- Load `$threejs-shaders-procedural` for shader construction fundamentals; add `$threejs-shaders-vfx` when timing, integration, temporal stability, or quality tiers define the effect.
-- Load `$threejs-gameplay-interaction` to implement input and state; add `$threejs-game-design-playability` to determine whether the game is readable, fair, and satisfying.
-- Load `$threejs-ui-text-accessibility` for interface implementation; keep high-level HUD/playability evaluation in `$threejs-game-design-playability`.
-- Load `$threejs-audio-feedback` when sound is an implementation requirement; keep overall feedback quality and fairness evaluation in `$threejs-game-design-playability`.
-- Load `$threejs-testing-debugging` for reproducible diagnosis and regression coverage; use `$threejs-quality-audit` for broader release assessment and prioritization.
-- Keep simple FSM, steering, path, perception, and navmesh inspection inside `$threejs-testing-debugging`; do not route to a standalone game-AI module.
-- Load `$threejs-data-visualization` only for data-driven scenes; prioritize analytical clarity over cinematic treatment.
-- Load `$threejs-visual-design` for art direction across the whole scene; add `$threejs-cinematic-lighting-composition` for shot-level camera and image diagnosis.
-- Do not select WebGPU merely because it is newer. Require a TSL, compute, renderer, or measurable capability benefit.
-- Do not select physics for simple triggers or arcade overlap checks.
-- Do not use post-processing as a substitute for authored geometry, material response, lighting, or composition.
-- For version-sensitive APIs, inspect `package.json`, lockfiles, imports, and official docs before proposing exact code.
-- For “make it better” requests, load quality audit first to identify the limiting layer.
+## Routing constraints
 
-See [references/task-decomposition.md](references/task-decomposition.md) for detailed decomposition patterns.
+- Do not load a skill for API setup alone. Inspect the installed Three.js version and use official docs.
+- Do not route “make it beautiful” directly to post-processing. Find the missing authored system.
+- Prefer one strong, inspectable visual rule over several independent noise layers.
+- When adapting a supplied reference, preserve the mechanism that creates its character. Do not reduce it to a generic effect category.
+- Keep source-space, world-space, and screen-space systems separate unless the composition explicitly requires coupling.
+
+## Acceptance gate
+
+A routed task is incomplete until the implementation exposes:
+
+- deterministic seed or reproducible inputs;
+- visual debug modes for its controlling fields;
+- parameters grouped by perceptual role;
+- a lower-cost fallback;
+- a no-post baseline that still reads.

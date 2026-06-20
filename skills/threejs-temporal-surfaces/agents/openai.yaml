@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Temporal Surfaces"
+  short_description: "Accumulate frost, wetness, paint, and trails"
+  default_prompt: "Use $threejs-temporal-surfaces to implement this effect as a persistent ping-pong field."

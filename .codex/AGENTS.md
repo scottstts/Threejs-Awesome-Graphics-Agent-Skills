@@ -1,21 +1,25 @@
-# Three.js Gamedev Mega Skills
+# Three.js Awesome Visual Mega Pack Skills
 
 ## Intent
 
-This is intended to be a three.js design/dev mega agent skill pack. Roughly speaking, the skills include:
+This is intended to be a three.js design/dev mega agent skill pack to produce awesome graphics.
 
-- correct setup, maintainable project structure, renderer configuration, resource lifecycle, API correctness
-- great graphics: mesh design, lighting, PBR materials, textures, shaders, TSL/WebGPU, GLSL, post-processing, realism, stylization, particles, procedural visuals, color management, tone mapping
-- great game design and playability: game loop, controls, camera feel, responsiveness, collisions, physics, UI/HUD, feedback, ergonomics, mobile/touch/gamepad, game feel
-- sophisticated design aesthetics, philosophy, ergonomics, sensibility, taste
+It includes mesh design, lighting, PBR materials, textures, shaders, TSL/WebGPU, GLSL, post-processing, realism, stylization, particles, procedural visuals, color management, tone mapping, etc. Graphics excellence is the **main focus** of this skill pack, with sophisticated design aesthetics, philosophy, ergonomics, sensibility, taste
 
-This is NOT a shallow API cheat sheet, it's a sophisticated visual/game skill on three.js that helps an agent produce scenes that are technically correct, visually strong, aesthetically beautiful and appealing, performant, interactive, and pleasant to view/play/use.
-
-This skill aims at sophisticated and mature scene/game/visual on three.js at **both correct technicality and superior taste**
+This is NOT a three.js API cheat sheet, it skips basic 3D production fundamentals (any decent LLM already has that internal knowledge), it also skips three.js API technicalities (just look up docs or use existing API oriented agent skills). This skill pack is meant for agent to produce stunning 3D scenes and graphics that transcend simple demos. It brings the sophistication of good graphics and eliminates cheap effort.
 
 ## Developing Approach
 
-This agent skill pack will be developed and maintained using collected sources (other agent skills as well as high quality sources in non-agent-skill formats such as blog posts, technical articles, other strong projects, etc.), as well as good technical and design senses. Over time it will also be improved based on battle tested feedback
+This agent skill pack is and will be developed/maintained/updated/expanded by distilling working three.js projects that have awesome graphics. No adbstract concepts, no cheap summaries, no common knowledge. Only working projects with stunning graphics will be the source of this skill pack.
+
+The development is a distillation process. The skills distilled from these projects need to be modular, atomic, and directly applicable:
+
+- By modular and atomic, i mean it has to be self contained instead of entangled in a messy way. Agent can use what it needs, no more, no less.
+- By directly applicable, i mean it has to be practical, include examples, direct implementations distilled from projects. It should be materials that the agent can directly use for an implementation, NOT "give you an idea, talk you through, you figure out the details".
+
+**Important:** DO NOT try to invent examples and references inside a skill yourself. Everything must be closely referencing the supplied ref projects. These projects have been fine tuned to achieve high viusal quality. Your job is to treat that as a fact, and see how those great graphics translate into code, distill that implementation pattern into agent-reusable materials without losing details and nuances
+
+Since this skill pack targets awesome 3D graphics in three.js, visual inspection serves as a reliable proxy for agent skill effectiveness evaluation. `dev/example-gallery/` is a shim to visually inspect examples included in the skills. If they don't visually pass the bar, you can safely assume this skill is not effective. Again, use the ref projects for visual reference too. If you have distilled the essence of a ref project graphic feature, you see at code level it is done correctly, you see viually the distilled example matches the ref project visual reasonably, then you can safely assume the skill distillation and extraction is done properly
 
 ## Rules
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Audio Feedback"
-  short_description: "Add robust spatial and interaction audio feedback"
-  default_prompt: "Use $threejs-audio-feedback to implement reliable browser audio and interaction feedback."

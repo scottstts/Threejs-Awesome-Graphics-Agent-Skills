@@ -1,4 +1,4 @@
 interface:
-  display_name: "Three.js Skill Router"
-  short_description: "Route Three.js work to focused production skills"
-  default_prompt: "Use $threejs-skill-router to select the smallest set of Three.js skills for this task."
+  display_name: "Three.js Visual Router"
+  short_description: "Route ambitious procedural graphics work"
+  default_prompt: "Use $threejs-skill-router to decompose this Three.js visual into the smallest set of expert rendering systems."

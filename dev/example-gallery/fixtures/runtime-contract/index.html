@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery Runtime Contract</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body, canvas { width: 100%; height: 100%; margin: 0; display: block; }
+      body { overflow: hidden; background: #050608; }
+      .label {
+        position: fixed;
+        left: 24px;
+        bottom: 22px;
+        color: rgba(240, 244, 255, 0.8);
+        font: 500 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <div class="label">Development fixture · runtime contract</div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

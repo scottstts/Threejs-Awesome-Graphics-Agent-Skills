@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Cinematic Lighting"
-  short_description: "Translate visual critique into camera and light decisions"
-  default_prompt: "Use $threejs-cinematic-lighting-composition to turn this scene critique into concrete camera and lighting changes."

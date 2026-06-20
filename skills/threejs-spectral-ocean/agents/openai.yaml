@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Spectral Ocean"
+  short_description: "Build FFT oceans with cascades and persistent foam"
+  default_prompt: "Use $threejs-spectral-ocean to build a validated multi-cascade FFT ocean whose displacement, derivatives, whitecaps, shading, and diagnostics form one coherent GPU system."

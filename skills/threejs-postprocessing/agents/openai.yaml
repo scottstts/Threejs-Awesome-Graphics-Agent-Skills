@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Post-processing"
-  short_description: "Design restrained, performant image effects"
-  default_prompt: "Use $threejs-postprocessing to design and tune this scene post-processing pipeline."

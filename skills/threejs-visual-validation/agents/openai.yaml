@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Visual Validation"
+  short_description: "Validate procedural graphics with inspectable evidence"
+  default_prompt: "Use $threejs-visual-validation to define deterministic captures, diagnostic views, scale and seed sweeps, temporal checks, and performance evidence for this graphics system."

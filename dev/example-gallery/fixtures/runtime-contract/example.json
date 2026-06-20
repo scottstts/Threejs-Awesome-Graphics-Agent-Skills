@@ -1,0 +1,35 @@
+{
+  "title": "Gallery Runtime Contract",
+  "description": "Development-only shader fixture used to verify iframe isolation, pause/time controls, DPR changes, debug modes, metrics, and canvas capture.",
+  "backend": "WebGL2",
+  "techniques": [
+    "runtime contract",
+    "shader diagnostics",
+    "responsive canvas"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    {
+      "value": "final",
+      "label": "Final"
+    },
+    {
+      "value": "field",
+      "label": "Scalar field"
+    },
+    {
+      "value": "bands",
+      "label": "Frequency bands"
+    }
+  ],
+  "controls": [
+    "pause",
+    "timeScale",
+    "dpr",
+    "capture"
+  ]
+}

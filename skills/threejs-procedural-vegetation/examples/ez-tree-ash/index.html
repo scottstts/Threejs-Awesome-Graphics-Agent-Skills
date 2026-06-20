@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ash Growth System</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body, canvas { width: 100%; height: 100%; margin: 0; display: block; }
+      body { overflow: hidden; background: #94b9f8; }
+      .caption {
+        position: fixed;
+        left: 24px;
+        bottom: 22px;
+        color: rgba(15, 36, 26, 0.72);
+        font: 600 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-shadow: 0 1px 6px rgba(255, 255, 255, 0.75);
+        pointer-events: none;
+      }
+      .caption strong { color: #0c2819; font-weight: 800; }
+      .caption span { display: block; color: rgba(29, 64, 43, 0.6); }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <div class="caption">
+      <strong>Ash growth system</strong>
+      <span>reviewed preset · deciduous continuations · final-branch foliage</span>
+    </div>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Exposure and Color Grading"
+  short_description: "Build measured scene-referred color pipelines"
+  default_prompt: "Use $threejs-exposure-color-grading to implement measured luminance, asymmetric adaptation, one tone-map stage, documented 3D LUT grading, and correct output color conversion."

@@ -1,7 +1,7 @@
 {
   "name": "threejs-gamedev-mega-skills",
   "version": "0.1.0",
-  "description": "Production-oriented Three.js design, rendering, gameplay, testing, interface, audio, visualization, and performance skills for coding agents.",
+  "description": "Expert procedural geometry, materials, shaders, atmosphere, effects, and image-pipeline skills for Three.js coding agents.",
   "license": "MIT",
   "author": "Scott",
   "keywords": [
@@ -14,10 +14,13 @@
     "copilot",
     "gemini-cli",
     "windsurf",
-    "web-audio",
-    "accessibility",
-    "data-visualization",
-    "browser-testing"
+    "procedural-graphics",
+    "webgpu",
+    "tsl",
+    "glsl",
+    "shaders",
+    "volumetric-rendering",
+    "post-processing"
   ],
   "type": "module",
   "bin": {
@@ -38,17 +41,23 @@
   },
   "scripts": {
     "validate": "node scripts/validate-pack.mjs",
-    "test": "npm run validate && npm run test:installer && npm run test:scripts",
-    "test:examples": "node scripts/smoke-examples.mjs",
+    "test": "npm run validate && npm run test:references && npm run test:installer && npm run test:gallery",
+    "dev:examples": "node dev/example-gallery/server.mjs --open",
+    "dev:examples:no-open": "node dev/example-gallery/server.mjs",
+    "dev:examples:fixture": "node dev/example-gallery/server.mjs --open --include-fixtures",
+    "capture:examples": "node scripts/capture-examples.mjs",
+    "audit:sources": "node scripts/validate-source-traces.mjs",
+    "test:references": "node scripts/test-reference-examples.mjs",
     "test:installer": "node scripts/test-installer.mjs",
-    "test:scripts": "node scripts/test-skill-scripts.mjs",
+    "test:gallery": "node scripts/test-example-gallery.mjs",
     "check:freshness": "node scripts/check-three-freshness.mjs",
-    "test:all": "npm test && npm run test:examples && npm run check:freshness",
+    "test:all": "npm test && npm run check:freshness",
     "prepack": "npm run test:all",
     "prepublishOnly": "npm run check:freshness"
   },
   "devDependencies": {
     "playwright": "^1.60.0",
+    "three": "^0.184.0",
     "yaml": "^2.9.0"
   }
 }

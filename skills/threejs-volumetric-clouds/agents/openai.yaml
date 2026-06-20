@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Volumetric Clouds"
+  short_description: "Build weather-shaped temporally stable cloud volumes"
+  default_prompt: "Use $threejs-volumetric-clouds to implement bounded weather-shaped clouds with coherent density, lighting, temporal reconstruction, and a separately budgeted shadow solution."

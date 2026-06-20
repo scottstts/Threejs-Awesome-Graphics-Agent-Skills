@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural Geometry"
+  short_description: "Build stable profile sweeps and semantic mesh writers"
+  default_prompt: "Use $threejs-procedural-geometry to build this generated mesh from semantic dimensions, stable transported frames, deliberate seams and material slots, real-distance UVs, and topology diagnostics."

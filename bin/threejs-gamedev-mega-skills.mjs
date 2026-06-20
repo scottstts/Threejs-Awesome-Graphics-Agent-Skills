@@ -69,7 +69,7 @@ const aliases = {
 };
 
 function printHelp() {
-  console.log(`Three.js Gamedev Mega Skills ${packageJson.version}
+  console.log(`Three.js Visual Mega Skills ${packageJson.version}
 
 Usage:
   threejs-gamedev-mega-skills list

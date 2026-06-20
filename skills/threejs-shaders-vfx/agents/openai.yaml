@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Shaders and VFX"
-  short_description: "Create advanced shaders, particles, and visual effects"
-  default_prompt: "Use $threejs-shaders-vfx to design this effect with clear quality and performance tiers."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Raymarched Space Effects"
+  short_description: "Build controlled curved-ray space renderers"
+  default_prompt: "Use $threejs-raymarched-space-effects to implement a bounded, diagnosable curved-ray renderer with stable integration, structure crossing tests, and an intentional quality fallback."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Image Pipeline"
+  short_description: "Compose AO, bloom, exposure, and grading"
+  default_prompt: "Use $threejs-image-pipeline to design and diagnose this scene's final HDR image pipeline."

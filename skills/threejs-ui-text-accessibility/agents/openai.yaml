@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js UI, Text, and Accessibility"
-  short_description: "Build readable, responsive, accessible 3D interfaces"
-  default_prompt: "Use $threejs-ui-text-accessibility to design this Three.js interface and accessibility layer."

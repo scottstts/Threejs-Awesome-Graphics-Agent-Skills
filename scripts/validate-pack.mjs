@@ -1,31 +1,16 @@
-import { readdir, readFile, stat } from "node:fs/promises";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { promisify } from "node:util";
 import { parseDocument } from "yaml";
+import { discoverExamples } from "../dev/example-gallery/discovery.mjs";
 
 const root = process.cwd();
 const skillsRoot = path.join(root, "skills");
 const errors = [];
 const execFileAsync = promisify(execFile);
-const packageJson = JSON.parse(
-  await readFile(path.join(root, "package.json"), "utf8"),
-);
-const pluginJson = JSON.parse(
-  await readFile(path.join(root, ".codex-plugin", "plugin.json"), "utf8"),
-);
-const sourceManifest = await readFile(
-  path.join(root, "source_materials", "README.md"),
-  "utf8",
-);
-const readme = await readFile(path.join(root, "README.md"), "utf8");
-const installer = await readFile(
-  path.join(root, "bin", "threejs-gamedev-mega-skills.mjs"),
-  "utf8",
-);
-const researchThreeVersion = sourceManifest.match(/`three@(0\.\d+\.\d+)`/)?.[1];
-const exampleVersions = new Set();
 
 async function existsAsFile(filePath) {
   try {
@@ -60,25 +45,79 @@ function parseYaml(text, label) {
   return document.toJS();
 }
 
-const skillNames = (await readdir(skillsRoot)).sort();
-const routerText = await readFile(
-  path.join(skillsRoot, "threejs-skill-router", "SKILL.md"),
+function lineCount(text) {
+  return text.split("\n").length;
+}
+
+const packageJson = JSON.parse(
+  await readFile(path.join(root, "package.json"), "utf8"),
+);
+const pluginJson = JSON.parse(
+  await readFile(path.join(root, ".codex-plugin", "plugin.json"), "utf8"),
+);
+const readme = await readFile(path.join(root, "README.md"), "utf8");
+const sourceManifest = await readFile(
+  path.join(root, "source_materials", "README.md"),
+  "utf8",
+);
+const sourceTraceManifest = JSON.parse(
+  await readFile(
+    path.join(root, "source_materials", "trace-manifest.json"),
+    "utf8",
+  ),
+);
+const installer = await readFile(
+  path.join(root, "bin", "threejs-gamedev-mega-skills.mjs"),
   "utf8",
 );
 
+const skillNames = (await readdir(skillsRoot, { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
+const discoveredExamples = await discoverExamples(root);
+
+if (skillNames.length < 12) {
+  errors.push(`pack: expected an expert modular pack, found only ${skillNames.length} skills`);
+}
+
+const routerName = "threejs-skill-router";
+if (!skillNames.includes(routerName)) {
+  errors.push(`pack: missing ${routerName}`);
+}
+
+const routerText = await readFile(
+  path.join(skillsRoot, routerName, "SKILL.md"),
+  "utf8",
+);
+
+const forbiddenIntroHeadings = [
+  /^#\s+getting started/im,
+  /^##\s+installation/im,
+  /^##\s+what is three\.?js/im,
+  /^##\s+creating a scene/im,
+  /^##\s+basic setup/im,
+];
+
 for (const skillName of skillNames) {
   const skillPath = path.join(skillsRoot, skillName);
-  if (!(await stat(skillPath)).isDirectory()) continue;
-
   if (!/^[a-z0-9-]{1,63}$/.test(skillName)) {
     errors.push(`${skillName}: invalid directory name`);
   }
 
   const skillFile = path.join(skillPath, "SKILL.md");
   const yamlFile = path.join(skillPath, "agents", "openai.yaml");
+  if (!(await existsAsFile(skillFile))) {
+    errors.push(`${skillName}: missing SKILL.md`);
+    continue;
+  }
+  if (!(await existsAsFile(yamlFile))) {
+    errors.push(`${skillName}: missing agents/openai.yaml`);
+    continue;
+  }
+
   const skillText = await readFile(skillFile, "utf8");
   const yamlText = await readFile(yamlFile, "utf8");
-
   const frontmatter = skillText.match(/^---\n([\s\S]*?)\n---/);
   if (!frontmatter) {
     errors.push(`${skillName}: missing YAML frontmatter`);
@@ -97,16 +136,22 @@ for (const skillName of skillNames) {
   }
   if (
     typeof frontmatterData?.description !== "string" ||
-    frontmatterData.description.trim().length < 40
+    frontmatterData.description.trim().length < 80
   ) {
-    errors.push(`${skillName}: frontmatter description is missing or too weak`);
+    errors.push(`${skillName}: description must route a specific expert task`);
   }
   if (skillText.includes("[TODO")) {
     errors.push(`${skillName}: unresolved TODO placeholder`);
   }
-  if (skillText.split("\n").length > 500) {
-    errors.push(`${skillName}: SKILL.md exceeds 500 lines`);
+  if (lineCount(skillText) > 220) {
+    errors.push(`${skillName}: SKILL.md is too large for routing context`);
   }
+  for (const pattern of forbiddenIntroHeadings) {
+    if (pattern.test(skillText)) {
+      errors.push(`${skillName}: contains introductory documentation instead of expertise`);
+    }
+  }
+
   const agentData = parseYaml(yamlText, `${skillName}/agents/openai.yaml`);
   const agentKeys = agentData && typeof agentData === "object"
     ? Object.keys(agentData)
@@ -114,7 +159,6 @@ for (const skillName of skillNames) {
   if (agentKeys.join(",") !== "interface") {
     errors.push(`${skillName}: agents/openai.yaml must contain only interface`);
   }
-
   const interfaceData = agentData?.interface;
   const interfaceKeys = interfaceData && typeof interfaceData === "object"
     ? Object.keys(interfaceData)
@@ -127,36 +171,24 @@ for (const skillName of skillNames) {
       `${skillName}: interface must contain display_name, short_description, default_prompt`,
     );
   }
-  const displayName = interfaceData?.display_name;
-  const shortDescription = interfaceData?.short_description;
-  const defaultPrompt = interfaceData?.default_prompt;
-  if (typeof displayName !== "string" || displayName.trim().length === 0) {
-    errors.push(`${skillName}: display_name must be a non-empty string`);
+  if (
+    typeof interfaceData?.display_name !== "string" ||
+    interfaceData.display_name.trim().length === 0
+  ) {
+    errors.push(`${skillName}: display_name must be non-empty`);
   }
   if (
-    typeof shortDescription !== "string" ||
-    shortDescription.length < 25 ||
-    shortDescription.length > 64
+    typeof interfaceData?.short_description !== "string" ||
+    interfaceData.short_description.length < 25 ||
+    interfaceData.short_description.length > 64
   ) {
     errors.push(`${skillName}: short_description must be 25–64 characters`);
   }
   if (
-    typeof defaultPrompt !== "string" ||
-    !defaultPrompt.includes(`$${skillName}`)
+    typeof interfaceData?.default_prompt !== "string" ||
+    !interfaceData.default_prompt.includes(`$${skillName}`)
   ) {
     errors.push(`${skillName}: default_prompt must mention $${skillName}`);
-  }
-
-  const referencesPath = path.join(skillPath, "references");
-  const references = await readdir(referencesPath);
-  if (references.filter((name) => name.endsWith(".md")).length === 0) {
-    errors.push(`${skillName}: references directory is empty`);
-  }
-  for (const reference of references.filter((name) => name.endsWith(".md"))) {
-    const relativeReference = `references/${reference}`;
-    if (!skillText.includes(relativeReference)) {
-      errors.push(`${skillName}: reference not linked from SKILL.md: ${relativeReference}`);
-    }
   }
 
   for (const match of skillText.matchAll(/\]\((?!https?:|#)([^)#]+)(?:#[^)]+)?\)/g)) {
@@ -166,50 +198,173 @@ for (const skillName of skillNames) {
     }
   }
 
-  const examplesPath = path.join(skillPath, "examples");
-  try {
-    const exampleFiles = await collectFiles(examplesPath);
-    for (const htmlPath of exampleFiles.filter((file) => file.endsWith("index.html"))) {
-      const html = await readFile(htmlPath, "utf8");
-      const relativeHtml = path.relative(skillPath, htmlPath);
-      if (!skillText.includes(relativeHtml)) {
-        errors.push(`${skillName}: example not linked from SKILL.md: ${relativeHtml}`);
+  if (skillName !== routerName) {
+    const referencesPath = path.join(skillPath, "references");
+    let references = [];
+    try {
+      references = (await readdir(referencesPath))
+        .filter((name) => name.endsWith(".md"))
+        .sort();
+    } catch {
+      errors.push(`${skillName}: missing references directory`);
+    }
+    if (references.length === 0) {
+      errors.push(`${skillName}: requires at least one practical reference`);
+    }
+    for (const reference of references) {
+      const relativeReference = `references/${reference}`;
+      if (!skillText.includes(relativeReference)) {
+        errors.push(`${skillName}: reference not linked from SKILL.md: ${relativeReference}`);
       }
-      if (!/three@0\.\d+\.\d+/.test(html)) {
-        errors.push(`${skillName}: example must pin a Three.js version: ${relativeHtml}`);
-      } else {
-        exampleVersions.add(html.match(/three@(0\.\d+\.\d+)/)[1]);
+      const referenceText = await readFile(path.join(referencesPath, reference), "utf8");
+      if (lineCount(referenceText) < 80) {
+        errors.push(`${skillName}: ${reference} is too shallow for expert guidance`);
       }
-      if (!/src="\.\/main\.js"/.test(html)) {
-        errors.push(`${skillName}: example must load ./main.js: ${relativeHtml}`);
+      if (!referenceText.includes("```")) {
+        errors.push(`${skillName}: ${reference} lacks direct code, formulas, or data contracts`);
       }
-      const mainPath = path.join(path.dirname(htmlPath), "main.js");
-      if (!(await existsAsFile(mainPath))) {
-        errors.push(`${skillName}: example missing main.js: ${relativeHtml}`);
-      } else {
-        const main = await readFile(mainPath, "utf8");
-        if (/\binner(?:Width|Height)\b/.test(main)) {
-          errors.push(`${skillName}: example must size from its host, not innerWidth/innerHeight: ${relativeHtml}`);
-        }
-        if (/^(?!.*runtime\.listen).*addEventListener\(/m.test(main)) {
-          errors.push(`${skillName}: example has an untracked event listener: ${relativeHtml}`);
-        }
-        if (!main.includes("lab-runtime.js")) {
-          errors.push(`${skillName}: example must use the lifecycle harness: ${relativeHtml}`);
+      if (!/\b(debug|diagnostics?)\b/i.test(referenceText)) {
+        errors.push(`${skillName}: ${reference} lacks inspection/debug outputs`);
+      }
+    }
+    if (!routerText.includes(`$${skillName}`)) {
+      errors.push(`${skillName}: not reachable from ${routerName}`);
+    }
+    if (!sourceManifest.includes(`$${skillName}`)) {
+      errors.push(`${skillName}: missing from source-material consumption map`);
+    }
+  }
+
+  if (!readme.includes(`\`${skillName}\``)) {
+    errors.push(`${skillName}: missing from README skill inventory`);
+  }
+}
+
+for (const example of discoveredExamples) {
+  const exampleRoot = path.join(
+    root,
+    example.source.replace(/^\//, ""),
+  );
+  const metadataPath = path.join(exampleRoot, "example.json");
+  const indexPath = path.join(exampleRoot, "index.html");
+  if (!(await existsAsFile(metadataPath))) {
+    errors.push(`${example.id}: missing example.json`);
+  }
+  if (example.warnings.length > 0) {
+    errors.push(`${example.id}: ${example.warnings.join("; ")}`);
+  }
+  if (example.description.trim().length < 60) {
+    errors.push(`${example.id}: metadata description is too weak`);
+  }
+  if (example.techniques.length < 2) {
+    errors.push(`${example.id}: metadata must identify at least two techniques`);
+  }
+  if (example.debugModes.length < 2) {
+    errors.push(`${example.id}: visual example must expose final plus diagnostic modes`);
+  }
+  if (example.sourceTrace.length === 0) {
+    errors.push(`${example.id}: missing file-level sourceTrace metadata`);
+  }
+  for (const trace of example.sourceTrace) {
+    const source = sourceTraceManifest.sources?.[trace?.source];
+    if (!source) {
+      errors.push(`${example.id}: unknown sourceTrace source ${trace?.source}`);
+      continue;
+    }
+    if (!Array.isArray(trace.files) || trace.files.length < 2) {
+      errors.push(`${example.id}: each sourceTrace must name at least two reviewed files`);
+    } else {
+      for (const file of trace.files) {
+        if (!source.files?.[file]) {
+          errors.push(
+            `${example.id}: ${trace.source} file is absent from trace manifest: ${file}`,
+          );
         }
       }
     }
-  } catch (error) {
-    if (error?.code !== "ENOENT") throw error;
+    if (!Array.isArray(trace.mechanisms) || trace.mechanisms.length < 3) {
+      errors.push(`${example.id}: each sourceTrace must name at least three extracted mechanisms`);
+    }
+    if (trace.assets !== undefined) {
+      if (!Array.isArray(trace.assets) || trace.assets.length === 0) {
+        errors.push(`${example.id}: sourceTrace assets must be a non-empty array`);
+      } else {
+        for (const asset of trace.assets) {
+          const expectedHash = source.assets?.[asset?.sourcePath];
+          if (!expectedHash) {
+            errors.push(
+              `${example.id}: ${trace.source} asset is absent from trace manifest: ${asset?.sourcePath}`,
+            );
+            continue;
+          }
+          if (
+            typeof asset.localPath !== "string" ||
+            asset.localPath.startsWith("/") ||
+            asset.localPath.includes("..")
+          ) {
+            errors.push(`${example.id}: invalid bundled asset path ${asset?.localPath}`);
+            continue;
+          }
+          const assetPath = path.join(exampleRoot, asset.localPath);
+          const bytes = await readFile(assetPath).catch(() => null);
+          if (!bytes) {
+            errors.push(`${example.id}: missing bundled asset ${asset.localPath}`);
+            continue;
+          }
+          const actualHash = createHash("sha256").update(bytes).digest("hex");
+          if (actualHash !== expectedHash) {
+            errors.push(
+              `${example.id}: bundled asset hash mismatch for ${asset.localPath}`,
+            );
+          }
+        }
+      }
+    }
+    if (
+      !["independent-distillation", "conceptual-only"].includes(trace.boundary)
+    ) {
+      errors.push(`${example.id}: invalid sourceTrace boundary for ${trace.source}`);
+    }
+    if (source.license === "unobserved" && trace.boundary !== "conceptual-only") {
+      errors.push(
+        `${example.id}: unlicensed source ${trace.source} must be conceptual-only`,
+      );
+    }
+    if (
+      !sourceManifest.includes(source.repository) ||
+      !sourceManifest.includes(source.revision)
+    ) {
+      errors.push(
+        `${example.id}: source ledger is missing ${trace.source} repository or revision`,
+      );
+    }
   }
-
-  if (skillName !== "threejs-skill-router" && !routerText.includes(`$${skillName}`)) {
-    errors.push(`${skillName}: not reachable from threejs-skill-router`);
+  const indexHtml = await readFile(indexPath, "utf8");
+  if (!indexHtml.includes("example-runtime.js")) {
+    const exampleFiles = await collectFiles(exampleRoot);
+    const runtimeImported = (
+      await Promise.all(
+        exampleFiles
+          .filter((file) => file.endsWith(".js") || file.endsWith(".mjs"))
+          .map((file) => readFile(file, "utf8")),
+      )
+    ).some((text) => text.includes("example-runtime.js"));
+    if (!runtimeImported) {
+      errors.push(`${example.id}: example must use the gallery runtime contract`);
+    }
+  }
+  const skillText = await readFile(
+    path.join(skillsRoot, example.skill, "SKILL.md"),
+    "utf8",
+  );
+  const relativeIndex = `examples/${example.slug}/index.html`;
+  if (!skillText.includes(relativeIndex)) {
+    errors.push(`${example.id}: SKILL.md must link ${relativeIndex}`);
   }
 }
 
 if (packageJson.name !== "threejs-gamedev-mega-skills") {
-  errors.push("package.json: unexpected package name");
+  errors.push("package.json: compatibility package name changed");
 }
 if (packageJson.private === true) {
   errors.push("package.json: publishable package must not be private");
@@ -235,47 +390,116 @@ if (readme.includes("--skills") || installer.includes("--skills")) {
 if (!(await existsAsFile(path.join(root, "LICENSE")))) {
   errors.push("package: LICENSE is missing");
 }
-if (exampleVersions.size !== 1) {
-  errors.push(`examples: expected one pinned Three.js version, found ${[...exampleVersions].join(", ")}`);
-}
-if (
-  researchThreeVersion &&
-  !exampleVersions.has(researchThreeVersion)
-) {
-  errors.push(
-    `examples: pinned version must match research snapshot ${researchThreeVersion}`,
-  );
-}
 if (
   !sourceManifest.includes("RenderPipeline") ||
   !sourceManifest.includes("deprecated in r183")
 ) {
-  errors.push("source manifest: record the PostProcessing to RenderPipeline deprecation");
+  errors.push("source manifest: missing RenderPipeline migration record");
 }
 
-const skillMarkdownFiles = (await collectFiles(skillsRoot)).filter(
+const requiredSourceRecords = [
+  "dgreenheck/ez-tree",
+  "takram-design-engineering/three-geospatial",
+  "perplexdotgg/mecs-tower-defense-example",
+  "YasirAwan4831/holographic-shader-visualizer-three.Js",
+  "vibe-stack/procedural-bank",
+  "takuma-hmng8/frozen",
+  "owenyuwono/poseidon",
+  "https://github.com/scottstts/MyCraft",
+  "https://github.com/scottstts/Stellar",
+  "https://github.com/scottstts/Interstellar.three.js",
+  "https://github.com/scottstts/mysite_React",
+];
+for (const sourceRecord of requiredSourceRecords) {
+  if (!sourceManifest.includes(sourceRecord)) {
+    errors.push(`source manifest: missing reviewed source ${sourceRecord}`);
+  }
+}
+
+if (sourceTraceManifest.schemaVersion !== 1) {
+  errors.push("source trace manifest: unsupported schemaVersion");
+}
+for (const [sourceId, source] of Object.entries(
+  sourceTraceManifest.sources ?? {},
+)) {
+  if (
+    typeof source.repository !== "string" ||
+    !source.repository.startsWith("https://")
+  ) {
+    errors.push(`source trace manifest: ${sourceId} repository must be an HTTPS URL`);
+  }
+  if (!/^[a-f0-9]{40}$/.test(source.revision ?? "")) {
+    errors.push(`source trace manifest: ${sourceId} revision must be a full Git SHA`);
+  }
+  if (!source.files || Object.keys(source.files).length === 0) {
+    errors.push(`source trace manifest: ${sourceId} has no reviewed files`);
+  }
+  for (const [file, hash] of Object.entries(source.files ?? {})) {
+    if (file.startsWith("/") || file.includes("..")) {
+      errors.push(`source trace manifest: ${sourceId} has unsafe file path ${file}`);
+    }
+    if (!/^[a-f0-9]{64}$/.test(hash)) {
+      errors.push(`source trace manifest: ${sourceId}/${file} has invalid SHA-256`);
+    }
+  }
+  for (const [file, hash] of Object.entries(source.assets ?? {})) {
+    if (file.startsWith("/") || file.includes("..")) {
+      errors.push(`source trace manifest: ${sourceId} has unsafe asset path ${file}`);
+    }
+    if (!/^[a-f0-9]{64}$/.test(hash)) {
+      errors.push(`source trace manifest: ${sourceId}/${file} has invalid asset SHA-256`);
+    }
+  }
+}
+
+const allMarkdownFiles = (await collectFiles(skillsRoot)).filter(
   (file) => file.endsWith(".md"),
 );
-const citedUrls = new Set();
-for (const markdownFile of skillMarkdownFiles) {
+for (const markdownFile of allMarkdownFiles) {
   const markdown = await readFile(markdownFile, "utf8");
   for (const match of markdown.matchAll(/https:\/\/[^\s)]+/g)) {
-    citedUrls.add(match[0]);
-  }
-}
-for (const citedUrl of [...citedUrls].sort()) {
-  if (!sourceManifest.includes(citedUrl)) {
-    errors.push(`source manifest: undocumented skill source ${citedUrl}`);
+    if (!sourceManifest.includes(match[0])) {
+      errors.push(
+        `source manifest: undocumented URL in ${path.relative(root, markdownFile)}: ${match[0]}`,
+      );
+    }
   }
 }
 
-const syntaxRoots = [
+const staleSkillNames = [
+  "threejs-project-foundations",
+  "threejs-game-design-playability",
+  "threejs-audio-feedback",
+  "threejs-data-visualization",
+  "threejs-testing-debugging",
+  "threejs-webgpu-tsl",
+  "threejs-postprocessing",
+];
+const activeSurface = [
+  readme,
+  JSON.stringify(pluginJson),
+  ...await Promise.all(
+    (await collectFiles(path.join(root, "scripts")))
+      .filter(
+        (file) =>
+          file.endsWith(".mjs") &&
+          path.basename(file) !== "validate-pack.mjs",
+      )
+      .map((file) => readFile(file, "utf8")),
+  ),
+].join("\n");
+for (const staleName of staleSkillNames) {
+  if (activeSurface.includes(staleName)) {
+    errors.push(`pack: stale deleted skill reference ${staleName}`);
+  }
+}
+
+for (const codeRoot of [
   path.join(root, "bin"),
   path.join(root, "scripts"),
-  path.join(root, "skills"),
-];
-for (const syntaxRoot of syntaxRoots) {
-  const codeFiles = (await collectFiles(syntaxRoot)).filter(
+  path.join(root, "dev", "example-gallery"),
+]) {
+  const codeFiles = (await collectFiles(codeRoot)).filter(
     (file) => file.endsWith(".js") || file.endsWith(".mjs"),
   );
   for (const codeFile of codeFiles) {
@@ -294,5 +518,5 @@ if (errors.length > 0) {
   for (const error of errors) console.error(`- ${error}`);
   process.exitCode = 1;
 } else {
-  console.log(`Validated ${skillNames.length} skills.`);
+  console.log(`Validated ${skillNames.length} expert graphics skills.`);
 }

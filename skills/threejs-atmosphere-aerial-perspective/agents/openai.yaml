@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Atmosphere"
+  short_description: "Build sky scattering and aerial perspective"
+  default_prompt: "Use $threejs-atmosphere-aerial-perspective to implement a coherent sky and depth-based scattering system."

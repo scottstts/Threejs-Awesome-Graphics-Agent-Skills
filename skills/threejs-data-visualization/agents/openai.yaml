@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Data Visualization"
-  short_description: "Build clear, scalable interactive 3D data views"
-  default_prompt: "Use $threejs-data-visualization to design this precise, performant 3D data scene."

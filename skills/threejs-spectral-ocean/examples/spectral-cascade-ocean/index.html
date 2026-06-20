@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spectral Cascade Ocean</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body, canvas { width: 100%; height: 100%; margin: 0; display: block; }
+      body { overflow: hidden; background: #9fb8cc; }
+      .caption {
+        position: fixed;
+        left: 26px;
+        bottom: 23px;
+        color: rgba(224, 239, 245, 0.72);
+        font: 600 10px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-shadow: 0 1px 8px rgba(2, 16, 25, 0.8);
+        pointer-events: none;
+      }
+      .caption strong { color: #f2fafb; font-weight: 800; }
+      .caption span { display: block; }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <div class="caption">
+      <strong>Spectral cascade ocean</strong>
+      <span>directional spectrum · staged IFFT · Jacobian whitecaps</span>
+    </div>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

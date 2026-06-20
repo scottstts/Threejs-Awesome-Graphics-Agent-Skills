@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Physics and Collisions"
-  short_description: "Choose and integrate reliable collision systems"
-  default_prompt: "Use $threejs-physics-collisions to choose and implement the collision or physics model."

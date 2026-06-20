@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural Fields"
+  short_description: "Author coherent multi-channel procedural fields"
+  default_prompt: "Use $threejs-procedural-fields to design the shared field stack for this procedural material."

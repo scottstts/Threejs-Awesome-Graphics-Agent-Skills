@@ -1,69 +1,75 @@
-# Three.js GameDev Mega Skills
+# Three.js Awesome Graphics Agent Skills
 
-A modular, production-oriented skill pack for agents building Three.js scenes, interactive experiences, and browser games.
+This is intended to be a three.js design/dev mega agent skill pack to produce awesome graphics.
 
-The pack is intentionally split by task. An agent should load the router first, then only the domain skills needed for the current work. The objective is not to reproduce API documentation. It is to help an agent make and implement defensible technical, visual, and game-design decisions:
+It includes mesh design, lighting, PBR materials, textures, shaders, TSL/WebGPU, GLSL, post-processing, realism, stylization, particles, procedural visuals, color management, tone mapping, etc. Graphics excellence is the **main focus** of this skill pack, with sophisticated design aesthetics, philosophy, ergonomics, sensibility, taste
 
-- technically correct architecture, renderer setup, lifecycle, and API usage;
-- strong visual authorship across modeling, materials, lighting, shaders, and effects;
-- responsive interaction, game feel, physics, controls, and playability.
+This is NOT a three.js API cheat sheet, it skips basic 3D production fundamentals (any decent LLM already has that internal knowledge), it also skips three.js API technicalities (just look up docs or use existing API oriented agent skills). This skill pack is meant for agent to produce stunning 3D scenes and graphics that transcend simple demos. It brings the sophistication of good graphics and eliminates cheap effort.
 
-The scope remains centered on Three.js and its browser runtime. It is not a
-general-purpose game-engine curriculum.
+## Operating model
+
+Load `$threejs-skill-router` for a broad visual task, then load only the atomic systems the work actually needs.
+
+Every graphics system is expected to expose:
+
+- deterministic or reproducible inputs;
+- named controlling fields and perceptual parameters;
+- diagnostic outputs;
+- scale, distance, and temporal stability rules;
+- an intentional lower-cost mode;
+- a no-post baseline that still reads.
 
 ## Skills
 
-| Skill | Responsibility |
+| Skill | Expertise |
 | --- | --- |
-| `threejs-skill-router` | Select the smallest useful skill set and define execution order. |
-| `threejs-project-foundations` | Project structure, renderer choice, render loop, color, resize, render targets, secondary cameras, lifecycle. |
-| `threejs-asset-pipeline` | glTF, textures, compression, hosted delivery, loading UX, ownership, disposal. |
-| `threejs-visual-design` | Art direction, composition, silhouette, depth, procedural modeling taste. |
-| `threejs-materials-lighting` | PBR roles, real-time and baked lighting, probes, environments, shadows, exposure. |
-| `threejs-shaders-procedural` | GLSL, procedural patterns, particles, raymarching, shader debugging. |
-| `threejs-geometry-modeling` | Production mesh authoring, sweeps, terrain, CSG, BVH, LOD, batching. |
-| `threejs-material-lookdev` | Reference-driven PBR, advanced surfaces, layering, and material diagnosis. |
-| `threejs-shaders-vfx` | Advanced shader fields, water, atmosphere, temporal effects, and impact VFX. |
-| `threejs-cinematic-lighting-composition` | Taste-to-implementation camera, framing, light, exposure, and depth decisions. |
-| `threejs-game-design-playability` | Verbs, core loops, feel, fairness, pacing, UI, and accessibility. |
-| `threejs-animation-motion` | Clip blending, springs, procedural motion, IK, contact, and readability. |
-| `threejs-webgpu-tsl` | WebGPURenderer, TSL, node materials, compute, version-sensitive APIs. |
-| `threejs-postprocessing` | Bloom, grading, anti-aliasing, depth effects, pipeline ordering. |
-| `threejs-gameplay-interaction` | Input, picking, camera feel, gameplay loop, feedback, accessibility. |
-| `threejs-physics-collisions` | Collision strategy, engine choice, fixed stepping, colliders, sensors. |
-| `threejs-performance-profiling` | Measurement, budgets, bottleneck isolation, CPU/GPU/memory optimization. |
-| `threejs-r3f` | React Three Fiber architecture, frame updates, state, loading, ecosystem use. |
-| `threejs-testing-debugging` | Browser tests, visual regression, runtime diagnosis, context loss, leaks, and behavior/navigation debugging. |
-| `threejs-ui-text-accessibility` | DOM/3D text strategy, HUDs, labels, focus, keyboard access, responsive and reduced-motion UI. |
-| `threejs-audio-feedback` | Web Audio lifecycle, positional audio, pooling, event synchronization, mixing, and accessible feedback. |
-| `threejs-data-visualization` | Clear, scalable point, line, graph, scientific, and geospatial data scenes. |
-| `threejs-quality-audit` | Technical, visual, performance, accessibility, and playability review. |
+| `threejs-skill-router` | Decompose a visual target into the smallest relevant expert systems. |
+| `threejs-procedural-fields` | Shared scalar/vector fields, frequency bands, domain warping, causal masks, procedural normals. |
+| `threejs-procedural-materials` | Coupled PBR channels, layered identity, wear/wetness, derivative filtering, specular AA. |
+| `threejs-procedural-geometry` | Profile sweeps, transported frames, semantic mesh writers, seams, UV density, LOD. |
+| `threejs-procedural-vegetation` | Growth hierarchies, branch-ring geometry, stratified children, foliage normals, wind. |
+| `threejs-procedural-architecture` | Massing and façade grammars, exposed-edge analysis, modules, material-slot compilation. |
+| `threejs-procedural-planets` | Spherical terrain, ridges, craters, biomes, procedural normals, altitude filtering. |
+| `threejs-spectral-ocean` | Validated FFT synthesis, spectral cascades, choppy derivatives, Jacobian foam, ocean shading. |
+| `threejs-water-optics` | Analytic waves, stable normals, depth thickness, absorption, reflection/refraction, foam. |
+| `threejs-atmosphere-aerial-perspective` | Shared Rayleigh/Mie atmosphere, sky, shell/post handoff, depth-based scattering. |
+| `threejs-volumetric-clouds` | Weather-shaped density, bounded raymarching, cloud lighting, history, cloud shadows. |
+| `threejs-raymarched-space-effects` | Curved-ray integration, black holes, accretion disks, wormholes, bounded quality. |
+| `threejs-procedural-vfx` | Event envelopes, particles, trails, plasma, distortion, pooling, HDR emission. |
+| `threejs-stylized-shader-transitions` | Holograms, dissolves, reveal fields, scanlines, glitch bands, depth/blend behavior. |
+| `threejs-temporal-surfaces` | Ping-pong accumulation for frost, wetness, paint, trails, damage, and interaction fields. |
+| `threejs-shadow-systems` | Stable cascades and cached clipmap shadows with update budgets and invalidation. |
+| `threejs-screen-space-ambient-occlusion` | GTAO-style horizon sampling, bent normals, bilateral and temporal reconstruction. |
+| `threejs-bloom` | HDR extraction, multi-scale filtering, selective contribution, exposure coupling. |
+| `threejs-exposure-color-grading` | Luminance metering, eye adaptation, tone mapping, LUTs, gamut and output conversion. |
+| `threejs-image-pipeline` | Shared render-signal ownership and ordering across multiple image-space systems. |
+| `threejs-visual-validation` | Fixed-view captures, diagnostic mosaics, seed/scale sweeps, temporal and GPU evidence. |
 
-## Use
-
-Invoke the router for broad tasks:
+## Examples of use
 
 ```text
-Use $threejs-skill-router to plan and build a polished interactive product configurator.
+Use $threejs-skill-router to decompose and build a procedural ocean planet
+with a ground-to-orbit camera.
 ```
 
-Invoke a focused skill directly for narrow work:
-
 ```text
-Use $threejs-postprocessing to tune bloom without washing out the scene.
+Use $threejs-procedural-vegetation to build a deterministic tree species
+with coherent branching, bark scale, foliage normals, and hierarchical wind.
 ```
 
-Use a deep specialist when the problem is about authored quality rather than setup:
+```text
+Use $threejs-bloom to diagnose the HDR signal and tune bloom without making
+the glow carry the underlying form.
+```
 
 ```text
-Use $threejs-cinematic-lighting-composition to diagnose why this scene feels flat,
-then translate the critique into camera, lighting, atmosphere, and exposure changes.
+Use $threejs-visual-validation to produce a deterministic evidence set for
+this procedural material across camera distance, seeds, motion, and quality tiers.
 ```
 
 ## Install
 
-The package installs the same standards-compliant skill folders into each
-agent's documented discovery directory.
+The published package name and installer command remain `threejs-gamedev-mega-skills` for compatibility.
 
 ```sh
 # User-wide installation
@@ -78,7 +84,7 @@ npx threejs-gamedev-mega-skills install --agent github-copilot --scope project
 npx threejs-gamedev-mega-skills install --agent custom --path ~/.my-agent/skills
 ```
 
-Supported named targets:
+Supported targets:
 
 | Target | User scope | Project scope |
 | --- | --- | --- |
@@ -91,27 +97,39 @@ Supported named targets:
 | `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
 | `custom` | exact `--path` | exact `--path` |
 
-Each install is the complete pack. Use `--force` to replace an existing
-installation and `--dry-run` to inspect changes. The installer tracks only the
-directories it owns so uninstall remains safe:
+Each installation contains the complete pack so its router can reference every atomic skill. Use `--force` to replace an existing installation and `--dry-run` to inspect changes.
 
 ```sh
 npx threejs-gamedev-mega-skills uninstall --agent cursor
 ```
 
-The repository also contains a Codex plugin manifest at
-`.codex-plugin/plugin.json` for plugin and marketplace distribution.
-
 ## Development
-
-Validate the complete pack:
 
 ```sh
 npm run validate
 npm test
-npm run test:examples
 npm run check:freshness
 npm pack --dry-run
 ```
 
-External research inputs are recorded in [`source_materials/README.md`](source_materials/README.md). Downloaded repositories remain ignored under `source_materials/`.
+Inspect every included graphics example from one development surface:
+
+```sh
+npm run dev:examples
+```
+
+The gallery discovers examples from each skill automatically and provides
+single-example and live-overview modes, viewport/DPR controls, pause/time
+controls, debug-mode routing, standalone launch, runtime metrics, and canvas
+capture. It is repository tooling and is not installed as an agent skill.
+
+Generate deterministic captures and a contact sheet:
+
+```sh
+npm run capture:examples
+```
+
+The gallery contract is documented in
+[`dev/example-gallery/README.md`](dev/example-gallery/README.md).
+
+Research provenance and license boundaries are recorded in [`source_materials/README.md`](source_materials/README.md). Downloaded research repositories remain ignored under `source_materials/`.

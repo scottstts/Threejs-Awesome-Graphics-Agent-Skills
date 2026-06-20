@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural Materials"
+  short_description: "Author coherent filtered procedural PBR surfaces"
+  default_prompt: "Use $threejs-procedural-materials to build a causal, multi-channel PBR surface with shared fields, derivative filtering, stable normals, and explicit channel diagnostics."

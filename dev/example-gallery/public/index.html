@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Three.js Visual Example Gallery</title>
+    <link rel="stylesheet" href="/gallery/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div>
+            <p class="eyebrow">Development instrument</p>
+            <h1>Visual example gallery</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <label class="search">
+            <span>Search</span>
+            <input
+              id="search"
+              type="search"
+              placeholder="skill, effect, technique…"
+              autocomplete="off"
+            />
+            <kbd>⌘K</kbd>
+          </label>
+          <button id="refresh" class="button" type="button">Refresh</button>
+          <button id="toggle-view" class="button button-primary" type="button">
+            Overview
+          </button>
+        </div>
+      </header>
+
+      <main class="main-layout">
+        <aside class="catalog">
+          <div class="catalog-heading">
+            <span id="example-count">0 examples</span>
+            <span id="runtime-summary">runtime idle</span>
+          </div>
+          <nav id="example-list" aria-label="Examples"></nav>
+        </aside>
+
+        <section class="inspection">
+          <div id="empty-state" class="empty-state" hidden>
+            <div class="empty-orbit" aria-hidden="true">
+              <span></span>
+            </div>
+            <p class="eyebrow">No visual systems registered</p>
+            <h2>Add an example to any skill’s <code>examples/</code> directory.</h2>
+            <p>
+              The gallery discovers it automatically when the directory contains
+              <code>index.html</code> and <code>example.json</code>.
+            </p>
+          </div>
+
+          <div id="single-view" class="single-view" hidden>
+            <div class="example-heading">
+              <div>
+                <p id="example-kicker" class="eyebrow"></p>
+                <h2 id="example-title"></h2>
+                <p id="example-description"></p>
+              </div>
+              <div id="technique-tags" class="tags"></div>
+            </div>
+
+            <div class="toolbar" aria-label="Example controls">
+              <label>
+                Viewport
+                <select id="viewport">
+                  <option value="default">Example default</option>
+                  <option value="responsive">Responsive</option>
+                  <option value="1920x1080">1920 × 1080</option>
+                  <option value="1440x900">1440 × 900</option>
+                  <option value="1280x720">1280 × 720</option>
+                  <option value="834x1194">834 × 1194</option>
+                  <option value="390x844">390 × 844</option>
+                </select>
+              </label>
+              <label>
+                DPR
+                <select id="dpr">
+                  <option value="0.75">0.75</option>
+                  <option value="1">1</option>
+                  <option value="1.5">1.5</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </label>
+              <label>
+                Time
+                <select id="time-scale">
+                  <option value="0.25">0.25×</option>
+                  <option value="0.5">0.5×</option>
+                  <option value="1">1×</option>
+                  <option value="2">2×</option>
+                </select>
+              </label>
+              <label id="debug-control" hidden>
+                Debug
+                <select id="debug-mode"></select>
+              </label>
+              <button id="pause" class="button" type="button">Pause</button>
+              <button id="reload" class="button" type="button">Reload</button>
+              <button id="capture" class="button" type="button">Capture</button>
+              <a id="standalone" class="button" target="_blank" rel="noreferrer">
+                Standalone
+              </a>
+            </div>
+
+            <div class="stage-shell">
+              <div id="stage" class="stage">
+                <iframe
+                  id="example-frame"
+                  title="Selected Three.js example"
+                  allow="fullscreen"
+                ></iframe>
+              </div>
+              <div class="stage-status">
+                <span id="frame-status" data-state="idle">idle</span>
+                <span id="frame-metrics"></span>
+                <span id="frame-size"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="overview" class="overview" hidden></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/gallery/app.js"></script>
+  </body>
+</html>

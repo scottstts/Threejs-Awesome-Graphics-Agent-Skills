@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural Architecture"
+  short_description: "Compile authored buildings from visual grammars"
+  default_prompt: "Use $threejs-procedural-architecture to design a plan-first building grammar and mesh compiler."

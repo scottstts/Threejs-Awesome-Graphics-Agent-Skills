@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Performance and Profiling"
-  short_description: "Measure and optimize CPU, GPU, and memory costs"
-  default_prompt: "Use $threejs-performance-profiling to profile and optimize this Three.js workload."

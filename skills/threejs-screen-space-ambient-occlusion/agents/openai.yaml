@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Screen-Space Ambient Occlusion"
+  short_description: "Build GTAO-style AO with bent normals and denoising"
+  default_prompt: "Use $threejs-screen-space-ambient-occlusion to implement world-scale horizon AO, bent normals, bilateral reconstruction, and indirect-light application with explicit halo and history diagnostics."

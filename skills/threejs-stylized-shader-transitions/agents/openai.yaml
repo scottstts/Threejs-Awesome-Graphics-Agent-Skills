@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Stylized Shader Transitions"
+  short_description: "Build stable authored hologram and dissolve fields"
+  default_prompt: "Use $threejs-stylized-shader-transitions to implement a transition with a stable field, controlled boundary band, deliberate displacement, and explicit transparency and depth behavior."

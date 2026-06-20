@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Water Optics"
+  short_description: "Build analytic waves and depth-aware water optics"
+  default_prompt: "Use $threejs-water-optics to implement water whose displacement, normals, depth absorption, reflection, refraction, foam, and distance filtering form one coherent system."

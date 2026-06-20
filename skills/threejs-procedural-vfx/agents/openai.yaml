@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural VFX"
+  short_description: "Author coherent layered GPU-friendly visual effects"
+  default_prompt: "Use $threejs-procedural-vfx to build a layered effect whose event envelope, motion field, representation, emission, pooling, and bloom response are explicitly coordinated."

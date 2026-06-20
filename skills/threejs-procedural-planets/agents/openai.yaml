@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Procedural Planets"
+  short_description: "Author coupled planetary geometry and materials"
+  default_prompt: "Use $threejs-procedural-planets to build a planet whose terrain, biomes, normals, and distance filtering come from one inspectable geological field system."

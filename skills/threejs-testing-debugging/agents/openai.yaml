@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Testing and Debugging"
-  short_description: "Test, diagnose, and stabilize Three.js runtimes"
-  default_prompt: "Use $threejs-testing-debugging to reproduce, diagnose, and verify this Three.js runtime issue."

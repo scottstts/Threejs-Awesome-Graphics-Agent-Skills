@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Materials and Lighting"
-  short_description: "Establish real-time, baked, and probe-based lighting"
-  default_prompt: "Use $threejs-materials-lighting to establish this scene-wide material and lighting system."

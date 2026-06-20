@@ -1,7 +1,7 @@
 {
   "name": "threejs-gamedev-mega-skills",
   "version": "0.1.0",
-  "description": "Production-oriented Three.js design, rendering, gameplay, testing, interface, audio, visualization, and performance skills.",
+  "description": "Expert procedural geometry, materials, shaders, atmosphere, effects, and final-image skills for Three.js.",
   "author": {
     "name": "Scott"
   },
@@ -10,14 +10,15 @@
     "threejs",
     "webgl",
     "webgpu",
-    "r3f",
-    "browser-games"
+    "procedural-graphics",
+    "shaders",
+    "volumetrics"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Three.js Gamedev Mega Skills",
-    "shortDescription": "Production Three.js design and development workflows",
-    "longDescription": "A modular skill pack for technically correct, visually authored, testable, accessible, performant Three.js scenes, applications, data views, and browser games.",
+    "displayName": "Three.js Visual Mega Skills",
+    "shortDescription": "Expert procedural Three.js graphics systems",
+    "longDescription": "A modular expertise pack for procedural geometry, coherent materials, advanced shaders, atmosphere, volumetrics, shadows, temporal effects, and deliberate final-image pipelines in Three.js.",
     "developerName": "Scott",
     "category": "Developer Tools",
     "capabilities": [
@@ -25,9 +26,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Plan a polished Three.js experience.",
-      "Audit this Three.js scene and prioritize fixes.",
-      "Build a responsive browser-game vertical slice."
+      "Decompose an ambitious Three.js visual into expert systems.",
+      "Build a coherent procedural material and geometry pipeline.",
+      "Audit this scene's graphics mechanisms and visual evidence."
     ]
   }
 }

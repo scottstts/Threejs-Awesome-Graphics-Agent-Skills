@@ -1,6 +1,8 @@
 source_materials/*
 !source_materials/README.md
+!source_materials/trace-manifest.json
 .playwright-mcp/
 .DS_Store
 node_modules/
 *.tgz
+.example-captures/

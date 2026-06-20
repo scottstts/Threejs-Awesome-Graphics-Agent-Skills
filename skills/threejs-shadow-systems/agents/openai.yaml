@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Shadow Systems"
+  short_description: "Build stable cascades and cached clipmap shadows"
+  default_prompt: "Use $threejs-shadow-systems to replace this unstable large-world shadow setup."

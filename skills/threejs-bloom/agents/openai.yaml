@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Bloom"
+  short_description: "Design calibrated HDR multi-scale bloom"
+  default_prompt: "Use $threejs-bloom to calibrate HDR emission, extraction, multi-scale filtering, selective contribution, and exposure coupling without making bloom carry the scene's underlying form."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js Project Foundations"
-  short_description: "Build correct rendering foundations and offscreen views"
-  default_prompt: "Use $threejs-project-foundations to set up a production-ready Three.js scene and lifecycle."

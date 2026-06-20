@@ -1,4 +1,0 @@
-interface:
-  display_name: "Three.js WebGPU and TSL"
-  short_description: "Build version-aware WebGPU, TSL, and compute work"
-  default_prompt: "Use $threejs-webgpu-tsl to implement this Three.js WebGPU or TSL feature safely."

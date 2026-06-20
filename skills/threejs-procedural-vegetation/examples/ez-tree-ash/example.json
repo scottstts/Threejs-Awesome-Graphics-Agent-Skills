@@ -1,0 +1,145 @@
+{
+  "title": "Ash Growth System",
+  "description": "A reference-traceable independent implementation of the reviewed ez-tree Ash Medium system: exact species parameters, queue growth, deciduous terminal continuations, taper-coupled child radii, stratified and permuted emergence, final-branch leaf placement, rounded double cards, bark textures, rooted leaf wind, and the source meadow's simplex patching, grass, flowers, rocks, forest, sky, fog, and daylight.",
+  "backend": "WebGL2 / GLSL",
+  "techniques": [
+    "exact Ash Medium species table",
+    "deciduous terminal continuation branches",
+    "stratified and permuted child emergence",
+    "taper-coupled child radius",
+    "rounded double leaf cards",
+    "rooted multi-frequency leaf wind",
+    "shared CPU and shader simplex patch field",
+    "textured bark and complete meadow composition"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 960
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    {
+      "value": "final",
+      "label": "Final"
+    },
+    {
+      "value": "hierarchy",
+      "label": "Branch hierarchy"
+    },
+    {
+      "value": "continuations",
+      "label": "Terminal continuations"
+    },
+    {
+      "value": "leaf-origins",
+      "label": "Leaf origins"
+    },
+    {
+      "value": "normals",
+      "label": "Surface normals"
+    }
+  ],
+  "controls": [
+    "orbit",
+    "pause",
+    "timeScale",
+    "dpr",
+    "debugMode",
+    "capture"
+  ],
+  "sourceTrace": [
+    {
+      "source": "ez-tree",
+      "files": [
+        "src/lib/tree.js",
+        "src/lib/options.js",
+        "src/lib/presets/ash_medium.json",
+        "src/app/scene.js",
+        "src/app/main.js",
+        "src/app/environment.js",
+        "src/app/textures.js",
+        "src/app/noise.js",
+        "src/app/grass.js",
+        "src/app/ground.js",
+        "src/app/skybox.js",
+        "src/app/shaders/skybox.vert",
+        "src/app/shaders/skybox.frag",
+        "src/app/rocks.js"
+      ],
+      "mechanisms": [
+        "Ash Medium per-level species parameters",
+        "queue growth with lateral and terminal continuation descendants",
+        "radius-amplified gnarliness and inverse-radius growth force",
+        "stratified longitudinal placement with independently permuted azimuth slots",
+        "final-branch leaf placement with double cards and rounded normals",
+        "leaf-root multi-frequency wind",
+        "shared simplex field for grass rejection and ground blending",
+        "daylight fog meadow with grass, flowers, rocks, and background forest"
+      ],
+      "boundary": "independent-distillation",
+      "divergences": [
+        "background forest reuses the reviewed Ash geometry instead of generating 100 mixed presets",
+        "random placement is seeded so gallery captures are deterministic",
+        "camera distance is 115 instead of the startup value 100 to reproduce the README hero's visible crown margin at a 3:2 inspection viewport"
+      ],
+      "assets": [
+        {
+          "sourcePath": "src/app/public/textures/leaves/ash.png",
+          "localPath": "assets/ash.png"
+        },
+        {
+          "sourcePath": "src/app/public/textures/bark/Bark001_1K-JPG/Bark001_1K-JPG_Color.jpg",
+          "localPath": "assets/bark-color.jpg"
+        },
+        {
+          "sourcePath": "src/app/public/textures/bark/Bark001_1K-JPG/Bark001_1K-JPG_NormalGL.jpg",
+          "localPath": "assets/bark-normal.jpg"
+        },
+        {
+          "sourcePath": "src/app/public/textures/bark/Bark001_1K-JPG/Bark001_1K-JPG_Roughness.jpg",
+          "localPath": "assets/bark-roughness.jpg"
+        },
+        {
+          "sourcePath": "src/app/public/models/grass.glb",
+          "localPath": "assets/grass.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/flower_blue.glb",
+          "localPath": "assets/flower-blue.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/flower_white.glb",
+          "localPath": "assets/flower-white.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/flower_yellow.glb",
+          "localPath": "assets/flower-yellow.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/rock1.glb",
+          "localPath": "assets/rock1.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/rock2.glb",
+          "localPath": "assets/rock2.glb"
+        },
+        {
+          "sourcePath": "src/app/public/models/rock3.glb",
+          "localPath": "assets/rock3.glb"
+        },
+        {
+          "sourcePath": "src/app/public/textures/ground/grass.jpg",
+          "localPath": "assets/ground-grass.jpg"
+        },
+        {
+          "sourcePath": "src/app/public/textures/ground/dirt_color.jpg",
+          "localPath": "assets/ground-dirt.jpg"
+        },
+        {
+          "sourcePath": "src/app/public/textures/ground/dirt_normal.jpg",
+          "localPath": "assets/ground-normal.jpg"
+        }
+      ]
+    }
+  ]
+}
