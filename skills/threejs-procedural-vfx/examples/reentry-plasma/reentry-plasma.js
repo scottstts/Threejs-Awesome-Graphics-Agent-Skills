@@ -1,143 +1,188 @@
-import * as THREE from "three/webgpu";
-import { MeshBasicNodeMaterial } from "three/webgpu";
-import {
-  cameraPosition,
-  color,
-  dot,
-  float,
-  mix,
-  mx_noise_float,
-  normalWorld,
-  positionLocal,
-  positionWorld,
-  smoothstep,
-  time,
-  vec3,
-  uniform
-} from "three/tsl";
-const TWO_PI = 2 * Math.PI;
-const LOCAL_FORWARD_AXIS = new THREE.Vector3(0, 0, 1);
-const LOCAL_UP_AXIS = new THREE.Vector3(0, 1, 0);
-const LOCAL_RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
-const TEMP_FALL = new THREE.Vector3();
-const TEMP_WAKE_UP = new THREE.Vector3();
-const TEMP_WAKE_RIGHT = new THREE.Vector3();
-const TEMP_WAKE_MATRIX = new THREE.Matrix4();
-const TEMP_SUPPORT = new THREE.Vector3();
-const TEMP_WORLD_VERTEX = new THREE.Vector3();
-const TEMP_LOCAL_VERTEX = new THREE.Vector3();
-function collectShellSupportPoints(shipTemplate) {
-  const points = [];
-  shipTemplate.updateMatrixWorld(true);
-  const rootInverse = shipTemplate.matrixWorld.clone().invert();
-  shipTemplate.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return;
-    const position = child.geometry?.getAttribute("position");
-    if (!position) return;
-    const step = position.count > 9e3 ? 2 : 1;
-    for (let index = 0; index < position.count; index += step) {
-      TEMP_LOCAL_VERTEX.fromBufferAttribute(position, index);
-      TEMP_WORLD_VERTEX.copy(TEMP_LOCAL_VERTEX).applyMatrix4(child.matrixWorld).applyMatrix4(rootInverse);
-      points.push(TEMP_WORLD_VERTEX.clone());
-    }
-  });
-  if (points.length === 0) {
-    points.push(new THREE.Vector3(0, 0, 0));
+import * as THREE from "three";
+
+const TWO_PI = Math.PI * 2;
+
+const wakeVertexShader = `
+  varying vec2 vUv;
+  varying vec3 vWorldPosition;
+  varying vec3 vWorldNormal;
+
+  uniform float uTime;
+  uniform float uRippleStrength;
+  uniform float uFlowSpeed;
+
+  void main() {
+    vUv = uv;
+
+    vec3 transformed = position;
+    float t = uv.y;
+    float theta = uv.x * 6.28318530718;
+
+    float filamentWave =
+      sin(theta * 13.0 + t * 30.0 - uTime * uFlowSpeed * 1.8) * 0.55 +
+      sin(theta * 21.0 - t * 20.0 + uTime * uFlowSpeed * 2.3) * 0.25;
+
+    transformed.xy *= 1.0 + filamentWave * uRippleStrength * t;
+
+    vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    vWorldNormal = normalize(mat3(modelMatrix) * normal);
+
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
   }
-  return points;
-}
-function supportPoint(points, direction, out) {
-  let best = points[0];
-  let bestDot = best.dot(direction);
-  for (let index = 1; index < points.length; index += 1) {
-    const candidate = points[index];
-    const score = candidate.dot(direction);
-    if (score > bestDot) {
-      bestDot = score;
-      best = candidate;
-    }
+`;
+
+const wakeFragmentShader = `
+  precision highp float;
+
+  varying vec2 vUv;
+  varying vec3 vWorldPosition;
+  varying vec3 vWorldNormal;
+
+  uniform float uTime;
+  uniform float uOpacity;
+  uniform float uGlow;
+  uniform float uFlowSpeed;
+  uniform float uNoiseScale;
+  uniform vec3 uHeadColor;
+  uniform vec3 uMidColor;
+  uniform vec3 uTailColor;
+  uniform vec3 uHotColor;
+
+  float hash(vec3 p) {
+    p = fract(p * 0.3183099 + vec3(0.11, 0.17, 0.23));
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
   }
-  out.copy(best);
+
+  float noise(vec3 x) {
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+
+    return mix(
+      mix(
+        mix(hash(i + vec3(0.0, 0.0, 0.0)), hash(i + vec3(1.0, 0.0, 0.0)), f.x),
+        mix(hash(i + vec3(0.0, 1.0, 0.0)), hash(i + vec3(1.0, 1.0, 0.0)), f.x),
+        f.y
+      ),
+      mix(
+        mix(hash(i + vec3(0.0, 0.0, 1.0)), hash(i + vec3(1.0, 0.0, 1.0)), f.x),
+        mix(hash(i + vec3(0.0, 1.0, 1.0)), hash(i + vec3(1.0, 1.0, 1.0)), f.x),
+        f.y
+      ),
+      f.z
+    );
+  }
+
+  float fbm(vec3 p) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    for (int i = 0; i < 5; i++) {
+      value += noise(p) * amplitude;
+      p = p * 2.03 + vec3(11.7, 4.2, 8.3);
+      amplitude *= 0.5;
+    }
+    return value;
+  }
+
+  void main() {
+    float t = clamp(vUv.y, 0.0, 1.0);
+    float theta = vUv.x * 6.28318530718;
+
+    vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
+    float facing = abs(dot(normalize(vWorldNormal), viewDirection));
+    float fresnel = pow(1.0 - facing, 1.25);
+
+    float movingZ = t * uNoiseScale - uTime * uFlowSpeed;
+    float strandA = fbm(vec3(cos(theta) * 3.0, sin(theta) * 3.0, movingZ));
+    float strandB = fbm(vec3(vUv.x * 18.0, movingZ * 1.8, uTime * 0.15));
+    float filaments = pow(strandA * 0.55 + strandB * 0.45, 2.35);
+
+    float headFade = smoothstep(0.005, 0.055, t);
+    float tailFade = 1.0 - smoothstep(0.76, 1.0, t);
+    float lengthEnergy = pow(1.0 - t * 0.74, 1.45);
+
+    // This keeps the shell complete from every viewing angle.
+    // Fresnel adds a rim, but the surface never collapses into a half-open crescent.
+    float closedSurface = 0.38 + fresnel * 0.62;
+
+    float alpha =
+      uOpacity *
+      headFade *
+      tailFade *
+      lengthEnergy *
+      closedSurface *
+      (0.42 + filaments * 0.95);
+
+    vec3 thermalColor = mix(uHeadColor, uMidColor, smoothstep(0.02, 0.38, t));
+    thermalColor = mix(thermalColor, uTailColor, smoothstep(0.28, 1.0, t));
+
+    float whiteHeat = pow(1.0 - t, 4.0) * (0.45 + filaments * 0.95);
+    vec3 finalColor = thermalColor + uHotColor * whiteHeat;
+    finalColor += uMidColor * filaments * 0.42;
+
+    gl_FragColor = vec4(finalColor * alpha * uGlow, alpha);
+  }
+`;
+
+function smootherstep(edge0, edge1, value) {
+  const x = THREE.MathUtils.clamp((value - edge0) / (edge1 - edge0), 0, 1);
+  return x * x * x * (x * (x * 6 - 15) + 10);
 }
-function createFrontShellMaterial(intensityUniform, flowUniform, fallDirectionWorldUniform) {
-  const facing = dot(normalWorld, fallDirectionWorldUniform.negate()).clamp(0, 1);
-  const facingMask = smoothstep(float(0.18), float(0.96), facing);
-  const flowOffset = fallDirectionWorldUniform.mul(time.mul(5.4).add(flowUniform.mul(0.08)));
-  const turbulenceCoarse = mx_noise_float(positionWorld.mul(3.6).add(flowOffset)).mul(0.5).add(0.5);
-  const turbulenceFine = mx_noise_float(
-    positionWorld.mul(11.2).add(flowOffset.mul(1.9)).add(vec3(6.7, -3.1, 1.4))
-  ).mul(0.5).add(0.5);
-  const turbulence = turbulenceCoarse.mul(0.62).add(turbulenceFine.mul(0.38));
-  const filament = turbulenceFine.pow(3.1).mul(0.85).add(turbulence.mul(0.15)).clamp(0, 1);
-  const fresnelRaw = dot(cameraPosition.sub(positionWorld).normalize(), normalWorld).abs().oneMinus();
-  const fresnel = fresnelRaw.pow(1.12);
-  const rimBoost = smoothstep(float(0.18), float(0.98), fresnel);
-  const coreHeat = facingMask.mul(float(1).sub(rimBoost.mul(0.42))).clamp(0, 1);
-  const envelope = rimBoost.mul(float(1).sub(facingMask.mul(0.22))).clamp(0, 1);
-  const shockBand = smoothstep(float(0.68), float(0.98), facing).mul(smoothstep(float(0.22), float(0.92), rimBoost)).mul(filament);
-  const alpha = coreHeat.mul(turbulence.mul(0.5).add(0.5)).mul(fresnel.mul(0.7).add(0.3)).add(envelope.mul(filament.mul(0.35).add(0.45))).add(shockBand.mul(0.78)).mul(intensityUniform);
-  const material = new MeshBasicNodeMaterial();
-  const coreTemperature = facingMask.pow(0.7).mul(turbulence.mul(0.22).add(0.78)).clamp(0, 1);
-  const hotCoreColor = mix(color(16742948), color(16776191), coreTemperature.pow(0.68));
-  const ionColor = mix(color(16728020), color(8007167), turbulence.mul(0.62).add(rimBoost.mul(0.38)).clamp(0, 1));
-  const sheathColor = mix(color(9123327), color(3135231), rimBoost.mul(0.72).add(turbulence.mul(0.28)).clamp(0, 1));
-  const shockColor = mix(color(16776191), color(5220607), turbulence.mul(0.55).add(0.2).clamp(0, 1));
-  const finalColor = hotCoreColor.mul(coreHeat.mul(1.52).add(0.1)).add(ionColor.mul(envelope.mul(1.46))).add(sheathColor.mul(envelope.mul(1.98))).add(shockColor.mul(shockBand.mul(2.72)));
-  material.colorNode = finalColor.mul(alpha.mul(4.3));
-  material.opacityNode = alpha.mul(1).clamp(0, 1);
-  material.transparent = true;
-  material.depthWrite = false;
-  material.depthTest = true;
-  material.polygonOffset = true;
-  material.polygonOffsetFactor = -2;
-  material.polygonOffsetUnits = -2;
-  material.side = THREE.DoubleSide;
-  material.blending = THREE.AdditiveBlending;
-  return material;
-}
-function createFrontShell(shipTemplate, intensityUniform, flowUniform, fallDirectionWorldUniform) {
-  const shell = shipTemplate.clone(true);
-  const shellMaterial = createFrontShellMaterial(intensityUniform, flowUniform, fallDirectionWorldUniform);
-  shell.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return;
-    child.material = shellMaterial;
-    child.frustumCulled = false;
-    child.renderOrder = 10;
-  });
-  shell.scale.multiplyScalar(1.005);
-  return shell;
-}
-function capsuleProfilePoint(theta, halfStraight, radius, out) {
-  const cosTheta = Math.cos(theta);
-  const sinTheta = Math.sin(theta);
-  const yOffset = sinTheta >= 0 ? halfStraight : -halfStraight;
-  out.set(cosTheta * radius, sinTheta * radius + yOffset);
-}
-function createCapsuleWakeGeometry(profileLength, profileRadius, trailLength, expansion, radialSegments, sliceSegments) {
-  const geometry = new THREE.BufferGeometry();
+
+function createClosedWakeShellGeometry({
+  length,
+  radiusX,
+  radiusY,
+  expansion,
+  radialSegments = 96,
+  lengthSegments = 80,
+  ripple = 0,
+}) {
   const positions = [];
+  const normals = [];
   const uvs = [];
   const indices = [];
-  const halfLength = profileLength * 0.5;
-  const halfStraight = Math.max(halfLength - profileRadius, profileRadius * 0.12);
-  const point = new THREE.Vector2();
-  for (let slice = 0; slice <= sliceSegments; slice += 1) {
-    const t = slice / sliceSegments;
-    const z = -trailLength * t;
-    const spread = 1 + Math.pow(t, 1.24) * expansion;
-    const axialSqueeze = 1 + t * 0.1;
+
+  for (let slice = 0; slice <= lengthSegments; slice += 1) {
+    const t = slice / lengthSegments;
+
+    const headOpen = smootherstep(0, 0.08, t);
+    const tailSpread = 1 + expansion * Math.pow(t, 1.18);
+    const frontCompression = 0.72 + 0.28 * headOpen;
+    const crossScale = tailSpread * frontCompression;
+
+    const z = -length * t;
+    const verticalStretch = 1 + 0.15 * t;
+
     for (let segment = 0; segment <= radialSegments; segment += 1) {
-      const theta = segment / radialSegments * TWO_PI;
-      capsuleProfilePoint(theta, halfStraight, profileRadius, point);
-      const turbulence = 1 + Math.sin(theta * 3.3 + t * 8.7) * 0.1 * t;
-      const x = point.x * spread * turbulence;
-      const y = point.y * spread * axialSqueeze;
+      const u = segment / radialSegments;
+      const theta = u * TWO_PI;
+      const c = Math.cos(theta);
+      const s = Math.sin(theta);
+
+      const wave =
+        1 +
+        ripple *
+          t *
+          (Math.sin(theta * 6 + t * 13) * 0.55 +
+            Math.sin(theta * 11 - t * 9) * 0.25);
+
+      const x = c * radiusX * crossScale * wave;
+      const y = s * radiusY * crossScale * verticalStretch * wave;
+
       positions.push(x, y, z);
-      uvs.push(segment / radialSegments, t);
+
+      const normal = new THREE.Vector3(c / radiusX, s / radiusY, 0.06 * t).normalize();
+      normals.push(normal.x, normal.y, normal.z);
+
+      uvs.push(u, t);
     }
   }
+
   const stride = radialSegments + 1;
-  for (let slice = 0; slice < sliceSegments; slice += 1) {
+  for (let slice = 0; slice < lengthSegments; slice += 1) {
     for (let segment = 0; segment < radialSegments; segment += 1) {
       const a = slice * stride + segment;
       const b = a + stride;
@@ -146,171 +191,179 @@ function createCapsuleWakeGeometry(profileLength, profileRadius, trailLength, ex
       indices.push(a, b, d, b, c, d);
     }
   }
+
+  const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
-  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+
   return geometry;
 }
-function createWakeMaterial(intensityUniform, flowUniform, trailLength, widthScale, heightScale, noiseScale, noiseSpeed, opacityScale) {
-  const zNorm = positionLocal.z.negate().div(float(trailLength)).clamp(0, 1);
-  const xDist = positionLocal.x.abs().div(float(widthScale));
-  const yDist = positionLocal.y.abs().div(float(heightScale));
-  const profileDistance = xDist.mul(xDist).add(yDist.mul(yDist)).sqrt();
-  const coreMask = smoothstep(float(1.16), float(0.03), profileDistance);
-  const edgeBand = smoothstep(float(0.58), float(0.98), profileDistance).mul(smoothstep(float(1.22), float(0.82), profileDistance));
-  const frontMask = smoothstep(float(0), float(0.06), zNorm);
-  const tailFade = float(1).sub(smoothstep(float(0.72), float(1), zNorm));
-  const flowTime = time.mul(noiseSpeed).add(flowUniform.mul(0.14));
-  const streakSpace = positionLocal.mul(vec3(noiseScale, noiseScale, noiseScale * 0.18));
-  const streakCoordA = streakSpace.add(vec3(0, 0, flowTime.mul(2.1)));
-  const streakCoordB = streakSpace.mul(2.1).add(vec3(6.1, -2.7, flowTime.mul(4.1)));
-  const wakeNoiseCoarse = mx_noise_float(streakCoordA).mul(0.5).add(0.5);
-  const wakeNoiseFine = mx_noise_float(streakCoordB).mul(0.5).add(0.5);
-  const wakeNoise = wakeNoiseCoarse.mul(0.62).add(wakeNoiseFine.mul(0.38)).clamp(0, 1);
-  const wakeFilaments = wakeNoiseFine.pow(3.4).mul(0.85).add(wakeNoise.mul(0.15)).clamp(0, 1);
-  const fresnel = dot(cameraPosition.sub(positionWorld).normalize(), normalWorld).abs().oneMinus().pow(1.3);
-  const headHeat = float(1).sub(zNorm.mul(0.92)).clamp(0, 1);
-  const tailCool = smoothstep(float(0.12), float(0.95), zNorm);
-  const envelope = edgeBand.add(float(1).sub(coreMask).mul(0.38)).mul(float(1).sub(zNorm.mul(0.16))).clamp(0, 1);
-  const alpha = coreMask.mul(frontMask).mul(tailFade).mul(wakeFilaments.mul(0.72).add(0.28)).mul(fresnel.mul(1.18).add(0.16)).mul(intensityUniform.mul(0.92).add(0.08)).mul(opacityScale);
-  const material = new MeshBasicNodeMaterial();
-  const hotCore = mix(color(16726740), color(16776191), headHeat.pow(0.72));
-  const coolCore = mix(color(8072703), color(2047743), tailCool);
-  const coreColor = mix(hotCore, coolCore, smoothstep(float(0.06), float(0.38), zNorm));
-  const envelopeColor = mix(color(3135231), color(2770687), zNorm.pow(0.9));
-  const streakColor = mix(color(16776191), color(8115967), zNorm.mul(0.9).clamp(0, 1));
-  const colorBlend = coreColor.mul(coreMask.mul(headHeat.mul(0.95).add(0.1))).add(envelopeColor.mul(envelope.mul(1.18))).add(streakColor.mul(wakeFilaments.mul(coreMask).mul(0.85)));
-  material.colorNode = colorBlend.mul(alpha.mul(3.45));
-  material.opacityNode = alpha.clamp(0, 1);
-  material.transparent = true;
-  material.depthWrite = false;
-  material.depthTest = false;
-  material.side = THREE.DoubleSide;
-  material.blending = THREE.AdditiveBlending;
-  return material;
+
+function makeWakeMaterial({
+  opacity,
+  glow,
+  speed,
+  noiseScale,
+  rippleStrength,
+  headColor,
+  midColor,
+  tailColor,
+  hotColor,
+}) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uOpacity: { value: opacity },
+      uGlow: { value: glow },
+      uFlowSpeed: { value: speed },
+      uNoiseScale: { value: noiseScale },
+      uRippleStrength: { value: rippleStrength },
+      uHeadColor: { value: new THREE.Color(headColor) },
+      uMidColor: { value: new THREE.Color(midColor) },
+      uTailColor: { value: new THREE.Color(tailColor) },
+      uHotColor: { value: new THREE.Color(hotColor) },
+    },
+    vertexShader: wakeVertexShader,
+    fragmentShader: wakeFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+  });
 }
-function createReentryPlasma(shipLength, shipTemplate) {
-  const length = Math.max(shipLength, 1);
-  const group = new THREE.Group();
-  const wakeRoot = new THREE.Group();
-  const frontShellRoot = new THREE.Group();
-  group.add(frontShellRoot);
-  frontShellRoot.add(wakeRoot);
-  const intensityUniform = uniform(0);
-  const flowUniform = uniform(0);
-  const fallDirectionWorldUniform = uniform(new THREE.Vector3(0, 0, 1));
-  const shellSupportPoints = collectShellSupportPoints(shipTemplate);
-  const frontShell = createFrontShell(shipTemplate, intensityUniform, flowUniform, fallDirectionWorldUniform);
-  frontShell.frustumCulled = false;
-  frontShellRoot.add(frontShell);
-  const profileLength = length * 0.74;
-  const profileRadius = length * 0.068;
-  const trailLength = length * 1.55;
-  const coreWakeGeometry = createCapsuleWakeGeometry(profileLength * 0.86, profileRadius * 0.95, trailLength, 1.9, 52, 26);
-  const coreWakeMaterial = createWakeMaterial(
-    intensityUniform,
-    flowUniform,
-    trailLength,
-    profileRadius * 2.1,
-    profileLength * 0.82,
-    6.6,
-    2.3,
-    1
-  );
-  const coreWakeMesh = new THREE.Mesh(coreWakeGeometry, coreWakeMaterial);
-  coreWakeMesh.renderOrder = 8;
-  coreWakeMesh.frustumCulled = false;
-  wakeRoot.add(coreWakeMesh);
-  const hazeTrailLength = trailLength * 1.05;
-  const hazeWakeGeometry = createCapsuleWakeGeometry(profileLength, profileRadius * 1.2, hazeTrailLength, 2, 40, 20);
-  const hazeWakeMaterial = createWakeMaterial(
-    intensityUniform,
-    flowUniform,
-    hazeTrailLength,
-    profileRadius * 2.9,
-    profileLength * 1.02,
-    4.4,
-    1.55,
-    0.28
-  );
-  const hazeWakeMesh = new THREE.Mesh(hazeWakeGeometry, hazeWakeMaterial);
-  hazeWakeMesh.renderOrder = 7;
-  hazeWakeMesh.frustumCulled = false;
-  wakeRoot.add(hazeWakeMesh);
-  const lobeTrailLength = trailLength * 0.88;
-  const lobeGeometry = createCapsuleWakeGeometry(profileLength * 0.5, profileRadius * 0.5, lobeTrailLength, 1.85, 28, 14);
-  const lobeMaterial = createWakeMaterial(
-    intensityUniform,
-    flowUniform,
-    lobeTrailLength,
-    profileRadius * 1.1,
-    profileLength * 0.42,
-    7.2,
-    2.8,
-    0.34
-  );
-  const leftLobe = new THREE.Mesh(lobeGeometry, lobeMaterial);
-  leftLobe.position.set(-profileRadius * 0.95, profileRadius * 0.15, -profileRadius * 0.08);
-  leftLobe.rotation.z = 0.24;
-  leftLobe.renderOrder = 6;
-  leftLobe.frustumCulled = false;
-  wakeRoot.add(leftLobe);
-  const rightLobe = new THREE.Mesh(lobeGeometry, lobeMaterial);
-  rightLobe.position.set(profileRadius * 0.95, -profileRadius * 0.15, -profileRadius * 0.08);
-  rightLobe.rotation.z = -0.24;
-  rightLobe.renderOrder = 6;
-  rightLobe.frustumCulled = false;
-  wakeRoot.add(rightLobe);
-  group.visible = false;
+
+const shellConfigs = [
+  {
+    length: 5.9,
+    radiusX: 0.42,
+    radiusY: 1,
+    expansion: 0.91,
+    ripple: 0.022,
+    opacity: 0.66,
+    glow: 2.7,
+    speed: 0.72,
+    noiseScale: 6.2,
+    rippleStrength: 0.024,
+    headColor: 0xdcecff,
+    midColor: 0x4bc7ff,
+    tailColor: 0x1438ff,
+    hotColor: 0xffffff,
+    renderOrder: 4,
+  },
+  {
+    length: 5.98,
+    radiusX: 0.46,
+    radiusY: 1.05,
+    expansion: 0.94,
+    ripple: 0.018,
+    opacity: 0.47,
+    glow: 2.28,
+    speed: 0.61,
+    noiseScale: 5.6,
+    rippleStrength: 0.018,
+    headColor: 0xc7ebff,
+    midColor: 0x33b4ff,
+    tailColor: 0x1c35ea,
+    hotColor: 0xfdffff,
+    renderOrder: 3,
+  },
+  {
+    length: 6.06,
+    radiusX: 0.5,
+    radiusY: 1.1,
+    expansion: 0.98,
+    ripple: 0.014,
+    opacity: 0.31,
+    glow: 2.02,
+    speed: 0.52,
+    noiseScale: 5,
+    rippleStrength: 0.014,
+    headColor: 0xa6e3ff,
+    midColor: 0x2495ff,
+    tailColor: 0x1b28c2,
+    hotColor: 0xf1fbff,
+    renderOrder: 2,
+  },
+  {
+    length: 6.14,
+    radiusX: 0.54,
+    radiusY: 1.15,
+    expansion: 1.02,
+    ripple: 0.01,
+    opacity: 0.2,
+    glow: 1.82,
+    speed: 0.43,
+    noiseScale: 4.5,
+    rippleStrength: 0.01,
+    headColor: 0x87dbff,
+    midColor: 0x1b76ff,
+    tailColor: 0x151a8e,
+    hotColor: 0xe8f6ff,
+    renderOrder: 1,
+  },
+  {
+    length: 6.22,
+    radiusX: 0.58,
+    radiusY: 1.2,
+    expansion: 1.06,
+    ripple: 0.007,
+    opacity: 0.11,
+    glow: 1.58,
+    speed: 0.35,
+    noiseScale: 4,
+    rippleStrength: 0.007,
+    headColor: 0x71d5ff,
+    midColor: 0x145fff,
+    tailColor: 0x101455,
+    hotColor: 0xdaf1ff,
+    renderOrder: 0,
+  },
+];
+
+export function createReentryPlasma() {
+  const plasma = new THREE.Group();
+  const materials = [];
+  const geometries = [];
+
+  for (const config of shellConfigs) {
+    const geometry = createClosedWakeShellGeometry({
+      length: config.length,
+      radiusX: config.radiusX,
+      radiusY: config.radiusY,
+      expansion: config.expansion,
+      radialSegments: 128,
+      lengthSegments: 96,
+      ripple: config.ripple,
+    });
+
+    const material = makeWakeMaterial(config);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.frustumCulled = false;
+    mesh.renderOrder = config.renderOrder;
+    plasma.add(mesh);
+
+    geometries.push(geometry);
+    materials.push(material);
+  }
+
   return {
-    object: group,
-    setFrame: (fallDirectionLocal, fallDirectionWorld) => {
-      TEMP_FALL.copy(fallDirectionLocal);
-      if (TEMP_FALL.lengthSq() < 1e-8) {
-        TEMP_FALL.copy(LOCAL_FORWARD_AXIS);
-      } else {
-        TEMP_FALL.normalize();
-      }
-      supportPoint(shellSupportPoints, TEMP_FALL, TEMP_SUPPORT);
-      TEMP_WAKE_UP.copy(LOCAL_UP_AXIS).addScaledVector(TEMP_FALL, -LOCAL_UP_AXIS.dot(TEMP_FALL));
-      if (TEMP_WAKE_UP.lengthSq() < 1e-8) {
-        TEMP_WAKE_UP.copy(LOCAL_RIGHT_AXIS).addScaledVector(TEMP_FALL, -LOCAL_RIGHT_AXIS.dot(TEMP_FALL));
-      }
-      if (TEMP_WAKE_UP.lengthSq() < 1e-8) {
-        TEMP_WAKE_UP.copy(LOCAL_UP_AXIS);
-      } else {
-        TEMP_WAKE_UP.normalize();
-      }
-      TEMP_WAKE_RIGHT.crossVectors(TEMP_WAKE_UP, TEMP_FALL);
-      if (TEMP_WAKE_RIGHT.lengthSq() < 1e-8) {
-        TEMP_WAKE_RIGHT.copy(LOCAL_RIGHT_AXIS);
-      } else {
-        TEMP_WAKE_RIGHT.normalize();
-      }
-      TEMP_WAKE_UP.crossVectors(TEMP_FALL, TEMP_WAKE_RIGHT).normalize();
-      TEMP_WAKE_MATRIX.makeBasis(TEMP_WAKE_RIGHT, TEMP_WAKE_UP, TEMP_FALL);
-      wakeRoot.quaternion.setFromRotationMatrix(TEMP_WAKE_MATRIX);
-      wakeRoot.position.copy(TEMP_SUPPORT);
-      frontShellRoot.position.set(0, 0, 0);
-      frontShellRoot.quaternion.identity();
-      if (fallDirectionWorld.lengthSq() > 1e-8) {
-        fallDirectionWorldUniform.value.copy(fallDirectionWorld).normalize();
-      } else {
-        fallDirectionWorldUniform.value.set(0, 0, 1);
+    object: plasma,
+    update(elapsed) {
+      for (const material of materials) {
+        material.uniforms.uTime.value = elapsed;
       }
     },
-    setState: (intensity, flow) => {
-      const clamped = THREE.MathUtils.clamp(intensity, 0, 1);
-      intensityUniform.value = clamped;
-      flowUniform.value = flow;
-      group.visible = clamped > 1e-3;
-      const stretch = 0.88 + clamped * 0.95;
-      wakeRoot.scale.set(1, 1, stretch);
-      frontShellRoot.scale.setScalar(1);
-    }
+    dispose() {
+      for (const geometry of geometries) {
+        geometry.dispose();
+      }
+      for (const material of materials) {
+        material.dispose();
+      }
+    },
   };
 }
-export {
-  createReentryPlasma
-};

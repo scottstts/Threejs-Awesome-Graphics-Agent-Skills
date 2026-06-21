@@ -1,108 +1,109 @@
-import { bloom } from "three/addons/tsl/display/BloomNode.js";
-import { pass } from "three/tsl";
 import { createReentryPlasma } from
   "/skills/threejs-procedural-vfx/examples/reentry-plasma/reentry-plasma.js";
-import { loadStarship } from "./load-starship.js";
 
 export default {
-  backend: "webgpu",
-  initialTime: 4.3,
+  backend: "webgl",
+  initialTime: 0,
   renderer: {
-    options: { antialias: true },
-    exposure: 1,
-    clearColor: 0x010207,
+    options: {
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance",
+    },
+    clearColor: 0x000000,
   },
   camera: {
-    fov: 46,
-    near: 0.1,
-    far: 400,
-    position: [24, 10, 34],
+    fov: 42,
+    near: 0.01,
+    far: 100,
+    position: [0, 1.15, 7.2],
   },
   controls: {
-    target: [0, 0, 0],
-    minDistance: 18,
-    maxDistance: 90,
-    enablePan: true,
+    target: [0, 0, -2.55],
+    enablePan: false,
+    enableZoom: false,
   },
 
   async setup({ THREE, renderer, scene, camera }) {
-    const starship = await loadStarship(
-      "/source_materials/visual-baselines/assets/starship.glb",
-    );
-    const ship = starship.object;
-    const shipRoot = new THREE.Group();
-    shipRoot.rotation.set(-0.32, -0.9, -0.58);
-    shipRoot.add(ship);
-    scene.add(shipRoot);
+    scene.background = new THREE.Color(0x000000);
 
-    const plasma = createReentryPlasma(starship.length, ship);
-    shipRoot.add(plasma.object);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.setClearColor(0x000000, 1);
 
-    const localFall = new THREE.Vector3(0.16, -0.08, 1).normalize();
-    const worldFall = localFall.clone().applyQuaternion(shipRoot.quaternion);
-    plasma.setFrame(localFall, worldFall);
-    plasma.setState(1, 28);
+    camera.position.set(0, 1.15, 7.2);
+    camera.lookAt(0, 0, -2.55);
 
-    const starGeometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(3600 * 3);
-    let state = 0x1977ca1;
-    const random = () => {
-      state = Math.imul(state ^ (state >>> 15), 1 | state);
-      state ^= state + Math.imul(state ^ (state >>> 7), 61 | state);
-      return ((state ^ (state >>> 14)) >>> 0) / 4294967296;
+    const plasma = createReentryPlasma();
+    plasma.object.rotation.set(-0.08, 0, -0.05);
+    scene.add(plasma.object);
+
+    let targetRotationX = -0.02;
+    let targetRotationY = 0;
+    let isDragging = false;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+
+    const canvas = renderer.domElement;
+
+    const handlePointerDown = (event) => {
+      isDragging = true;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      canvas.setPointerCapture?.(event.pointerId);
     };
-    for (let index = 0; index < positions.length; index += 3) {
-      const direction = new THREE.Vector3(
-        random() * 2 - 1,
-        random() * 2 - 1,
-        random() * 2 - 1,
-      ).normalize().multiplyScalar(120 + random() * 80);
-      positions[index] = direction.x;
-      positions[index + 1] = direction.y;
-      positions[index + 2] = direction.z;
-    }
-    starGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(positions, 3),
-    );
-    const stars = new THREE.Points(
-      starGeometry,
-      new THREE.PointsMaterial({
-        color: 0xc8e3ff,
-        size: 0.12,
-        sizeAttenuation: true,
-        toneMapped: false,
-      }),
-    );
-    scene.add(stars);
 
-    scene.add(new THREE.HemisphereLight(0x9ebcff, 0x090812, 0.5));
-    const rim = new THREE.DirectionalLight(0x9cb8ff, 2.5);
-    rim.position.set(-14, 20, 18);
-    scene.add(rim);
+    const handlePointerMove = (event) => {
+      if (!isDragging) return;
 
-    const scenePass = pass(scene, camera);
-    const sceneColor = scenePass.getTextureNode("output");
-    const bloomPass = bloom(sceneColor);
-    bloomPass.threshold.value = 0.92;
-    bloomPass.strength.value = 0.42;
-    bloomPass.radius.value = 0.52;
-    const post = new THREE.RenderPipeline(renderer);
-    post.outputNode = sceneColor.add(bloomPass);
+      const dx = event.clientX - lastPointerX;
+      const dy = event.clientY - lastPointerY;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+
+      targetRotationY += dx * 0.006;
+      targetRotationX += dy * 0.006;
+      targetRotationX = THREE.MathUtils.clamp(targetRotationX, -0.9, 0.9);
+    };
+
+    const handlePointerUp = (event) => {
+      isDragging = false;
+      canvas.releasePointerCapture?.(event.pointerId);
+    };
+
+    const handlePointerCancel = () => {
+      isDragging = false;
+    };
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", handlePointerUp);
+    canvas.addEventListener("pointercancel", handlePointerCancel);
 
     return {
       update({ elapsed }) {
-        plasma.setFrame(localFall, worldFall);
-        plasma.setState(1, elapsed * 6.5);
+        plasma.update(elapsed);
+
+        if (!isDragging) {
+          targetRotationY += 0.0012;
+        }
+
+        plasma.object.rotation.x += (targetRotationX - plasma.object.rotation.x) * 0.08;
+        plasma.object.rotation.y += (targetRotationY - plasma.object.rotation.y) * 0.08;
+
+        const breath = 1 + Math.sin(elapsed * 1.1) * 0.012;
+        plasma.object.scale.set(1, 1, breath);
       },
       render() {
-        post.render();
-      },
-      metrics() {
-        return { tier: "source plasma / WebGPU TSL / bloom" };
+        renderer.render(scene, camera);
       },
       dispose() {
-        starGeometry.dispose();
+        canvas.removeEventListener("pointerdown", handlePointerDown);
+        canvas.removeEventListener("pointermove", handlePointerMove);
+        canvas.removeEventListener("pointerup", handlePointerUp);
+        canvas.removeEventListener("pointercancel", handlePointerCancel);
+        plasma.dispose();
       },
     };
   },
