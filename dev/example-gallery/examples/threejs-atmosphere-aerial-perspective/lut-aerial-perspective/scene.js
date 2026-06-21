@@ -47,24 +47,9 @@ export default {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const knot = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(0.28, 0.085, 256, 64),
-      new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.5,
-        ior: 1.45,
-        clearcoat: 1,
-        clearcoatRoughness: 0.1,
-      }),
-    );
-    knot.position.y = 0.28;
-    knot.castShadow = true;
-    knot.receiveShadow = true;
-    scene.add(knot);
-
     const sun = new THREE.DirectionalLight(0xffe3bd, 0.9);
     sun.position.copy(sunDirection).multiplyScalar(20);
-    sun.target.position.copy(knot.position);
+    sun.target.position.set(0, 0.28, 0);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.left = -2;
@@ -133,8 +118,6 @@ export default {
       dispose() {
         ground.geometry.dispose();
         ground.material.dispose();
-        knot.geometry.dispose();
-        knot.material.dispose();
         sun.dispose();
         sceneTarget.dispose();
         quad.geometry.dispose();
