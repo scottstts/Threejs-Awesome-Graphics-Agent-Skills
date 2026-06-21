@@ -1,5 +1,5 @@
 import { createWaterOpticsScene } from
-  "/skills/threejs-water-optics/examples/analytic-wave-optics/water-optics-scene.js";
+  "./water-optics-scene.js";
 
 export default {
   initialTime: 5.4,

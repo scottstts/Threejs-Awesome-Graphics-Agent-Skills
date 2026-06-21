@@ -48,6 +48,7 @@ const wakeFragmentShader = `
   uniform vec3 uMidColor;
   uniform vec3 uTailColor;
   uniform vec3 uHotColor;
+  uniform int uDebugMode;
 
   float hash(vec3 p) {
     p = fract(p * 0.3183099 + vec3(0.11, 0.17, 0.23));
@@ -121,6 +122,23 @@ const wakeFragmentShader = `
     float whiteHeat = pow(1.0 - t, 4.0) * (0.45 + filaments * 0.95);
     vec3 finalColor = thermalColor + uHotColor * whiteHeat;
     finalColor += uMidColor * filaments * 0.42;
+
+    if (uDebugMode == 1) {
+      gl_FragColor = vec4(vec3(closedSurface * headFade * tailFade), 1.0);
+      return;
+    }
+    if (uDebugMode == 2) {
+      gl_FragColor = vec4(vec3(filaments), 1.0);
+      return;
+    }
+    if (uDebugMode == 3) {
+      gl_FragColor = vec4(thermalColor / (thermalColor + vec3(1.0)), 1.0);
+      return;
+    }
+    if (uDebugMode == 4) {
+      gl_FragColor = vec4(vec3(alpha), 1.0);
+      return;
+    }
 
     gl_FragColor = vec4(finalColor * alpha * uGlow, alpha);
   }
@@ -225,6 +243,7 @@ function makeWakeMaterial({
       uMidColor: { value: new THREE.Color(midColor) },
       uTailColor: { value: new THREE.Color(tailColor) },
       uHotColor: { value: new THREE.Color(hotColor) },
+      uDebugMode: { value: 0 },
     },
     vertexShader: wakeVertexShader,
     fragmentShader: wakeFragmentShader,
@@ -352,6 +371,19 @@ export function createReentryPlasma() {
 
   return {
     object: plasma,
+    setDebugMode(modeName) {
+      const modes = new Map([
+        ["final", 0],
+        ["shell-coverage", 1],
+        ["filaments", 2],
+        ["thermal-color", 3],
+        ["opacity", 4],
+      ]);
+      const mode = modes.get(modeName) ?? 0;
+      for (const material of materials) {
+        material.uniforms.uDebugMode.value = mode;
+      }
+    },
     update(elapsed) {
       for (const material of materials) {
         material.uniforms.uTime.value = elapsed;

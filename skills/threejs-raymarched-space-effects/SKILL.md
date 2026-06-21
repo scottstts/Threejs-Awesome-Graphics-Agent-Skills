@@ -21,8 +21,8 @@ Read [references/curved-ray-integrators.md](references/curved-ray-integrators.md
 for the RK4 wormhole, artistic curved-ray accretion integrator, disk
 composition, and implementation defects.
 
-Inspect the runnable
-[curved-ray accretion volume](examples/curved-ray-accretion-volume/index.html)
+Read the
+[curved-ray accretion volume](examples/curved-ray-accretion-volume/curved-ray-effect.js)
 for the inverse-square steering loop, thin disk density, front-to-back
 accumulation, deterministic star environment, and integrator diagnostics.
 

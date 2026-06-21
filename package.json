@@ -52,7 +52,7 @@
     "test:installer": "node scripts/test-installer.mjs",
     "test:gallery": "node scripts/test-example-gallery.mjs",
     "check:freshness": "node scripts/check-three-freshness.mjs",
-    "test:all": "npm test && npm run check:freshness",
+    "test:all": "npm test && npm run audit:sources && npm run check:freshness",
     "prepack": "npm run test:all",
     "prepublishOnly": "npm run check:freshness"
   },

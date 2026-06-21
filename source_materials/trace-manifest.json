@@ -74,6 +74,28 @@
         "packages/clouds/src/shaders/varianceClipping.glsl": "b7ef065e7e7b9e8069ea3f6a3597f4e25e3ca4809b0ad2aa1bdae10abcbeaba6"
       }
     },
+    "jeantimex-geospatial": {
+      "repository": "https://github.com/jeantimex/geospatial",
+      "revision": "d166316ad38f9a21f6d7a3293b808bc7f920283e",
+      "license": "MIT",
+      "localDirectory": "jeantimex-geospatial",
+      "files": {
+        "src/atmosphere/index.ts": "9f584497e7455e2e9e4c236e997b6eb7c50e43626290fc9326bf1c532d6257b7",
+        "src/clouds/index.ts": "07b6d5f09a72087b8abb043dd1cccd19d520b49d440462ad1b0592ed31d45661",
+        "package.json": "c8f3e9dbbd3ce08880d3a4432bf8b7d3f12341bae4ac0170c2b2c695d32f052a",
+        "package-lock.json": "20f0a50630aa419d58a0b682e9d642ff1975e41073e76a25a3f0d0b9e984fd30"
+      },
+      "assets": {
+        "public/assets/atmosphere/irradiance.bin": "6e7a45138f585e721dc7f0b749da341f7c6d305eb04bc62332c30e0e84571a94",
+        "public/assets/atmosphere/scattering.bin": "ad2ff8d6e4e5fddc9cab223b03e7e32778080be645ee555bb15d22c7e9d8dd56",
+        "public/assets/atmosphere/transmittance.bin": "2af2ce84317148150a2c55dfd17daeb5539ebd8631b74645f0b5cf5a08e0a491",
+        "public/assets/clouds/local_weather.png": "b84daef855dc5eebcc9b174fe832ba75a98e44b846dde201bce354417cc08031",
+        "public/assets/clouds/shape.bin": "ef65cf6156894720c00bf572c49e3e254f8899c4b5158246e5a35a1922e2519c",
+        "public/assets/clouds/shape_detail.bin": "c09112199c6e0281b74ff5283c11c2943ae082650b9b67978cf5d59ed2956e4f",
+        "public/assets/clouds/turbulence.png": "ec2b1b0af4a6a6104102b21e58beb300b0a3d334c0281d84fde8c91d322910f9",
+        "public/assets/core/stbn.bin": "51f52f21e5578384585050390821a0a486dcb81e11a716fa7b92fbb6515ba852"
+      }
+    },
     "procedural-bank": {
       "repository": "https://github.com/vibe-stack/procedural-bank",
       "revision": "0034e80a61f02b88dbe13a385bdab734a365b82d",

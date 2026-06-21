@@ -1,5 +1,5 @@
 import { createVegetationScene } from
-  "/skills/threejs-procedural-vegetation/examples/structured-ash-growth/vegetation-scene.js";
+  "./vegetation-scene.js";
 
 export default {
   renderer: {

@@ -1,5 +1,5 @@
 import { createGalleryFrameScene } from
-  "/skills/threejs-procedural-geometry/examples/sculpted-gallery-frame/gallery-frame-scene.js";
+  "./gallery-frame-scene.js";
 
 export default {
   renderer: {

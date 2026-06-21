@@ -3,11 +3,15 @@ import {
   createCloudMaterial,
   createCopyMaterial,
   createResolveMaterial,
-  createWeatherTexture,
 } from "./cloud-system.js";
 
 export class WeatherVolumeCloudEffect {
-  constructor(renderer, camera, { resolutionScale = 0.72 } = {}) {
+  constructor(
+    renderer,
+    camera,
+    textures,
+    { resolutionScale = 0.85 } = {},
+  ) {
     this.renderer = renderer;
     this.camera = camera;
     this.resolutionScale = resolutionScale;
@@ -16,11 +20,7 @@ export class WeatherVolumeCloudEffect {
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
     this.renderScene.add(this.quad);
 
-    this.weatherTexture = createWeatherTexture();
-    this.cloudMaterial = createCloudMaterial(this.weatherTexture);
-    this.cloudMaterial.uniforms.uSunDirection.value
-      .set(-0.36, 0.16, -0.92)
-      .normalize();
+    this.cloudMaterial = createCloudMaterial(textures);
     this.resolveMaterial = createResolveMaterial();
     this.copyMaterial = createCopyMaterial();
     this.currentTarget = this.createTarget(1, 1);
@@ -28,6 +28,7 @@ export class WeatherVolumeCloudEffect {
     this.historyWrite = this.currentTarget.clone();
     this.historyValid = false;
     this.previousCameraMatrix = new THREE.Matrix4();
+    this.frame = 0;
     this.debugModes = new Map([
       ["final", 0],
       ["weather", 1],
@@ -87,6 +88,11 @@ export class WeatherVolumeCloudEffect {
       mode === "history-rejection" ? 1 : 0;
   }
 
+  setBackground(colorTexture, depthTexture) {
+    this.cloudMaterial.uniforms.uBackground.value = colorTexture;
+    this.cloudMaterial.uniforms.uSceneDepth.value = depthTexture;
+  }
+
   update(elapsed) {
     this.camera.updateMatrixWorld(true);
     if (
@@ -99,6 +105,7 @@ export class WeatherVolumeCloudEffect {
     }
     this.previousCameraMatrix.copy(this.camera.matrixWorld);
     this.cloudMaterial.uniforms.uTime.value = elapsed;
+    this.cloudMaterial.uniforms.uFrame.value = this.frame;
     this.cloudMaterial.uniforms.uCameraPosition.value.copy(
       this.camera.position,
     );
@@ -111,6 +118,7 @@ export class WeatherVolumeCloudEffect {
   }
 
   render() {
+    this.frame += 1;
     this.quad.material = this.cloudMaterial;
     this.renderer.setRenderTarget(this.currentTarget);
     this.renderer.render(this.renderScene, this.screenCamera);
@@ -141,14 +149,13 @@ export class WeatherVolumeCloudEffect {
     return {
       tier:
         `${this.currentTarget.width}×${this.currentTarget.height} / ` +
-        "160×8 samples / history",
+        "320×5 samples / authored weather and volume fields / history",
     };
   }
 
   dispose() {
     this.disposeTargets();
     this.quad.geometry.dispose();
-    this.weatherTexture.dispose();
     this.cloudMaterial.dispose();
     this.resolveMaterial.dispose();
     this.copyMaterial.dispose();

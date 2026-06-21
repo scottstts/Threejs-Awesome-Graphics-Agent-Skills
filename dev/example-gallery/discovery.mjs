@@ -13,7 +13,7 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, "utf8"));
 }
 
-async function discoverDirectories(root, segments) {
+async function discoverDirectories(root, segments, entryFile = "scene.js") {
   const found = [];
   let entries = [];
   try {
@@ -28,12 +28,14 @@ async function discoverDirectories(root, segments) {
     const directory = path.join(root, entry.name);
     const nextSegments = [...segments, entry.name];
     if (
-      await isFile(path.join(directory, "scene.js")) &&
+      await isFile(path.join(directory, entryFile)) &&
       await isFile(path.join(directory, "example.json"))
     ) {
       found.push({ directory, segments: nextSegments });
     } else {
-      found.push(...await discoverDirectories(directory, nextSegments));
+      found.push(
+        ...await discoverDirectories(directory, nextSegments, entryFile),
+      );
     }
   }
   return found;
@@ -162,7 +164,7 @@ export async function discoverExamples(
       "example-gallery",
       "fixtures",
     );
-    const fixtures = await discoverDirectories(fixtureRoot, []);
+    const fixtures = await discoverDirectories(fixtureRoot, [], "index.html");
     loaded.push(
       ...await Promise.all(
         fixtures.map((candidate) =>

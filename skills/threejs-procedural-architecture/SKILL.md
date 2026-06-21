@@ -21,8 +21,8 @@ settings
 
 Read [references/grammar-and-mesh-compiler.md](references/grammar-and-mesh-compiler.md) before implementing the generator.
 
-Inspect the runnable
-[authored financial tower](examples/authored-financial-tower/index.html)
+Read the
+[authored financial tower compiler](examples/authored-financial-tower/building-system.js)
 for seeded tier planning, semantic façade placement, reserved zones,
 material-slot instancing, projected detail, and mechanism-specific diagnostics.
 

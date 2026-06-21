@@ -19,8 +19,8 @@ Use a single shadow map only when its receiver region is genuinely bounded. For 
 
 Read [references/cached-clipmap-shadows.md](references/cached-clipmap-shadows.md) before implementing a large-world directional light.
 
-Inspect the runnable
-[authored financial tower](../threejs-procedural-architecture/examples/authored-financial-tower/index.html)
+Read the
+[cached shadow clipmaps](../threejs-procedural-architecture/examples/authored-financial-tower/shadow-clipmaps.js)
 for three light-space square levels, per-level texel snapping, containment
 cross-fades, cached coarse updates, scaled bias, and unshadowed outside weight.
 

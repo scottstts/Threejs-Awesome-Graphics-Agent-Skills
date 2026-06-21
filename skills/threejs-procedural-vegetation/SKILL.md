@@ -24,8 +24,9 @@ Represent a plant as a growth hierarchy plus rendering adaptations. Do not model
 
 Read [references/structured-ash-growth-system.md](references/structured-ash-growth-system.md) and preserve its preset, continuation, child-placement, leaf, material, wind, and composition contracts before tuning.
 
-Inspect the [Ash Growth System](examples/structured-ash-growth/index.html) for
-a runnable contract-accurate implementation and its diagnostic views.
+Read the [Ash Growth System implementation](examples/structured-ash-growth/tree-system.js)
+with its [authored preset](examples/structured-ash-growth/ash-preset.js) for a
+contract-accurate implementation and its diagnostic attributes.
 
 ## Visual failure conditions
 

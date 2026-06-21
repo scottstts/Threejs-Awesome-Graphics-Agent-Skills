@@ -1,13 +1,14 @@
 {
   "title": "Weather Volume Clouds",
-  "description": "A large-world bounded cloud raymarch with separate low, middle, and high weather channels, profile-shaped density, generated base and detail fields, packed empty-gap skipping, explicit layer intervals, directional self-shadowing, powder and phase response, low-resolution rendering, variance-clipped history, and cloud diagnostics.",
-  "backend": "WebGL2 / GLSL volumetric reconstruction",
+  "description": "A large-world bounded cloud raymarch with authored low, middle, and high weather channels, 3D base and detail volumes, turbulence distortion, profile-shaped density, directional self-shadowing, atmospheric composition, and temporal reconstruction.",
+  "backend": "WebGL2 / GLSL3 volumetric reconstruction",
   "techniques": [
-    "multi-layer weather-channel density",
+    "authored multi-layer weather-channel density",
     "bounded layer interval selection",
-    "height-dependent shape and detail erosion",
+    "128-cubed base shape and 32-cubed detail erosion",
+    "curl-texture turbulence displacement",
     "front-to-back energy-conserving integration",
-    "eight-step directional optical-depth march",
+    "directional optical-depth march",
     "low-resolution temporal reconstruction"
   ],
   "defaultViewport": {

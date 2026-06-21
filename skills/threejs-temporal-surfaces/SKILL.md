@@ -22,8 +22,8 @@ Read [references/ping-pong-accumulation.md](references/ping-pong-accumulation.md
 for an exact frost pass graph, pointer-history channels, blur and refraction
 coupling, and implementation defects that must be corrected.
 
-Inspect the runnable
-[touch-history frost example](examples/touch-history-frost/index.html) for the
+Read the
+[touch-history frost implementation](examples/touch-history-frost/frost-surface-effect.js) for the
 previous/deposit/next state transition, reduced blur, static structures,
 frost-mask composition, and two-scale refraction.
 

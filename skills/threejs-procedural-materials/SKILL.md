@@ -23,18 +23,18 @@ Read [references/procedural-pbr-system.md](references/procedural-pbr-system.md)
 for atlas filtering, specular AA, planetary coordinates,
 world-height wetness, per-instance dissolve, and authored PBR response bundles.
 
-Inspect the runnable
-[sculpted gallery frame](../threejs-procedural-geometry/examples/sculpted-gallery-frame/index.html)
+Read the
+[sculpted gallery frame geometry](../threejs-procedural-geometry/examples/sculpted-gallery-frame/frame-geometry.js)
 for walnut, antique-gold, and ebony texture/roughness/metalness/clearcoat
 bundles under a grazing-light setup.
 
-Inspect the runnable
-[planet field and atmosphere](../threejs-procedural-planets/examples/planet-field-atmosphere/index.html)
+Read the
+[procedural planet surface](../threejs-procedural-planets/examples/procedural-planet-surface/planet-system.js)
 for shared geological, climate, water, biome, roughness, and derivative-normal
 causes on a procedural planetary surface.
 
-Inspect the runnable
-[analytic wave optics](../threejs-water-optics/examples/analytic-wave-optics/index.html)
+Read the
+[analytic wave optics](../threejs-water-optics/examples/analytic-wave-optics/water-system.js)
 for coupled reflection, refraction, absorption, filtered microstructure,
 resolved crest response, and their diagnostic channels.
 

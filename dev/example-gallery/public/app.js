@@ -8,10 +8,6 @@ const elements = {
   empty: document.querySelector("#empty-state"),
   single: document.querySelector("#single-view"),
   overview: document.querySelector("#overview"),
-  kicker: document.querySelector("#example-kicker"),
-  title: document.querySelector("#example-title"),
-  description: document.querySelector("#example-description"),
-  tags: document.querySelector("#technique-tags"),
   viewport: document.querySelector("#viewport"),
   dpr: document.querySelector("#dpr"),
   timeScale: document.querySelector("#time-scale"),
@@ -144,11 +140,7 @@ function renderList() {
       );
       const title = document.createElement("strong");
       title.textContent = example.title;
-      const detail = document.createElement("span");
-      detail.textContent = `${example.backend} · ${
-        example.techniques.slice(0, 2).join(" · ") || "unclassified"
-      }`;
-      button.append(title, detail);
+      button.append(title);
       button.addEventListener("click", () => selectExample(example.id));
       section.append(button);
     }
@@ -172,12 +164,8 @@ function renderOverview() {
     frame.src = url.href;
 
     const footer = document.createElement("footer");
-    const detail = document.createElement("div");
     const title = document.createElement("strong");
     title.textContent = example.title;
-    const caption = document.createElement("small");
-    caption.textContent = `${example.skill ?? "fixture"} · ${example.backend}`;
-    detail.append(title, caption);
     const inspect = document.createElement("button");
     inspect.type = "button";
     inspect.textContent = "Inspect";
@@ -185,7 +173,7 @@ function renderOverview() {
       state.mode = "single";
       selectExample(example.id);
     });
-    footer.append(detail, inspect);
+    footer.append(title, inspect);
     article.append(frame, footer);
     elements.overview.append(article);
   }
@@ -211,18 +199,6 @@ function selectExample(id, { reload = true } = {}) {
   state.viewport = "default";
   state.debugMode = example.debugModes[0]?.value ?? "final";
 
-  elements.kicker.textContent = `${example.skill ?? "Gallery fixture"} · ${example.backend}`;
-  elements.title.textContent = example.title;
-  elements.description.textContent =
-    example.description || "No example description supplied.";
-  elements.tags.replaceChildren(
-    ...example.techniques.map((technique) => {
-      const span = document.createElement("span");
-      span.className = "tag";
-      span.textContent = technique;
-      return span;
-    }),
-  );
   elements.dpr.value = String(state.dpr);
   elements.viewport.value = state.viewport;
   elements.timeScale.value = String(state.timeScale);

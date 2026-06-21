@@ -105,7 +105,7 @@ export default {
   async setup({ scene, camera }) {
     const starTexture = createStarTexture();
     const noiseTexture = await new THREE.TextureLoader().loadAsync(
-      "/skills/threejs-raymarched-space-effects/examples/curved-ray-accretion-volume/assets/noise_deep.png",
+      "/dev/example-gallery/examples/threejs-raymarched-space-effects/curved-ray-accretion-volume/assets/noise_deep.png",
     );
     noiseTexture.wrapS = THREE.RepeatWrapping;
     noiseTexture.wrapT = THREE.RepeatWrapping;

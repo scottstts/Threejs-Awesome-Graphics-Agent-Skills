@@ -33,9 +33,19 @@ try {
   const fixtureUrl = new URL(url);
   fixtureUrl.searchParams.set("example", fixture.id);
   await page.goto(fixtureUrl.href, { waitUntil: "networkidle" });
-  await page.locator("#example-title").waitFor();
-  if ((await page.locator("#example-title").textContent()) !== "Gallery Runtime Contract") {
+  const selectedLink = page.locator(
+    "#example-list .example-link[aria-current='true']",
+  );
+  await selectedLink.waitFor();
+  if ((await selectedLink.textContent())?.trim() !== "Gallery Runtime Contract") {
     throw new Error("Single-example inspection view did not load.");
+  }
+  if (
+    (await page.locator(
+      "#example-kicker, #example-title, #example-description, #technique-tags",
+    ).count()) !== 0
+  ) {
+    throw new Error("Inspection metadata text should not be rendered.");
   }
   await page
     .locator("#frame-status[data-state='ready']")

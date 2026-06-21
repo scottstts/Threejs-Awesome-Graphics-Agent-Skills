@@ -82,6 +82,9 @@ export default {
     canvas.addEventListener("pointercancel", handlePointerCancel);
 
     return {
+      setDebugMode(mode) {
+        plasma.setDebugMode(mode);
+      },
       update({ elapsed }) {
         plasma.update(elapsed);
 

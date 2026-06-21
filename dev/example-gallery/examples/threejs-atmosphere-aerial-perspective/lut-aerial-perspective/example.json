@@ -1,0 +1,29 @@
+{
+  "title": "Atmosphere and Aerial Perspective",
+  "description": "A precomputed-LUT sky and depth-aware aerial-perspective pass with one atmosphere model shared by sky radiance, sun transmittance, and surface-segment inscattering.",
+  "backend": "WebGL2 / GLSL3 precomputed atmosphere",
+  "techniques": [
+    "precomputed transmittance scattering and irradiance LUTs",
+    "inverse-projection sky ray reconstruction",
+    "depth-aware segment transmittance and inscattering",
+    "shared low-sun radiance and aerial perspective"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    { "value": "final", "label": "Final" },
+    { "value": "transmittance", "label": "Transmittance" },
+    { "value": "inscatter", "label": "Atmospheric radiance" },
+    { "value": "depth-classification", "label": "Sky and surface depth" }
+  ],
+  "controls": [
+    "orbit",
+    "pause",
+    "dpr",
+    "debugMode",
+    "capture"
+  ]
+}

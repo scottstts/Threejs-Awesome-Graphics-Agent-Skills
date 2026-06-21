@@ -21,10 +21,8 @@ Read [references/hdr-bloom-system.md](references/hdr-bloom-system.md) for the
 HDR ordering, dual selective-bloom transaction, compact emissive hierarchy,
 and the costs and limits of each ownership model.
 
-Inspect the runnable
-[sculpted gallery frame](../threejs-procedural-geometry/examples/sculpted-gallery-frame/index.html)
-and compare its `Final` and `No bloom` modes for the material
-substitution/restoration ownership pattern.
+Apply the material substitution/restoration ownership pattern in the
+reference before adding selective bloom to a composed scene.
 
 ## Failure conditions
 

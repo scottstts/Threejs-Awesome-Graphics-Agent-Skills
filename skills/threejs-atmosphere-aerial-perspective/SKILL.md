@@ -17,10 +17,9 @@ Read [references/atmosphere-system-contract.md](references/atmosphere-system-con
 before implementation. It separates the LUT/ellipsoid architecture from
 dynamic integration and the shell/post handoff.
 
-Inspect the runnable
-[planet field and atmosphere](../threejs-procedural-planets/examples/planet-field-atmosphere/index.html)
-for bounded Rayleigh/Mie integration, ground shadowing, and shared surface/shell
-sun ownership.
+Read the [LUT sky and aerial-perspective implementation](examples/lut-aerial-perspective/atmosphere-effect.js)
+for shared transmittance/scattering lookup coordinates, sky-ray reconstruction,
+surface-segment transmittance, and inscattering.
 
 ## Required outputs
 

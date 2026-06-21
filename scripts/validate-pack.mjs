@@ -310,9 +310,12 @@ for (const example of discoveredExamples) {
     example.source.replace(/^\//, ""),
   );
   const metadataPath = path.join(exampleRoot, "example.json");
-  const indexPath = path.join(exampleRoot, "index.html");
+  const scenePath = path.join(exampleRoot, "scene.js");
   if (!(await existsAsFile(metadataPath))) {
     errors.push(`${example.id}: missing example.json`);
+  }
+  if (!(await existsAsFile(scenePath))) {
+    errors.push(`${example.id}: missing dev inspection adapter scene.js`);
   }
   const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
   if (Object.hasOwn(metadata, "sourceTrace")) {
@@ -376,7 +379,9 @@ for (const example of discoveredExamples) {
             errors.push(`${example.id}: invalid bundled asset path ${asset?.localPath}`);
             continue;
           }
-          const assetPath = path.join(exampleRoot, asset.localPath);
+          const assetPath = asset.localPath.startsWith("dev/")
+            ? path.join(root, asset.localPath)
+            : path.join(exampleRoot, asset.localPath);
           const bytes = await readFile(assetPath).catch(() => null);
           if (!bytes) {
             errors.push(`${example.id}: missing bundled asset ${asset.localPath}`);
@@ -410,30 +415,36 @@ for (const example of discoveredExamples) {
       );
     }
   }
-  const indexHtml = await readFile(indexPath, "utf8");
-  if (!indexHtml.includes("example-runtime.js")) {
-    const exampleFiles = await collectFiles(exampleRoot);
-    const runtimeImported = (
-      await Promise.all(
-        exampleFiles
-          .filter((file) => file.endsWith(".js") || file.endsWith(".mjs"))
-          .map((file) => readFile(file, "utf8")),
-      )
-    ).some((text) => text.includes("example-runtime.js"));
-    if (!runtimeImported) {
-      errors.push(`${example.id}: example must use the gallery runtime contract`);
-    }
+  if (!example.entry.includes("/dev/example-gallery/runtime/index.html?module=")) {
+    errors.push(`${example.id}: inspection entry must use the shared dev runtime`);
   }
   const skillText = await readFile(
     path.join(skillsRoot, example.skill, "SKILL.md"),
     "utf8",
   );
-  const relativeIndex = `examples/${example.slug}/index.html`;
-  if (!skillText.includes(relativeIndex)) {
-    errors.push(`${example.id}: SKILL.md must link ${relativeIndex}`);
+  const relativeImplementationRoot = `examples/${example.slug}/`;
+  if (!skillText.includes(relativeImplementationRoot)) {
+    errors.push(
+      `${example.id}: SKILL.md must link an effect implementation under ${relativeImplementationRoot}`,
+    );
   }
-  if (!readme.includes(example.entry.replace(/^\//, ""))) {
+  if (!readme.includes(`example=${encodeURIComponent(example.id)}`)) {
     errors.push(`${example.id}: README must link every accepted inspection surface`);
+  }
+}
+
+for (const skillFile of await collectFiles(skillsRoot)) {
+  const relative = path.relative(skillsRoot, skillFile).split(path.sep).join("/");
+  if (!relative.includes("/examples/")) continue;
+  if (
+    /\.(?:png|jpe?g|webp|gif|hdr|exr|bin|glb|gltf|fbx|obj|mtl|wasm|html)$/i.test(
+      relative,
+    )
+  ) {
+    errors.push(`${relative}: supporting asset or runtime file must live under dev/`);
+  }
+  if (/(?:^|\/)(?:scene|runtime|inspection-host)\.[cm]?[jt]s$/i.test(relative)) {
+    errors.push(`${relative}: supporting scene/runtime implementation must live under dev/`);
   }
 }
 
@@ -480,6 +491,7 @@ if (
 const requiredSourceRecords = [
   "dgreenheck/ez-tree",
   "takram-design-engineering/three-geospatial",
+  "jeantimex/geospatial",
   "perplexdotgg/mecs-tower-defense-example",
   "YasirAwan4831/holographic-shader-visualizer-three.Js",
   "vibe-stack/procedural-bank",

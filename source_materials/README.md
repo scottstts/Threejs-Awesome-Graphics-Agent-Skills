@@ -1,6 +1,10 @@
 # Source material ledger
 
-This directory contains research inputs for Three.js Awesome Graphics Agent Skills. Downloaded repositories are ignored by Git. They are inspected as untrusted code and are not installed, executed, or distributed with the package.
+This directory contains research inputs for Three.js Awesome Graphics Agent
+Skills. Downloaded repositories are ignored by Git and inspected as untrusted
+code. A reference checkout may install its own locked dependencies and run
+inside its directory for code and visual verification. Reference packages are
+never added to this project's dependencies or distributed with the package.
 
 The pack is an independent distillation of mechanisms and workflows.
 Third-party code is not copied into distributed skills. Assets may be bundled
@@ -60,6 +64,7 @@ Repositories were cloned shallowly under this directory for inspection.
 | --- | --- | --- | --- |
 | [dgreenheck/ez-tree](https://github.com/dgreenheck/ez-tree) | `48dc193515135cff2b33515c47f0a8703b977e63` | MIT | independent implementation plus explicitly attributed MIT/CC0 demo assets |
 | [takram-design-engineering/three-geospatial](https://github.com/takram-design-engineering/three-geospatial) | `b012ad06d858fc035d88aacfd73f092f93c994e4` | MIT | independent prose/pseudocode only |
+| [jeantimex/geospatial](https://github.com/jeantimex/geospatial) | `d166316ad38f9a21f6d7a3293b808bc7f920283e` | MIT | independent implementation plus dev-only LUT, weather, volume, turbulence, and blue-noise assets |
 | [perplexdotgg/mecs-tower-defense-example](https://codeberg.org/perplexdotgg/mecs-tower-defense-example) | `d7b4e8815fcee18d97e9a12c00f900294773ad1c` | MIT code; CC0 assets | independent prose/pseudocode only; no assets copied |
 | [YasirAwan4831/holographic-shader-visualizer-three.Js](https://github.com/YasirAwan4831/holographic-shader-visualizer-three.Js) | `34810a6e09d0d640d06a2e83c5abab749baf04d5` | no root license observed | conceptual analysis only |
 | [vibe-stack/procedural-bank](https://github.com/vibe-stack/procedural-bank) | `0034e80a61f02b88dbe13a385bdab734a365b82d` | MIT | independent implementation plus attributed MIT stone textures |
@@ -109,6 +114,30 @@ Consumed by:
 - `$threejs-visual-validation`
 
 The key retained mechanism is system coupling: sky, surface haze, light transmittance, clouds, and cloud shadows use compatible coordinate and radiometric contracts.
+
+### `jeantimex/geospatial`
+
+Reviewed:
+
+- the standalone atmosphere and cloud inspection scenes;
+- shared precomputed transmittance, scattering, and irradiance LUT loading;
+- one atmosphere model feeding sky, sunlight, sky irradiance, and
+  depth-aware aerial perspective;
+- authored local-weather, base-shape, detail, turbulence, and STBN inputs;
+- low, middle, and high cloud-layer parameters;
+- spherical planetary layer bounds, directional optical-depth sampling, and
+  temporal reconstruction;
+- atmosphere/cloud composition and the resulting reference frames.
+
+Consumed by:
+
+- `$threejs-atmosphere-aerial-perspective`
+- `$threejs-volumetric-clouds`
+
+The exact MIT assets used for visual inspection are copied only under
+`dev/example-gallery/`. The distributed skills accept textures as inputs and
+contain no supporting assets, scenes, runtime, package imports, or dependency
+on the reference project.
 
 ### `procedural-bank`
 
@@ -270,8 +299,8 @@ These sources are paraphrased. Official documentation remains the authority for 
 | `$threejs-procedural-planets` | Stellar |
 | `$threejs-spectral-ocean` | `poseidon` as primary conceptual evidence; directional-spectrum and FFT literature |
 | `$threejs-water-optics` | MyCraft and Interstellar.three.js analytic/optical comparisons; GPU Gems |
-| `$threejs-atmosphere-aerial-perspective` | Stellar, `three-geospatial`, atmosphere references |
-| `$threejs-volumetric-clouds` | `three-geospatial` |
+| `$threejs-atmosphere-aerial-perspective` | `jeantimex/geospatial`, Stellar, `three-geospatial`, atmosphere references |
+| `$threejs-volumetric-clouds` | `jeantimex/geospatial`, `three-geospatial` |
 | `$threejs-raymarched-space-effects` | interstellarThreeJS |
 | `$threejs-procedural-vfx` | Stellar, `mecs-tower-defense-example` |
 | `$threejs-temporal-surfaces` | `frozen`, conceptual only |

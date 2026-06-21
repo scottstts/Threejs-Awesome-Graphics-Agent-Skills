@@ -21,14 +21,14 @@ Read [references/profile-sweeps-and-mesh-writers.md](references/profile-sweeps-a
 for the exact sculpted-frame profile, rail emission, tree rings, semantic mesh
 writer, and their observed scaling limits.
 
-Inspect the runnable
-[sculpted gallery frame](examples/sculpted-gallery-frame/index.html)
+Read the
+[sculpted gallery frame geometry](examples/sculpted-gallery-frame/frame-geometry.js)
 for the profile sweep, miter-like rail mapping, authored PBR surface
 bundles, grazing spotlights, selective bloom ownership, and geometry
 diagnostics.
 
-Inspect the runnable
-[authored financial tower](../threejs-procedural-architecture/examples/authored-financial-tower/index.html)
+Read the
+[authored financial tower compiler](../threejs-procedural-architecture/examples/authored-financial-tower/building-system.js)
 for semantic placement compilation and material-slot instancing at building
 scale.
 

@@ -16,20 +16,23 @@ npm run capture:examples -- --example threejs-volumetric-clouds/weather-volume-c
 npm run capture:examples -- --example weather-volume-clouds --debug density
 ```
 
-The server discovers:
+The server discovers development adapters:
 
 ```text
-skills/<skill-name>/examples/<example-name>/index.html
-skills/<skill-name>/examples/<example-name>/example.json
+dev/example-gallery/examples/<skill-name>/<example-name>/scene.js
+dev/example-gallery/examples/<skill-name>/<example-name>/example.json
 ```
 
-No central manifest is edited when an example is added.
+The matching skill example contains only the reusable effect implementation.
+The development adapter owns its scene, runtime integration, metadata, and
+supporting static assets. No central manifest is edited when an adapter is
+added.
 
 ## Example metadata
 
 ```json
 {
-  "title": "Planet Field Stack",
+  "title": "Procedural Planet Surface",
   "description": "Coupled macro terrain, craters, biomes, and procedural normals.",
   "backend": "WebGPU / TSL",
   "techniques": ["tangential domain warp", "crater profiles", "altitude filtering"],
@@ -48,7 +51,7 @@ Development provenance belongs in
 keyed by the discovered `<skill>/<example>` ID. Source IDs must exist in
 [`source_materials/trace-manifest.json`](../../source_materials/trace-manifest.json).
 Every listed file and copied asset is validated against the reviewed trace.
-Unlicensed sources must use the `conceptual-only` boundary. Distributed
+Unlicensed sources must use the `conceptual-only` boundary. Development
 `example.json` files must not contain repository identities, revisions, or
 source paths.
 

@@ -1,0 +1,51 @@
+{
+  "title": "Procedural Planet Surface",
+  "description": "A terrestrial planet surface with undeformed sphere-direction ownership, a deterministic CPU terrain stack evaluated by the same value-noise field in GLSL, tangential planet-space climate warping, coupled ocean/biome/roughness causes, derivative bump, and specular anti-aliasing.",
+  "backend": "WebGL2 / GLSL planet surface",
+  "techniques": [
+    "undeformed sphere-direction attribute",
+    "shared deterministic CPU and GLSL terrain field",
+    "tangential spherical domain warp",
+    "coupled climate biome and material masks",
+    "derivative procedural bump and roughness filtering"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    {
+      "value": "final",
+      "label": "Final"
+    },
+    {
+      "value": "height",
+      "label": "Shared terrain height"
+    },
+    {
+      "value": "continents",
+      "label": "Continent and coast"
+    },
+    {
+      "value": "climate",
+      "label": "Humidity and temperature"
+    },
+    {
+      "value": "biomes",
+      "label": "Biome ownership"
+    },
+    {
+      "value": "normals",
+      "label": "Resolved normals"
+    }
+  ],
+  "controls": [
+    "orbit",
+    "pause",
+    "timeScale",
+    "dpr",
+    "debugMode",
+    "capture"
+  ]
+}

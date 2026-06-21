@@ -1,5 +1,5 @@
 import { createFinancialTowerScene } from
-  "/skills/threejs-procedural-architecture/examples/authored-financial-tower/financial-tower-scene.js";
+  "./financial-tower-scene.js";
 
 export default {
   renderer: {

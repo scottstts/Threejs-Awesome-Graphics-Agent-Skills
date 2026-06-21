@@ -43,8 +43,8 @@ Read [references/field-stack-recipes.md](references/field-stack-recipes.md)
 before implementation. It records sphere, terrain, water, and
 structured-placement field contracts plus common parity defects.
 
-Inspect the runnable
-[planet field and atmosphere](../threejs-procedural-planets/examples/planet-field-atmosphere/index.html)
+Read the
+[procedural planet surface](../threejs-procedural-planets/examples/procedural-planet-surface/planet-system.js)
 for a shared CPU/GLSL field bundle whose height, continents, climate, biomes,
 roughness, and normals remain independently inspectable.
 

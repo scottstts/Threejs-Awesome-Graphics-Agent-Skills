@@ -20,10 +20,10 @@ Build a planet as a coupled field system evaluated on a unit direction. The same
 
 Read [references/planet-field-and-atmosphere-systems.md](references/planet-field-and-atmosphere-systems.md) for terrain, biome, gas-giant, material, altitude-LOD, and atmosphere-handoff mechanisms, including a known CPU/GPU field-parity failure mode.
 
-Inspect the runnable
-[planet field and atmosphere](examples/planet-field-atmosphere/index.html)
+Read the [procedural planet surface implementation](examples/procedural-planet-surface/planet-system.js)
+and its [shared terrain field](examples/procedural-planet-surface/terrain-field.js)
 for undeformed sphere coordinates, shared CPU/GLSL terrain, coupled biome and
-material causes, derivative bump, and bounded atmosphere integration.
+material causes, derivative bump, and altitude-filtered detail.
 
 ## Non-negotiable constraints
 

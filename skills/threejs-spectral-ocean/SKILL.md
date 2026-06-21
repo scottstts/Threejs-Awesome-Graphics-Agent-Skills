@@ -22,7 +22,12 @@ Treat an ocean as a sampled stochastic wave field with explicit frequency-space 
 
 Read [references/spectral-cascade-ocean-system.md](references/spectral-cascade-ocean-system.md) before implementing or auditing a spectral ocean.
 
-Inspect the independently implemented [spectral cascade ocean example](examples/spectral-cascade-ocean/index.html) for the cascade, FFT, derivative, Jacobian, foam-history, and shading contracts. Its WebGL2 fragment-FFT backend is an explicit gallery-compatibility divergence; preserve the production WebGPU/TSL architecture described in the reference when the target supports it.
+Read the independently implemented [spectral cascade ocean system](examples/spectral-cascade-ocean/ocean-system.js)
+and its adjacent spectrum, FFT, material, and detail modules for the cascade,
+FFT, derivative, Jacobian, foam-history, and shading contracts. Its WebGL2
+fragment-FFT backend is an explicit compatibility tier; preserve the
+production WebGPU/TSL architecture described in the reference when the target
+supports it.
 
 ## Non-negotiable gates
 

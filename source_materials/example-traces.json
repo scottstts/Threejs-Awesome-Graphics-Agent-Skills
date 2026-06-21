@@ -1,6 +1,43 @@
 {
   "schemaVersion": 1,
   "examples": {
+    "threejs-atmosphere-aerial-perspective/lut-aerial-perspective": [
+      {
+        "source": "jeantimex-geospatial",
+        "files": [
+          "src/atmosphere/index.ts",
+          "package.json",
+          "package-lock.json"
+        ],
+        "mechanisms": [
+          "shared precomputed transmittance scattering and irradiance textures",
+          "inverse-projection sky-ray reconstruction from one atmosphere parameter model",
+          "depth-reconstructed surface segment transmittance and inscattering",
+          "sun transmittance and sky radiance sharing the same lookup coordinates",
+          "half-float scene radiance followed by one output transform"
+        ],
+        "assets": [
+          {
+            "sourcePath": "public/assets/atmosphere/irradiance.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/atmosphere/irradiance.bin"
+          },
+          {
+            "sourcePath": "public/assets/atmosphere/scattering.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/atmosphere/scattering.bin"
+          },
+          {
+            "sourcePath": "public/assets/atmosphere/transmittance.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/atmosphere/transmittance.bin"
+          }
+        ],
+        "boundary": "independent-distillation",
+        "divergences": [
+          "the effect is implemented directly with Three.js render targets and GLSL3 instead of importing the reference packages",
+          "the focused scene uses a local tangent-frame ground plane rather than a full WGS84 scene graph",
+          "moon stars lens flare and cloud-shadow inputs are omitted from the atmosphere-only inspection surface"
+        ]
+      }
+    ],
     "threejs-procedural-architecture/authored-financial-tower": [
       {
         "source": "procedural-bank",
@@ -115,14 +152,13 @@
         ]
       }
     ],
-    "threejs-procedural-planets/planet-field-atmosphere": [
+    "threejs-procedural-planets/procedural-planet-surface": [
       {
         "source": "stellar",
         "files": [
           "src/game/runtime/solar/terrain.ts",
           "src/game/runtime/solar/bodySurface.ts",
           "src/game/runtime/solar/bodyMaterial.ts",
-          "src/game/runtime/solar/atmosphere.ts",
           "src/game/runtime/solar/definitions/pelagia.ts"
         ],
         "mechanisms": [
@@ -130,15 +166,13 @@
           "terrestrial CPU terrain stack with three-channel warp, continental, highland, and ridge bands",
           "radius-scaled tangential shader warp for climate and material causes",
           "altitude, latitude, humidity, slope, coast, snow, aridity, lushness, rock, and water coupling",
-          "screen-derivative procedural bump and normal-variance roughness filtering",
-          "Rayleigh and Mie bounded atmosphere integration with ground shadowing"
+          "screen-derivative procedural bump and normal-variance roughness filtering"
         ],
         "boundary": "independent-distillation",
         "divergences": [
           "the inspection mesh uses 228 by 114 segments, matching the reviewed terrestrial far LOD rather than its 380-segment near LOD",
           "geometry and shader terrain evaluate the same value-noise field to remove the reviewed source's documented CPU/TSL parity debt",
-          "the atmosphere shell uses 16 view samples and 4 light samples for bounded gallery inspection instead of the production constants",
-          "the atmosphere visual height is enlarged from the physical 200 km ratio so the ground-to-space contract remains inspectable at a whole-planet camera"
+          "the focused example intentionally excludes the separate atmosphere system so the surface remains independently inspectable"
         ]
       }
     ],
@@ -300,45 +334,23 @@
         ]
       }
     ],
-    "threejs-procedural-vfx/reentry-plasma-and-sparks": [
+    "threejs-procedural-vfx/reentry-plasma": [
       {
         "source": "stellar",
         "files": [
           "src/game/render/createReentryPlasma.ts"
         ],
         "mechanisms": [
-          "front plasma shell cloned from the authored ship hierarchy and inflated by 1.005",
-          "flow-facing heat mask with coarse and fine advected turbulence",
-          "Fresnel ion envelope shock filaments and explicit hot-to-cyan HDR hierarchy",
-          "capsule-profile core haze and asymmetric shear wakes with exact segment and expansion contracts"
+          "stacked capsule-profile wake shells with progressively expanded radii and lengths",
+          "coarse and fine advected filament fields moving along the flow axis",
+          "Fresnel-supported closed-surface coverage that remains visible from every angle",
+          "head-to-tail thermal color progression with additive emission hierarchy"
         ],
         "boundary": "independent-distillation",
         "divergences": [
-          "the inspection ship is a procedural authored hull rather than the production imported spacecraft asset",
-          "TSL node materials are translated to explicit WebGL2 GLSL",
-          "the wake is fixed to the hull support region because the inspection fall direction is constant"
-        ]
-      },
-      {
-        "source": "mecs-tower-defense-example",
-        "files": [
-          "src/materials/spark.ts",
-          "src/materials/debris.ts",
-          "src/materials/attributeLogic.ts",
-          "src/systems/renderInstancedAndSprites.ts"
-        ],
-        "mechanisms": [
-          "fixed 12000-spark attribute pool with start position velocity acceleration and spawn time",
-          "1.3-second analytic lifetime with rate-16 velocity decay and artistic acceleration integration",
-          "80-to-dark-red scene-relative HDR spark hierarchy",
-          "per-instance orange and removal-time debris state with geometry-space dissolve",
-          "dense instanced ownership represented by one fixed-capacity mesh and custom attributes"
-        ],
-        "boundary": "independent-distillation",
-        "divergences": [
-          "spark lifetimes cycle deterministically for continuous inspection instead of being spawned by gameplay entities",
-          "the debris pool keeps all inspection instances alive and cycles dissolve state rather than removing and respawning entities",
-          "the example uses WebGL2 shader attributes and CPU instance transforms instead of the production WebGPU node-material path"
+          "the focused effect contains only the wake-shell implementation and no supporting spacecraft asset",
+          "the source node-material logic is translated to explicit WebGL2 GLSL",
+          "the shell stack uses a fixed flow axis suitable for direct reuse with an owning transform"
         ]
       }
     ],
@@ -376,35 +388,49 @@
     ],
     "threejs-volumetric-clouds/weather-volume-clouds": [
       {
-        "source": "three-geospatial",
+        "source": "jeantimex-geospatial",
         "files": [
-          "packages/clouds/src/CloudLayers.ts",
-          "packages/clouds/src/DensityProfile.ts",
-          "packages/clouds/src/CloudsMaterial.ts",
-          "packages/clouds/src/CloudsPass.ts",
-          "packages/clouds/src/CloudsResolveMaterial.ts",
-          "packages/clouds/src/shaders/localWeather.frag",
-          "packages/clouds/src/shaders/cloudShape.frag",
-          "packages/clouds/src/shaders/cloudShapeDetail.frag",
-          "packages/clouds/src/shaders/clouds.frag",
-          "packages/clouds/src/shaders/clouds.glsl",
-          "packages/clouds/src/shaders/cloudsResolve.frag",
-          "packages/clouds/src/shaders/varianceClipping.glsl"
+          "src/clouds/index.ts",
+          "src/atmosphere/index.ts",
+          "package.json",
+          "package-lock.json"
         ],
         "mechanisms": [
           "separate low middle high and spare weather channels with per-layer height and density ownership",
           "coverage remapping through height-shaped weather rather than final density multiplication",
-          "base shape followed by height-dependent detail topology",
-          "bounded low-to-high layer interval selection with an explicit skipped gap",
+          "authored 128 cubed base shape followed by height-dependent 32 cubed detail topology",
+          "spherical low-to-high planetary layer selection with an explicit skipped gap",
           "front-to-back transmittance and short optical-depth sun march",
-          "reduced-resolution beauty rendering with variance-clipped persistent history"
+          "STBN-jittered reduced-resolution beauty rendering with variance-clipped persistent history",
+          "shared precomputed atmosphere composition behind and through the cloud volume"
+        ],
+        "assets": [
+          {
+            "sourcePath": "public/assets/clouds/local_weather.png",
+            "localPath": "dev/example-gallery/assets/geospatial/clouds/local_weather.png"
+          },
+          {
+            "sourcePath": "public/assets/clouds/shape.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/clouds/shape.bin"
+          },
+          {
+            "sourcePath": "public/assets/clouds/shape_detail.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/clouds/shape_detail.bin"
+          },
+          {
+            "sourcePath": "public/assets/clouds/turbulence.png",
+            "localPath": "dev/example-gallery/assets/geospatial/clouds/turbulence.png"
+          },
+          {
+            "sourcePath": "public/assets/core/stbn.bin",
+            "localPath": "dev/example-gallery/assets/geospatial/clouds/stbn.bin"
+          }
         ],
         "boundary": "independent-distillation",
         "divergences": [
-          "the focused gallery uses large-world horizontal layer intervals while retaining the packed weather profile shape detail and gap-skipping contracts",
-          "generated weather is a deterministic CPU data texture while shape and detail are evaluated procedurally during the focused WebGL2 march",
-          "the inspection march uses 160 primary and eight light samples instead of the production maximum of 500 and its full multiple-scattering octave stack",
-          "the gallery path uses 0.8-linear-resolution beauty and stationary variance-clipped history instead of quarter-linear-resolution Bayer reconstruction with velocity reprojection",
+          "the effect is implemented directly with Three.js GLSL3 and render targets instead of importing the reference packages",
+          "the inspection march uses 320 primary and five light samples instead of the production maximum of 500 and its full multiple-scattering octave stack",
+          "the gallery path uses 0.85-linear-resolution beauty and stationary variance-clipped history instead of Bayer reconstruction with velocity reprojection",
           "cloud shadows are represented through the local directional optical-depth march rather than the separate structured-sampling cascaded shadow maps"
         ]
       }

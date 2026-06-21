@@ -22,10 +22,9 @@ Read [references/procedural-vfx-system.md](references/procedural-vfx-system.md)
 for ship-conforming reentry shells, capsule wakes, dense instanced
 spark/debris pools, HDR hierarchy, and implementation limits.
 
-Inspect the runnable
-[reentry plasma and sparks example](examples/reentry-plasma-and-sparks/index.html)
-for shell masks, wake topology, analytic spark age, dissolve state, HDR
-contribution, and no-bloom comparison.
+Read the [reentry plasma implementation](examples/reentry-plasma/reentry-plasma.js)
+for closed layered wake shells, flow-axis deformation, advected filament
+fields, opacity shaping, and additive emission diagnostics.
 
 ## Rules
 

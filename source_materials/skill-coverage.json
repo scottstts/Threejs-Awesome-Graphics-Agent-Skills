@@ -25,7 +25,7 @@
     "threejs-procedural-fields": {
       "classification": "example-required",
       "evidence": [
-        "threejs-procedural-planets/planet-field-atmosphere"
+        "threejs-procedural-planets/procedural-planet-surface"
       ],
       "rationale": "Coupled fields, masks, displacement, and procedural normals need inspectable shader implementation."
     },
@@ -33,7 +33,7 @@
       "classification": "example-required",
       "evidence": [
         "threejs-procedural-geometry/sculpted-gallery-frame",
-        "threejs-procedural-planets/planet-field-atmosphere",
+        "threejs-procedural-planets/procedural-planet-surface",
         "threejs-water-optics/analytic-wave-optics"
       ],
       "rationale": "Material identity must be demonstrated under real geometry and lighting, including coupled procedural channels."
@@ -64,7 +64,7 @@
     "threejs-procedural-planets": {
       "classification": "example-required",
       "evidence": [
-        "threejs-procedural-planets/planet-field-atmosphere"
+        "threejs-procedural-planets/procedural-planet-surface"
       ],
       "rationale": "Spherical domain warping, geological bands, biome masks, and orbit-to-close shading require a runnable implementation."
     },
@@ -85,7 +85,7 @@
     "threejs-atmosphere-aerial-perspective": {
       "classification": "example-required",
       "evidence": [
-        "threejs-procedural-planets/planet-field-atmosphere"
+        "threejs-atmosphere-aerial-perspective/lut-aerial-perspective"
       ],
       "rationale": "Sky, shell, and surface-segment scattering must be visibly coupled to the same atmosphere parameters."
     },
@@ -106,7 +106,7 @@
     "threejs-procedural-vfx": {
       "classification": "example-required",
       "evidence": [
-        "threejs-procedural-vfx/reentry-plasma-and-sparks"
+        "threejs-procedural-vfx/reentry-plasma"
       ],
       "rationale": "Layered shells, wakes, sparks, pooling, and HDR contribution hierarchy require runnable evidence."
     },

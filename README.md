@@ -124,40 +124,44 @@ Inspect every included graphics example from one development surface:
 npm run dev:examples
 ```
 
-The gallery discovers examples from each skill automatically and provides
-single-example and live-overview modes, viewport/DPR controls, pause/time
-controls, debug-mode routing, standalone launch, runtime metrics, and canvas
-capture. It is repository tooling and is not installed as an agent skill.
+The gallery discovers development adapters corresponding to skill examples
+automatically and provides single-example and live-overview modes, viewport/DPR
+controls, pause/time controls, debug-mode routing, standalone launch, runtime
+metrics, and canvas capture. It is repository tooling and is not installed as
+an agent skill.
 
 Current accepted inspection surfaces:
 
-- [Sculpted gallery frame](skills/threejs-procedural-geometry/examples/sculpted-gallery-frame/index.html)
+- [Atmosphere and aerial perspective](http://127.0.0.1:4173/?example=threejs-atmosphere-aerial-perspective%2Flut-aerial-perspective)
+  — precomputed sky radiance, sun transmittance, and depth-aware segment
+  scattering;
+- [Sculpted gallery frame](http://127.0.0.1:4173/?example=threejs-procedural-geometry%2Fsculpted-gallery-frame)
   — profile-swept mesh, authored frame PBR, grazing lights, shadows, and
   selective bloom;
-- [Ash growth system](skills/threejs-procedural-vegetation/examples/structured-ash-growth/index.html)
+- [Ash growth system](http://127.0.0.1:4173/?example=threejs-procedural-vegetation%2Fstructured-ash-growth)
   — species-specific hierarchy, branch geometry, foliage, wind, and meadow;
-- [Curved-ray accretion volume](skills/threejs-raymarched-space-effects/examples/curved-ray-accretion-volume/index.html)
+- [Curved-ray accretion volume](http://127.0.0.1:4173/?example=threejs-raymarched-space-effects%2Fcurved-ray-accretion-volume)
   — bounded ray steering, accretion density, transmittance, and bent
   environment lookup;
-- [Spectral cascade ocean](skills/threejs-spectral-ocean/examples/spectral-cascade-ocean/index.html)
+- [Spectral cascade ocean](http://127.0.0.1:4173/?example=threejs-spectral-ocean%2Fspectral-cascade-ocean)
   — directional spectra, staged inverse FFT, choppy displacement, and
   persistent Jacobian foam;
-- [Planet field and atmosphere](skills/threejs-procedural-planets/examples/planet-field-atmosphere/index.html)
+- [Procedural planet surface](http://127.0.0.1:4173/?example=threejs-procedural-planets%2Fprocedural-planet-surface)
   — coupled displacement, geological fields, biome masks, water, and
-  atmospheric scattering;
-- [Authored financial tower](skills/threejs-procedural-architecture/examples/authored-financial-tower/index.html)
+  altitude-filtered material detail;
+- [Authored financial tower](http://127.0.0.1:4173/?example=threejs-procedural-architecture%2Fauthored-financial-tower)
   — semantic massing, façade grammar, grouped mesh emission, and cached
   clipmap shadows;
-- [Analytic wave optics](skills/threejs-water-optics/examples/analytic-wave-optics/index.html)
+- [Analytic wave optics](http://127.0.0.1:4173/?example=threejs-water-optics%2Fanalytic-wave-optics)
   — shared displaced waves and normals, filtered microstructure, Fresnel,
   refraction, absorption, and crest response;
-- [Weather volume clouds](skills/threejs-volumetric-clouds/examples/weather-volume-clouds/index.html)
+- [Weather volume clouds](http://127.0.0.1:4173/?example=threejs-volumetric-clouds%2Fweather-volume-clouds)
   — packed weather channels, profile-shaped density, bounded integration,
   directional lighting, and temporal reconstruction;
-- [Reentry plasma and sparks](skills/threejs-procedural-vfx/examples/reentry-plasma-and-sparks/index.html)
-  — hull-conforming plasma, layered wakes, fixed-capacity HDR sparks, debris,
-  and bloom ownership;
-- [Touch-history frost](skills/threejs-temporal-surfaces/examples/touch-history-frost/index.html)
+- [Reentry plasma](http://127.0.0.1:4173/?example=threejs-procedural-vfx%2Freentry-plasma)
+  — closed layered wake shells, flow deformation, advected filaments, and
+  additive thermal emission;
+- [Touch-history frost](http://127.0.0.1:4173/?example=threejs-temporal-surfaces%2Ftouch-history-frost)
   — persistent interaction history, static crystalline fields, reduced blur,
   and two-scale refraction.
 
