@@ -19,16 +19,16 @@ export default {
       detailNormalTexture,
     ] = await Promise.all([
       loader.loadAsync(
-        "/source_materials/frozen/public/garigarikun.webp",
+        "/dev/example-gallery/assets/frozen/winter_forest.jpeg",
       ),
       loader.loadAsync(
-        "/source_materials/frozen/public/texture/noise.webp",
+        "/dev/example-gallery/assets/frozen/noise.webp",
       ),
       loader.loadAsync(
-        "/source_materials/frozen/public/texture/main-normal.webp",
+        "/dev/example-gallery/assets/frozen/main-normal.webp",
       ),
       loader.loadAsync(
-        "/source_materials/frozen/public/texture/sub-normal.webp",
+        "/dev/example-gallery/assets/frozen/sub-normal.webp",
       ),
     ]);
 
