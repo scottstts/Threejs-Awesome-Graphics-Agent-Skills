@@ -4,38 +4,124 @@ import {
   terrainSample,
 } from "./terrain-field.js";
 
+
+function createTerrainPlanetGeometry({ radius, terrainAmplitude, resolution }) {
+  const positions = [];
+  const surfaceDirections = [];
+  const indices = [];
+  const vertexByDirection = new Map();
+  const direction = new THREE.Vector3();
+
+  const facePoint = (faceIndex, u, v) => {
+    switch (faceIndex) {
+      case 0:
+        return [1, v, -u];
+      case 1:
+        return [-1, v, u];
+      case 2:
+        return [u, 1, -v];
+      case 3:
+        return [u, -1, v];
+      case 4:
+        return [u, v, 1];
+      default:
+        return [-u, v, -1];
+    }
+  };
+
+  const directionKey = ({ x, y, z }) =>
+    `${x.toFixed(12)},${y.toFixed(12)},${z.toFixed(12)}`;
+
+  const getVertexIndex = (faceIndex, gridX, gridY) => {
+    const u = (gridX / resolution) * 2 - 1;
+    const v = (gridY / resolution) * 2 - 1;
+    const [x, y, z] = facePoint(faceIndex, u, v);
+    direction.set(x, y, z).normalize();
+    const key = directionKey(direction);
+    const existingIndex = vertexByDirection.get(key);
+    if (existingIndex !== undefined) return existingIndex;
+
+    const height = terrainSample(direction);
+    const vertexRadius = radius * (1 + height * terrainAmplitude);
+    const vertexIndex = positions.length / 3;
+    positions.push(
+      direction.x * vertexRadius,
+      direction.y * vertexRadius,
+      direction.z * vertexRadius,
+    );
+    surfaceDirections.push(direction.x, direction.y, direction.z);
+    vertexByDirection.set(key, vertexIndex);
+    return vertexIndex;
+  };
+
+  const pushOutwardTriangle = (a, b, c) => {
+    const ax = positions[a * 3];
+    const ay = positions[a * 3 + 1];
+    const az = positions[a * 3 + 2];
+    const bx = positions[b * 3];
+    const by = positions[b * 3 + 1];
+    const bz = positions[b * 3 + 2];
+    const cx = positions[c * 3];
+    const cy = positions[c * 3 + 1];
+    const cz = positions[c * 3 + 2];
+    const abx = bx - ax;
+    const aby = by - ay;
+    const abz = bz - az;
+    const acx = cx - ax;
+    const acy = cy - ay;
+    const acz = cz - az;
+    const nx = aby * acz - abz * acy;
+    const ny = abz * acx - abx * acz;
+    const nz = abx * acy - aby * acx;
+    const centerX = ax + bx + cx;
+    const centerY = ay + by + cy;
+    const centerZ = az + bz + cz;
+    if (nx * centerX + ny * centerY + nz * centerZ < 0) {
+      indices.push(a, c, b);
+      return;
+    }
+    indices.push(a, b, c);
+  };
+
+  for (let faceIndex = 0; faceIndex < 6; faceIndex += 1) {
+    for (let gridY = 0; gridY < resolution; gridY += 1) {
+      for (let gridX = 0; gridX < resolution; gridX += 1) {
+        const a = getVertexIndex(faceIndex, gridX, gridY);
+        const b = getVertexIndex(faceIndex, gridX + 1, gridY);
+        const c = getVertexIndex(faceIndex, gridX + 1, gridY + 1);
+        const d = getVertexIndex(faceIndex, gridX, gridY + 1);
+        pushOutwardTriangle(a, b, d);
+        pushOutwardTriangle(b, c, d);
+      }
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute(
+    "surfaceDirection",
+    new THREE.Float32BufferAttribute(surfaceDirections, 3),
+  );
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
 export function createPlanetFieldAtmosphere({ scene, camera }) {
 scene.background = new THREE.Color(0x020713);
 
 const sunDirection = new THREE.Vector3(0.68, 0.28, 0.67).normalize();
 const planetRadius = 1;
 const terrainAmplitude = 0.018;
-const geometry = new THREE.SphereGeometry(planetRadius, 228, 114);
-const position = geometry.getAttribute("position");
-const surfaceDirection = new Float32Array(position.count * 3);
-const direction = new THREE.Vector3();
-for (let index = 0; index < position.count; index += 1) {
-  direction
-    .set(position.getX(index), position.getY(index), position.getZ(index))
-    .normalize();
-  surfaceDirection[index * 3] = direction.x;
-  surfaceDirection[index * 3 + 1] = direction.y;
-  surfaceDirection[index * 3 + 2] = direction.z;
-  const height = terrainSample(direction);
-  const radius = planetRadius * (1 + height * terrainAmplitude);
-  position.setXYZ(
-    index,
-    direction.x * radius,
-    direction.y * radius,
-    direction.z * radius,
-  );
-}
-geometry.setAttribute(
-  "surfaceDirection",
-  new THREE.BufferAttribute(surfaceDirection, 3),
-);
-position.needsUpdate = true;
-geometry.computeVertexNormals();
+const geometry = createTerrainPlanetGeometry({
+  radius: planetRadius,
+  terrainAmplitude,
+  resolution: 72,
+});
 
 const sharedNoiseGlsl = `
   float hash3(vec3 cell, float seed) {
