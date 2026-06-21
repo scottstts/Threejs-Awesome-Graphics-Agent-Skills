@@ -32,7 +32,7 @@ export default {
     enablePan: true,
   },
 
-  async setup({ THREE, renderer, scene, camera }) {
+  async setup({ THREE, renderer, scene, camera, controls }) {
     const [atmosphereTextures, cloudTextures] = await Promise.all([
       loadAtmosphereTextures(
         "/dev/example-gallery/assets/geospatial/atmosphere",
@@ -42,6 +42,37 @@ export default {
       ),
     ]);
     const sunDirection = new THREE.Vector3(-0.58, 0.66, -0.48).normalize();
+    const groundY = 0;
+    const minCameraGroundClearance = 0.04;
+
+    function clampCameraAboveGround() {
+      camera.updateMatrixWorld(true);
+
+      if (controls?.target && controls.target.y < groundY) {
+        const lift = groundY - controls.target.y;
+        controls.target.y += lift;
+        camera.position.y += lift;
+      }
+
+      if (camera.position.y < groundY + minCameraGroundClearance) {
+        const lift = groundY + minCameraGroundClearance - camera.position.y;
+        camera.position.y += lift;
+        if (controls?.target) {
+          controls.target.y += lift;
+        }
+      }
+
+      camera.updateMatrixWorld(true);
+    }
+
+    if (controls) {
+      controls.enablePan = true;
+      controls.maxPolarAngle = Math.min(
+        controls.maxPolarAngle ?? Math.PI,
+        Math.PI * 0.58,
+      );
+      controls.addEventListener?.("change", clampCameraAboveGround);
+    }
 
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(1200, 1200),
@@ -63,6 +94,17 @@ export default {
       depthBuffer: true,
     });
     sceneTarget.depthTexture = new THREE.DepthTexture(
+      1,
+      1,
+      THREE.UnsignedIntType,
+    );
+    const skyAtmosphereSourceTarget = new THREE.WebGLRenderTarget(1, 1, {
+      type: THREE.HalfFloatType,
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      depthBuffer: true,
+    });
+    skyAtmosphereSourceTarget.depthTexture = new THREE.DepthTexture(
       1,
       1,
       THREE.UnsignedIntType,
@@ -98,6 +140,7 @@ export default {
     return {
       resize({ bufferWidth, bufferHeight }) {
         sceneTarget.setSize(bufferWidth, bufferHeight);
+        skyAtmosphereSourceTarget.setSize(bufferWidth, bufferHeight);
         atmosphereTarget.setSize(bufferWidth, bufferHeight);
         clouds.resize(bufferWidth, bufferHeight);
       },
@@ -105,19 +148,35 @@ export default {
         clouds.setDebugMode(mode);
       },
       update({ elapsed }) {
+        clampCameraAboveGround();
         clouds.update(elapsed);
       },
       render() {
+        clampCameraAboveGround();
         renderer.setRenderTarget(sceneTarget);
         renderer.clear();
         renderer.render(scene, camera);
 
+        // The aerial-perspective LUT pass visibly quantizes the huge,
+        // perfectly flat ground plane into curved equal-distance contours.
+        // Render the atmosphere against a cleared sky-depth buffer instead,
+        // then composite the local ground directly over that result. The
+        // original sceneTarget depth is still used below for cloud occlusion.
+        renderer.setRenderTarget(skyAtmosphereSourceTarget);
+        renderer.clear();
+
         updateAtmosphereCamera(atmosphereMaterial, camera, {
-          sceneColor: sceneTarget.texture,
-          sceneDepth: sceneTarget.depthTexture,
+          sceneColor: skyAtmosphereSourceTarget.texture,
+          sceneDepth: skyAtmosphereSourceTarget.depthTexture,
         });
         renderer.setRenderTarget(atmosphereTarget);
         renderer.render(atmosphereScene, postCamera);
+
+        const previousAutoClear = renderer.autoClear;
+        renderer.autoClear = false;
+        renderer.setRenderTarget(atmosphereTarget);
+        renderer.render(scene, camera);
+        renderer.autoClear = previousAutoClear;
 
         clouds.setBackground(
           atmosphereTarget.texture,
@@ -129,10 +188,12 @@ export default {
         return clouds.metrics();
       },
       dispose() {
+        controls?.removeEventListener?.("change", clampCameraAboveGround);
         ground.geometry.dispose();
         ground.material.dispose();
         sun.dispose();
         sceneTarget.dispose();
+        skyAtmosphereSourceTarget.dispose();
         atmosphereTarget.dispose();
         atmosphereQuad.geometry.dispose();
         atmosphereMaterial.dispose();
