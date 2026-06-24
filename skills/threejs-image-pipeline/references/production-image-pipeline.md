@@ -40,7 +40,7 @@ scene MRT
 ```
 
 Near/far values, environment intensity, and environment texture remain
-updateable inputs. AO is applied through its dedicated composite rather than
+updatable inputs. AO is applied through its dedicated composite rather than
 blindly multiplying the final image.
 
 The atmosphere pass reconstructs view/world position from depth,
