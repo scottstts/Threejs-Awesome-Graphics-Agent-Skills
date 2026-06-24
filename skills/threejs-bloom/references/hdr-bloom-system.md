@@ -48,7 +48,7 @@ smooth width = 0.08
 
 The Three.js bloom node reads the HDR texture produced after atmosphere. Its
 strength becomes zero when disabled; radius, threshold, and smooth width remain
-independently updateable.
+independently updatable.
 
 This path does not implement a custom pyramid. Its contract is signal placement
 and parameter ownership around the renderer’s bloom node.
