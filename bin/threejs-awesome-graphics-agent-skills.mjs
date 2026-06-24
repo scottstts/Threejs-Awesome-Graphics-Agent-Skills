@@ -30,8 +30,8 @@ const targets = {
   },
   codex: {
     label: "OpenAI Codex",
-    project: [".agents", "skills"],
-    user: [".agents", "skills"],
+    project: [".codex", "skills"],
+    user: [".codex", "skills"],
   },
   "claude-code": {
     label: "Claude Code",
@@ -84,7 +84,7 @@ Options:
   --scope <user|project>   Installation scope (default: user)
   --path <directory>       Exact skills root; required for custom agents
   --project-dir <path>     Project root for project-scoped installs
-  --force                  Replace existing installed skill directories
+  --force                  Reinstall the same version or replace untracked conflicts
   --dry-run                Print actions without writing
   --version                Print package version
   --help                   Show this help
@@ -202,7 +202,10 @@ async function readInstallManifest(destination) {
     ) {
       throw new Error("invalid ownership manifest");
     }
-    return manifest;
+    return {
+      ...manifest,
+      manifestFound: true,
+    };
   } catch (error) {
     if (error?.code !== "ENOENT") {
       throw new Error(
@@ -212,6 +215,7 @@ async function readInstallManifest(destination) {
     return {
       package: packageJson.name,
       version: packageJson.version,
+      manifestFound: false,
       skills: [],
     };
   }
@@ -225,6 +229,40 @@ async function writeInstallManifest(destination, manifest, dryRun) {
   );
 }
 
+function formatVersion(version) {
+  return typeof version === "string" && version.length > 0 ? version : "unknown";
+}
+
+function shouldAutoReplaceForVersion(previous, existingSkillNames) {
+  if (!previous.manifestFound || previous.version === packageJson.version) {
+    return false;
+  }
+
+  const previouslyTracked = new Set(previous.skills ?? []);
+  return existingSkillNames.every((skillName) => previouslyTracked.has(skillName));
+}
+
+function buildExistingSkillsError(destination, existing, previous) {
+  if (previous.manifestFound && previous.version !== packageJson.version) {
+    const previouslyTracked = new Set(previous.skills ?? []);
+    const untrackedExisting = existing.filter(
+      (skillName) => !previouslyTracked.has(skillName),
+    );
+    if (untrackedExisting.length > 0) {
+      return `Existing untracked skills at ${destination}: ${untrackedExisting.join(", ")}. ` +
+        `Installed ${packageJson.name} version ${formatVersion(previous.version)} differs from package version ${packageJson.version}, ` +
+        "but these directories are not listed in the ownership manifest. Re-run with --force to replace them.";
+    }
+  }
+
+  if (previous.manifestFound && previous.version === packageJson.version) {
+    return `Existing skills at ${destination}: ${existing.join(", ")}. ` +
+      `Version ${packageJson.version} is already installed. Re-run with --force to reinstall it.`;
+  }
+
+  return `Existing skills at ${destination}: ${existing.join(", ")}. Re-run with --force to replace them.`;
+}
+
 async function installInto(destination, skillNames, options, agent) {
   const previous = await readInstallManifest(destination);
   const existing = [];
@@ -232,9 +270,16 @@ async function installInto(destination, skillNames, options, agent) {
     if (await pathExists(path.join(destination, skillName))) existing.push(skillName);
   }
 
-  if (existing.length > 0 && !options.force) {
-    throw new Error(
-      `Existing skills at ${destination}: ${existing.join(", ")}. Re-run with --force to replace them.`,
+  const autoReplaceForVersion = shouldAutoReplaceForVersion(previous, existing);
+  const effectiveForce = options.force || autoReplaceForVersion;
+
+  if (existing.length > 0 && !effectiveForce) {
+    throw new Error(buildExistingSkillsError(destination, existing, previous));
+  }
+
+  if (autoReplaceForVersion) {
+    console.log(
+      `Detected ${packageJson.name} ${formatVersion(previous.version)} -> ${packageJson.version}; replacing tracked skills without --force.`,
     );
   }
 

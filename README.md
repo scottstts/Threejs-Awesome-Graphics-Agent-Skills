@@ -100,7 +100,7 @@ Supported targets:
 | Target | User scope | Project scope |
 | --- | --- | --- |
 | `universal` | `~/.agents/skills` | `.agents/skills` |
-| `codex` | `~/.agents/skills` | `.agents/skills` |
+| `codex` | `~/.codex/skills` | `.codex/skills` |
 | `claude-code` | `~/.claude/skills` | `.claude/skills` |
 | `cursor` | `~/.cursor/skills` | `.cursor/skills` |
 | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
