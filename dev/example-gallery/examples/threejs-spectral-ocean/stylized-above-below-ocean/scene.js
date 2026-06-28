@@ -8,11 +8,12 @@ import {
   createStylizedOceanSurfaceMaterial,
   createStylizedSeaFloorMaterial,
   createStylizedUnderwaterCompositeMaterial,
+  stylizedAboveBelowOceanAssetPaths,
   stylizedOceanDebugModes,
   updateStylizedOceanMaterials,
 } from "/skills/threejs-spectral-ocean/examples/stylized-above-below-ocean/stylized-ocean-material.js";
 
-const ABOVE_CAMERA = new THREE.Vector3(18, 28, 74);
+const ABOVE_CAMERA = new THREE.Vector3(0, 40, 200);
 const ABOVE_TARGET = new THREE.Vector3(0, 0, 0);
 const UNDERWATER_CAMERA = new THREE.Vector3(0, -18, 76);
 const UNDERWATER_TARGET = new THREE.Vector3(0, -30, -8);
@@ -26,6 +27,15 @@ function applyCameraView(camera, controls, mode) {
     controls?.target?.copy(UNDERWATER_TARGET);
   }
   controls?.update?.();
+}
+
+async function loadEffectTexture(url, colorSpace = THREE.SRGBColorSpace) {
+  const texture = await new THREE.TextureLoader().loadAsync(url);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = colorSpace;
+  texture.anisotropy = 8;
+  return texture;
 }
 
 export default {
@@ -98,13 +108,18 @@ export default {
       },
     };
     const ocean = new SpectralOceanSystem(renderer, options);
+    const [foamTexture, sandTexture] = await Promise.all([
+      loadEffectTexture(stylizedAboveBelowOceanAssetPaths.foam, THREE.NoColorSpace),
+      loadEffectTexture(stylizedAboveBelowOceanAssetPaths.sand),
+    ]);
 
     const skyMaterial = createStylizedOceanSkyMaterial({ sunDirection });
     const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 48, 24), skyMaterial);
     scene.add(sky);
 
     const seafloorMaterial = createStylizedSeaFloorMaterial({
-      causticIntensity: 0.38,
+      sandTexture,
+      causticIntensity: 0.9,
     });
     const seafloor = new THREE.Mesh(
       new THREE.PlaneGeometry(4000, 4000, 1, 1),
@@ -117,6 +132,7 @@ export default {
     const oceanMaterial = createStylizedOceanSurfaceMaterial(ocean.cascades, {
       patchLengths: options.patchLengths,
       sunDirection,
+      foamTexture,
     });
     const waterGeometry = new THREE.PlaneGeometry(2000, 2000, 256, 256);
     waterGeometry.rotateX(-Math.PI / 2);
@@ -130,6 +146,7 @@ export default {
       displacement: ocean.cascades[0].displacement,
       patchLength: options.patchLengths[0],
       scale: 1,
+      waterClarity: 57,
     });
     const compositeScene = new THREE.Scene();
     const compositeCamera = new THREE.Camera();
@@ -217,6 +234,8 @@ export default {
         oceanMaterial.dispose();
         composite.geometry.dispose();
         compositeMaterial.dispose();
+        foamTexture.dispose();
+        sandTexture.dispose();
       },
     };
   },

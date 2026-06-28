@@ -1,4 +1,4 @@
 interface:
   display_name: "Three.js Water Optics"
-  short_description: "Build analytic and bounded water optics"
-  default_prompt: "Use $threejs-water-optics to build shared wave/normal water or bounded heightfield pool water with object ripples, caustics, reflection, heuristic refraction, fallback absorption, and diagnostics."
+  short_description: "Build analytic water and ray-traced pool volumes"
+  default_prompt: "Use $threejs-water-optics to build shared wave/normal water or bounded heightfield pool volumes with local drops, object ripples, differential-area caustics, ray-traced pool optics, reflection/refraction, absorption, and diagnostics."

@@ -127,6 +127,7 @@ export function createHybridOceanMaterial(cascades, {
     uSandLevel: { value: -2.4 },
     uGerstnerDir: { value: swell.directions },
     uGerstnerParams: { value: swell.params },
+    uModelOffset: { value: new THREE.Vector2() },
     uDebugMode: { value: 0 },
   };
 
@@ -143,6 +144,7 @@ export function createHybridOceanMaterial(cascades, {
       uniform float uTime;
       uniform vec2 uGerstnerDir[${MAX_GERSTNER}];
       uniform vec4 uGerstnerParams[${MAX_GERSTNER}];
+      uniform vec2 uModelOffset;
 
       varying vec2 vOceanXZ;
       varying vec3 vWorldPosition;
@@ -154,7 +156,7 @@ export function createHybridOceanMaterial(cascades, {
       }
 
       void main() {
-        vOceanXZ = position.xz;
+        vOceanXZ = position.xz + uModelOffset;
         vec4 d0 = sampleDisplacement(displacement0, vOceanXZ, patchLengths.x);
         vec4 d1 = sampleDisplacement(displacement1, vOceanXZ, patchLengths.y);
         vec4 d2 = sampleDisplacement(displacement2, vOceanXZ, patchLengths.z);
@@ -332,7 +334,7 @@ export function createHybridOceanMaterial(cascades, {
         vec3 refracted = refract(-viewDirection, normal, 1.0 / 1.333);
         float depth = max(vWorldPosition.y - uSandLevel, 0.0);
         float pathLen = depth / max(0.07, abs(refracted.y));
-        vec3 extinction = vec3(0.038, 0.014, 0.008);
+        vec3 extinction = vec3(0.028, 0.010, 0.006);
         vec3 transmittance = exp(-extinction * pathLen);
         vec3 shallow = vec3(0.02, 0.72, 0.76);
         vec3 deep = vec3(0.004, 0.12, 0.26);
@@ -342,7 +344,7 @@ export function createHybridOceanMaterial(cascades, {
           clamp(transmittance.g * 0.88 + 0.12, 0.0, 1.0)
         );
         vec3 tintedRefraction = sceneRefraction * vec3(0.08, 0.92, 1.18);
-        vec3 body = waterBody * 0.42 + tintedRefraction * transmittance * 1.22;
+        vec3 body = waterBody * 0.28 + tintedRefraction * transmittance * 1.46;
         float forwardScatter =
           pow(max(dot(viewDirection, -lightDirection), 0.0), 4.0) *
           smoothstep(-0.15, 0.75, vFftHeight);
@@ -354,14 +356,14 @@ export function createHybridOceanMaterial(cascades, {
           smith(noV, noL, roughness) *
           (f0 + (1.0 - f0) * pow(1.0 - voH, 5.0)) *
           noL;
-        vec3 color = mix(body, reflection, fresnel * 0.62) +
+        vec3 color = mix(body, reflection, fresnel * 0.54) +
           vec3(1.0, 0.92, 0.68) * spec * 0.18;
         color = mix(color, vec3(0.92, 0.98, 1.0), foam * 0.56);
 
         float distanceToCamera = distance(cameraPosition, vWorldPosition);
         float haze = 1.0 - exp(-distanceToCamera * 0.0014);
-        vec3 hazeColor = vec3(0.66, 0.82, 0.89);
-        color = mix(color, hazeColor, clamp(haze, 0.0, 0.42));
+        vec3 hazeColor = vec3(0.70, 0.84, 0.90);
+        color = mix(color, hazeColor, clamp(haze, 0.0, 0.28));
         float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
         color = mix(vec3(luma), color, 1.28);
         color = (color - 0.5) * 1.18 + 0.5;

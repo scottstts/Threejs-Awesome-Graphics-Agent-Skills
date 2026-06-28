@@ -162,7 +162,7 @@
     "holographic-shader-visualizer": {
       "repository": "https://github.com/YasirAwan4831/holographic-shader-visualizer-three.Js",
       "revision": "34810a6e09d0d640d06a2e83c5abab749baf04d5",
-      "license": "unobserved",
+      "license": "MIT by project rule",
       "localDirectory": "holographic-shader-visualizer-threejs",
       "files": {
         "src/hooks/useHologram.js": "9676d891548a9b3f3f5c68814ade5696bca4985931cbdd2a0e8c0008e83d0b4c",
@@ -175,7 +175,7 @@
     "frozen": {
       "repository": "https://github.com/takuma-hmng8/frozen",
       "revision": "15a98a5104951a0bd734eb23ab21b7f79741ab09",
-      "license": "unobserved",
+      "license": "MIT by project rule",
       "localDirectory": "frozen",
       "files": {
         "src/Frozen/index.tsx": "151fa11c7837a3b132bf1ceaf1fbdea8c34569ad4f67525a7e48940148baab5a",
@@ -193,7 +193,7 @@
     "poseidon": {
       "repository": "https://github.com/owenyuwono/poseidon",
       "revision": "caddf773c7e2b7c9b00ad232d21cca4f364d5272",
-      "license": "unobserved",
+      "license": "MIT by project rule",
       "localDirectory": "poseidon",
       "files": {
         "src/ocean/Ocean.js": "124124b31e89c6e8567d522151c03ba22b1cf84af20e2d73ac8247280677d820",
@@ -215,7 +215,7 @@
     "fftocean": {
       "repository": "https://github.com/gioeledallapozza/FFTOCEAN",
       "revision": "0fe3a908a86118eab9930e17b0b29df7fcc05b65",
-      "license": "unobserved",
+      "license": "MIT",
       "localDirectory": "FFTOCEAN",
       "files": {
         "src/gpgpu/useOceanGPGPU.js": "0d8201563f495f4f9a91b9fe07fadb3124641ca8610d852b5194d53ea321a26c",
@@ -223,6 +223,10 @@
         "src/materials/shaders/postprocessing/underwaterFragment.glsl": "6e4a297193dbed0ba738938f151b8e8a6e3971f33ef2690f4cdb950f7aab28c8",
         "src/materials/shaders/seafloor/seafloorFragment.glsl": "d6676f4acd0dd158a9aa6e394ea0801e07b331aeb6c9ffbb5c826c630fe3fad9",
         "src/geometry/lod/ClipmapGeometry.js": "b3de6c36885ed81a7bb6bb1bba76d20a7b4462ada2abc917f65de2acf76a1c1f"
+      },
+      "assets": {
+        "public/textures/foam/foam.webp": "bf0c96662e9ffc729c579d7777dc36c79f24a64750a5a6b0aabe0b092e60a9c7",
+        "public/textures/sand/sand.webp": "62651d7c55830452d3782f50ec4a96ea9bcac228aad2ee2f51f0d44ef215ab44"
       }
     },
     "threejs-water": {
@@ -232,16 +236,34 @@
       "localDirectory": "threejs-water",
       "files": {
         "src/Water.ts": "2b7d07074566fd2bf8509a1892e88f2d9d27894e1462c73b8d28847fb8645cd5",
+        "src/rendering/CausticsPass.ts": "45a47b98bfe8e0de750f7cc963f64130aa913671141834ac5571a4d719b5da58",
+        "src/rendering/PoolPass.ts": "70b2461c4bb9f9c264178a2126ad3d5246d78dfb8b82f359b59704596e0f3dfe",
+        "src/rendering/WaterOpticsState.ts": "653a2705b464451b17fa78834227d1f26d70ae1a67b6c1da4c7d01f4b0758a01",
+        "src/rendering/WaterSurfacePass.ts": "dfcb7c825bc368f5bd8e27bc1e9d0fb3495aa0d90c93db2dd99fa19deee611dd",
+        "src/objects/SphereObject.ts": "f9d85a54725564b959bc12a071e0912aeab871ad8a24f9d45e36f81282f80ee6",
         "src/water/WaterDisplacement.ts": "c9042e7429aa02e6a34e19eb3e88223c92aa3ee1b50228acf95d77b17ec7f448",
         "src/water/WaterOptics.ts": "11968018dd034d1865ea25d16383ed17885b742d5da0125f848e42602d41a13d",
+        "src/shaders/WaterRipple.frag": "eb0a7acb9dd324abe6ba7761ad91ce07f1a01751279e965797544f6ba959e765",
+        "src/shaders/WaterRipple.vert": "d5d2a3f84ff8df3e1f1a61611e1c28085f752cebe51cb2a9bd785d54578f1d10",
+        "src/shaders/Sphere.frag": "b4f7a897bb3841e88387eb287266a04ebd6ae966e010138ac27ede962cadbe1c",
         "src/shaders/WaveSimulation.frag": "76db0b861eec74f07bd49b0f044294ad0f81b1f7f531468d6ce7a51498b8804d",
         "src/shaders/WaterNormal.frag": "307909f87b2dd9a2052ae51338be7b854ad4529bb60e8b4d8f3971e303d223fa",
+        "src/shaders/Caustics.vert": "cf82bcaf25755cc287db713de6891cb7e7824d1dbd96613578e85d459005fc19",
         "src/shaders/WaterAbove.frag": "74af72051801f16bc724f8483b8d93cc725deb81b4b53cee444808fbaa132091",
         "src/shaders/WaterBelow.frag": "1f9aaf6c056b13478c9718513ce9a7cb082d1d528fe0e46cc71ead6f6bf864fd",
-        "src/shaders/Caustics.frag": "e4a4345c87f78709dd34ae02366fc6e39ad697b241bc0af169e14bd798a88dce"
+        "src/shaders/Caustics.frag": "e4a4345c87f78709dd34ae02366fc6e39ad697b241bc0af169e14bd798a88dce",
+        "src/shaders/Cube.vert": "fa3bf3d1c36c318e26a071c54d9c2206f6d030d617743d20418040324bf97981",
+        "src/shaders/Cube.frag": "b9b19dd1fa647f909d9ea7eb7abd7d04dd4b6855ef26c0564257b69b0543afae",
+        "src/shaders/SphereRender.vert": "7ba939319d037ffad1d249ad42ad0fb649f2976f3b6c21777c020b1d47b1844d",
+        "src/shaders/SphereRender.frag": "9c5cc6d0b11205f3b26baaf9a21d0275c64658238450a4f3f92ae564aa5200cf"
       },
       "assets": {
-        "public/tiles.jpg": "da7dbbe829553807fd72fc66514765d8af26b0c326b6664c4ac3be57271c2f69"
+        "public/tiles.jpg": "da7dbbe829553807fd72fc66514765d8af26b0c326b6664c4ac3be57271c2f69",
+        "public/xpos.jpg": "80a126350786e8a1f61e3ec8b825003faf00498d9ebebd7173afa2c1ace1f764",
+        "public/xneg.jpg": "185a3f41c7abd381454d7d3938bb1b885ceca760b0292cc30a04435ffc2b25db",
+        "public/ypos.jpg": "e973e3033fb2a3c2f80a8a10cddc78e808f70a93a868fa8ac3cf41b8e822ddb4",
+        "public/zpos.jpg": "a54e18536d0957188108fd95d39669ec88a338a519a174598b90afb4abefb0b1",
+        "public/zneg.jpg": "6c2fbb8af830820b6c980494d9d6f16e99e51a11d16f21c14853c6df535c03e6"
       }
     },
     "ocean-threejs": {
@@ -302,7 +324,7 @@
     "very-hot-planet-codepen": {
       "repository": "https://codepen.io/sabosugi/pen/RNKpmQj",
       "revision": "339f879d3c56eda4238b009c318ca9b89e9eb3fc",
-      "license": "unobserved",
+      "license": "MIT by project rule",
       "localDirectory": "codepen-RNKpmQj",
       "files": {
         "script.js": "339f879d3c56eda4238b009c318ca9b89e9eb3fcb64eb82be8fa41e692f733b3",

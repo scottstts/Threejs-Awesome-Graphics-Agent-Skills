@@ -26,7 +26,7 @@ export default {
   initialTime: 14,
   renderer: {
     options: { antialias: true },
-    toneMapping: 6,
+    toneMapping: 0,
     exposure: 1.05,
     clearColor: 0x9fc6dc,
   },
@@ -52,8 +52,8 @@ export default {
       );
     }
 
-    const sunDirection = new THREE.Vector3(-0.42, 0.62, 0.66).normalize();
-    scene.fog = new THREE.FogExp2(0xbcd7e8, 0.0022);
+    const sunDirection = new THREE.Vector3(0.506, 0.616, 0.604).normalize();
+    scene.fog = new THREE.FogExp2(0xbcd7e8, 0.0016);
     const skyMaterial = createHybridOceanSkyMaterial({ sunDirection });
     const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 48, 24), skyMaterial);
     scene.add(sky);
@@ -96,13 +96,13 @@ export default {
       boundaryFactor: 6,
       gravity: 9.81,
       depth: 120,
-      choppiness: 1.35,
+      choppiness: 1.08,
       foamRecovery: 0.42,
-      amplitude: 0.85,
+      amplitude: 0.62,
       seed: 490173,
       sunDirection,
       local: {
-        scale: 1,
+        scale: 0.82,
         windSpeed: 14,
         directionDegrees: 43,
         fetchMeters: 80000,
@@ -112,7 +112,7 @@ export default {
         shortWaveFade: 0.018,
       },
       swell: {
-        scale: 0.78,
+        scale: 0.55,
         windSpeed: 3,
         directionDegrees: 20,
         fetchMeters: 280000,
@@ -135,11 +135,11 @@ export default {
       swell: buildHybridSwell({
         primaryDirectionDegrees: 20,
         secondaryDirectionDegrees: 110,
-        primaryStrength: 0.55,
-        secondaryStrength: 0.28,
+        primaryStrength: 0.36,
+        secondaryStrength: 0.18,
         waveSpeed: 1,
-        waveAmplitude: 1,
-        steepness: 1,
+        waveAmplitude: 0.78,
+        steepness: 0.72,
       }),
     });
     oceanMaterial.uniforms.uSandLevel.value = sand.position.y;
@@ -168,6 +168,7 @@ export default {
         water.position.z = snappedZ;
         sand.position.x = snappedX;
         sand.position.z = snappedZ;
+        oceanMaterial.uniforms.uModelOffset.value.set(snappedX, snappedZ);
         sky.position.x = camera.position.x;
         sky.position.z = camera.position.z;
         if (camera.position.y < 0.8) camera.position.y = 0.8;

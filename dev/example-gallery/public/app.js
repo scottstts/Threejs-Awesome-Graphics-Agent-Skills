@@ -196,7 +196,7 @@ function selectExample(id, { reload = true } = {}) {
 
   state.mode = "single";
   state.dpr = example.defaultDpr;
-  state.viewport = "default";
+  state.viewport = "responsive";
   state.debugMode = example.debugModes[0]?.value ?? "final";
 
   elements.dpr.value = String(state.dpr);

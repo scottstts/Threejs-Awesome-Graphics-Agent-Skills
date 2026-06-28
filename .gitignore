@@ -4,6 +4,7 @@ source_materials/*
 !source_materials/example-traces.json
 !source_materials/skill-coverage.json
 !source_materials/agent-routing-cases.json
+!source_materials/THIRD_PARTY_NOTICES.md
 .playwright-mcp/
 .DS_Store
 node_modules/

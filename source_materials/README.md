@@ -6,11 +6,10 @@ code. A reference checkout may install its own locked dependencies and run
 inside its directory for code and visual verification. Reference packages are
 never added to this project's dependencies or distributed with the package.
 
-The pack is an independent distillation of mechanisms and workflows.
-Third-party code is not copied into distributed skills. Assets may be bundled
-only when their license permits redistribution and their exact source revision,
-hash, local path, and attribution are recorded. A source with unclear licensing
-may inform conceptual analysis only.
+The pack is an independent distillation of mechanisms and workflows. Reference
+code and assets may be copied into distributed skills only when the source is
+accepted as MIT-compatible for this project and its exact source revision, hash,
+local path, and attribution are recorded.
 
 Version-sensitive API syntax must be verified against the target project and official Three.js documentation. The research snapshot on June 19–20, 2026 observed `three@0.184.0`. This is evidence, not a package-wide minimum. Three.js `PostProcessing` was deprecated in r183 after being renamed to `RenderPipeline`; current implementations must verify the installed API.
 
@@ -66,15 +65,15 @@ Repositories were cloned shallowly under this directory for inspection.
 | [takram-design-engineering/three-geospatial](https://github.com/takram-design-engineering/three-geospatial) | `b012ad06d858fc035d88aacfd73f092f93c994e4` | MIT | independent prose/pseudocode only |
 | [jeantimex/geospatial](https://github.com/jeantimex/geospatial) | `d166316ad38f9a21f6d7a3293b808bc7f920283e` | MIT | independent implementation plus dev-only LUT, weather, volume, turbulence, and blue-noise assets |
 | [perplexdotgg/mecs-tower-defense-example](https://codeberg.org/perplexdotgg/mecs-tower-defense-example) | `d7b4e8815fcee18d97e9a12c00f900294773ad1c` | MIT code; CC0 assets | independent prose/pseudocode only; no assets copied |
-| [YasirAwan4831/holographic-shader-visualizer-three.Js](https://github.com/YasirAwan4831/holographic-shader-visualizer-three.Js) | `34810a6e09d0d640d06a2e83c5abab749baf04d5` | no root license observed | conceptual analysis only |
+| [YasirAwan4831/holographic-shader-visualizer-three.Js](https://github.com/YasirAwan4831/holographic-shader-visualizer-three.Js) | `34810a6e09d0d640d06a2e83c5abab749baf04d5` | MIT by project rule | conceptual analysis only |
 | [vibe-stack/procedural-bank](https://github.com/vibe-stack/procedural-bank) | `0034e80a61f02b88dbe13a385bdab734a365b82d` | MIT | independent implementation plus attributed MIT stone textures |
-| [takuma-hmng8/frozen](https://github.com/takuma-hmng8/frozen) | `15a98a5104951a0bd734eb23ab21b7f79741ab09` | no root license observed | conceptual analysis only |
-| [owenyuwono/poseidon](https://github.com/owenyuwono/poseidon) | `caddf773c7e2b7c9b00ad232d21cca4f364d5272` | no root license or package license observed | conceptual analysis only; no code copied |
-| [gioeledallapozza/FFTOCEAN](https://github.com/gioeledallapozza/FFTOCEAN) | `0fe3a908a86118eab9930e17b0b29df7fcc05b65` | no root license or package license observed | conceptual analysis only; no code or assets copied |
-| [jeantimex/threejs-water](https://github.com/jeantimex/threejs-water) | `d5c06864fe22ad31f500af7f21a46aad1c7d3e27` | MIT | independent implementation; dev-only pool tile texture copied for visual inspection |
+| [takuma-hmng8/frozen](https://github.com/takuma-hmng8/frozen) | `15a98a5104951a0bd734eb23ab21b7f79741ab09` | MIT by project rule | conceptual analysis only |
+| [owenyuwono/poseidon](https://github.com/owenyuwono/poseidon) | `caddf773c7e2b7c9b00ad232d21cca4f364d5272` | MIT by project rule | conceptual analysis only; no code copied |
+| [gioeledallapozza/FFTOCEAN](https://github.com/gioeledallapozza/FFTOCEAN) | `0fe3a908a86118eab9930e17b0b29df7fcc05b65` | MIT-compatible author-supplied reference | copied/adapted stylized ocean shader mechanisms plus foam and sand assets for `$threejs-spectral-ocean` |
+| [jeantimex/threejs-water](https://github.com/jeantimex/threejs-water) | `d5c06864fe22ad31f500af7f21a46aad1c7d3e27` | MIT | copied/adapted water simulation, pool caustics, pool/water/sphere shader mechanisms, and pool tile/cubemap assets for `$threejs-water-optics` |
 | [achrefelouafi/OceanThreejs](https://github.com/achrefelouafi/OceanThreejs) | `da18e9254a83a6e990c0077b5d752026f3d5c480` | MIT | independent implementation; dev-only sand texture inputs copied for visual inspection |
 | [dedekpo/stylized-scene](https://github.com/dedekpo/stylized-scene) | `531c5721e3883412d0dde7db1a72732aa3ede155` | MIT | independent implementation plus attributed effect-owned grass blade/path/noise assets; scene dressing remains dev-only |
-| [sabosugi/Very Hot Planet CodePen](https://codepen.io/sabosugi/pen/RNKpmQj) | `339f879d3c56eda4238b009c318ca9b89e9eb3fc` content-derived capture id from editor init-data on 2026-06-27 | no explicit license observed in pen data | conceptual analysis only; no code copied |
+| [sabosugi/Very Hot Planet CodePen](https://codepen.io/sabosugi/pen/RNKpmQj) | `339f879d3c56eda4238b009c318ca9b89e9eb3fc` content-derived capture id from editor init-data on 2026-06-27 | MIT by project rule | procedural-materials example accepted without copied code |
 
 ### `ez-tree`
 
@@ -292,11 +291,11 @@ Accepted consumption:
 - `$threejs-atmosphere-aerial-perspective`
 - `$threejs-image-pipeline`
 
-This source is strongest as conceptual evidence for a stylized above/below
-ocean example and underwater/seafloor optical pass. The accepted example keeps
-the independently written stylized FFT surface, water-tinted seafloor caustics,
-and underwater Beer-Lambert composite inside `$threejs-spectral-ocean`. No
-source code or assets are copied because no repository license was observed.
+The accepted example keeps the reusable stylized FFT surface, water-tinted
+seafloor caustics, foam texture sampling, sky colors, and underwater
+Beer-Lambert composite inside `$threejs-spectral-ocean`. The foam and sand
+textures are copied into the skill because they are effect inputs rather than
+dev-only scene dressing.
 
 ### `threejs-water`
 
@@ -322,10 +321,11 @@ The key retained mechanism is bounded interactive water: simulation state,
 object displacement, caustic generation, and volume-aware rendering are one
 coupled system rather than a cosmetic transparent surface.
 
-The accepted example keeps the reusable water simulation and volume/optics
-implementation inside `$threejs-water-optics`. The reference tile image is
-copied only under `dev/example-gallery/` because it is decorative pool dressing,
-not an effect input.
+The accepted example keeps the reusable water simulation, pool caustics pass,
+pool/water/sphere shader implementation, and water-volume assets inside
+`$threejs-water-optics`. The tile and cubemap images are effect inputs for the
+reference optical result, while camera, interaction, and visual inspection
+framing remain in `dev/example-gallery/`.
 
 ### `OceanThreejs`
 
@@ -414,8 +414,10 @@ Candidate consumption:
 - no standalone lava skill for this intake; the accepted reusable surface is a
   procedural-materials example.
 
-The pen has no explicit license in the captured metadata, so it should inform
-mechanism analysis only. Do not copy shader code into distributed skills.
+The pen is treated as MIT by project rule. The current distributed lava example
+was accepted without copying shader code; if future visual matching requires
+direct source reuse, copy it with trace-manifest hashes instead of re-inventing
+the mechanism.
 
 ## Focused technical references
 

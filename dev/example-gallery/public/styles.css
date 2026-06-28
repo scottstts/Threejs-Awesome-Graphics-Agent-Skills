@@ -273,14 +273,15 @@ kbd {
   position: relative;
   min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .single-view {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 100%;
-  padding: 20px;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  padding: 0;
 }
 
 .toolbar {
@@ -326,9 +327,10 @@ kbd {
 .stage-shell {
   display: grid;
   grid-template-rows: minmax(0, 1fr) 29px;
-  min-height: 430px;
+  min-width: 0;
+  min-height: 0;
   border: 1px solid var(--line);
-  border-radius: 0 0 9px 9px;
+  border-radius: 0;
   overflow: hidden;
   background:
     linear-gradient(45deg, #0d0f12 25%, transparent 25%),
@@ -349,7 +351,7 @@ kbd {
   place-items: center;
   min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .stage iframe {

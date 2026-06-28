@@ -1,14 +1,15 @@
 {
   "title": "Interactive Pool Volume",
-  "description": "A bounded water volume with a ping-pong heightfield storing height, velocity, and packed normals; draggable sphere displacement; finite-difference wave propagation; refractive water surface shading; and caustic light projection.",
+  "description": "A bounded pool volume with a ping-pong heightfield storing height, velocity, and packed normals; draggable sphere displacement; finite-difference wave propagation; ray-traced water surface optics; and differential-area caustic projection.",
   "backend": "WebGL2 / GLSL heightfield water",
   "techniques": [
     "RGBA ping-pong water state",
     "discrete wave equation propagation",
     "draggable sphere displacement into the water heightfield",
     "finite-difference packed normal update",
-    "scene-color refraction and Fresnel reflection",
-    "water-normal driven caustic receiver"
+    "ray-traced sphere and wall refraction/reflection",
+    "differential-area caustic render target with sphere occlusion",
+    "shadered tile pool and caustic receiver"
   ],
   "defaultViewport": "responsive",
   "defaultDpr": 1,

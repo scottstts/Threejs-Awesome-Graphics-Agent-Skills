@@ -1,6 +1,6 @@
 ---
 name: threejs-water-optics
-description: Build production analytic and bounded water in Three.js. Use for shared multi-wave displacement and normals, bounded heightfield pool simulation, object-driven ripples, caustics, derivative-filtered normal bands, analytic sky reflection, side-aware Fresnel, heuristic screen refraction, fallback Beer-Lambert path length, and crest foam.
+description: Build production analytic and bounded water in Three.js. Use for shared multi-wave displacement and normals, bounded RGBA heightfield pool simulation, local drops, object-driven ripples, differential-area caustics, ray-traced pool/water/sphere volume optics, derivative-filtered normal bands, analytic sky reflection, side-aware Fresnel, heuristic screen refraction, Beer-Lambert absorption, and crest foam.
 ---
 
 # Water Optics
@@ -10,7 +10,7 @@ Treat water as geometry motion, surface orientation, and a participating optical
 For large stochastic seas driven by directional spectra and GPU FFTs, use
 `$threejs-spectral-ocean` instead.
 
-## Build order
+## Analytic surface build order
 
 1. Define wave bands and evaluate displacement.
 2. Derive the normal analytically from the same waves.
@@ -33,14 +33,16 @@ refraction, absorption, Fresnel, and crest-linked foam diagnostics.
 Read the
 [interactive pool volume implementation](examples/interactive-pool-volume/water-volume-system.js)
 for bounded RGBA height/velocity/normal simulation, local drops, moving-sphere
-displacement suitable for draggable objects, scene-color refraction, and
-water-normal caustic projection.
+displacement suitable for draggable objects, differential-area caustics, and
+shadered pool/water/sphere ray tracing against the pool bounds and sphere.
 
 ## Failure conditions
 
 - normal texture motion does not agree with displaced crests;
 - heuristic refraction can sample foreground objects but the limitation is undisclosed;
 - fallback path length is presented as reconstructed scene thickness;
+- bounded pool caustics are a decorative projection detached from simulated
+  height normals;
 - micro-waves alias into sparkling noise;
 - foam is a scrolling texture unrelated to the shared crest metric;
 - Fresnel is replaced by constant opacity;
@@ -50,5 +52,5 @@ water-normal caustic projection.
 
 Use `$threejs-spectral-ocean` for stochastic directional spectra, FFT
 cascades, Jacobian breaking, and persistent ocean foam. This skill owns
-authored analytic waves, bounded heightfield simulation, and bounded-water
-optics.
+authored analytic waves, bounded heightfield simulation, ray-traced
+pool-volume optics, and bounded-water optics.

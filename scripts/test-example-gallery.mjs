@@ -51,15 +51,45 @@ try {
     .locator("#frame-status[data-state='ready']")
     .waitFor({ timeout: 5000 });
 
-  await page.locator("#pause").click();
-  if ((await page.locator("#pause").textContent()) !== "Resume") {
-    throw new Error("Pause control did not update.");
+  const layout = await page.evaluate(() => {
+    const toolbar = document.querySelector(".toolbar");
+    const stage = document.querySelector(".stage");
+    const iframe = document.querySelector(".stage iframe");
+    const viewport = document.querySelector("#viewport");
+    const rect = (element) => {
+      if (!element) return null;
+      const bounds = element.getBoundingClientRect();
+      return {
+        width: Math.round(bounds.width),
+        height: Math.round(bounds.height),
+      };
+    };
+    const stageRect = rect(stage);
+    const iframeRect = rect(iframe);
+    return {
+      toolbarHidden:
+        toolbar?.hidden === true && getComputedStyle(toolbar).display === "none",
+      viewportValue: viewport?.value,
+      noDocumentScroll:
+        document.documentElement.scrollHeight <=
+          document.documentElement.clientHeight &&
+        document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      iframeFillsStage:
+        stageRect &&
+        iframeRect &&
+        Math.abs(stageRect.width - iframeRect.width) <= 1 &&
+        Math.abs(stageRect.height - iframeRect.height) <= 1,
+    };
+  });
+  if (!layout.toolbarHidden) {
+    throw new Error("Inspection toolbar should be hidden.");
   }
-
-  await page.locator("#debug-mode").selectOption("field");
-  await page.locator("#viewport").selectOption("390x844");
-  if ((await page.locator("#frame-size").textContent()) !== "390 × 844") {
-    throw new Error("Viewport control did not resize the inspection frame.");
+  if (layout.viewportValue !== "responsive") {
+    throw new Error("Inspection frame should default to responsive sizing.");
+  }
+  if (!layout.noDocumentScroll || !layout.iframeFillsStage) {
+    throw new Error("Inspection frame should fill the viewport without page scroll.");
   }
 
   await page.locator("#toggle-view").click();

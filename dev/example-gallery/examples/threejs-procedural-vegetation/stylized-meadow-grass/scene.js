@@ -7,12 +7,6 @@ import {
 } from "/skills/threejs-procedural-vegetation/examples/stylized-meadow-grass/grass-system.js";
 
 const GROUND_SIZE = 40;
-const TREE_LAYOUT = [
-  { position: [13, 0, -13], rotationY: 0.0, scale: 1.0 },
-  { position: [-13, 0, -13], rotationY: 2.1, scale: 0.9 },
-  { position: [-13, 0, 13], rotationY: 4.0, scale: 1.1 },
-  { position: [13, 0, 13], rotationY: 1.0, scale: 0.95 },
-];
 
 function firstMeshGeometry(root) {
   let geometry = null;
@@ -22,17 +16,6 @@ function firstMeshGeometry(root) {
     }
   });
   return geometry;
-}
-
-function cloneRenderable(root) {
-  const clone = root.clone(true);
-  clone.traverse((child) => {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
-  return clone;
 }
 
 async function loadTexture(url, {
@@ -142,97 +125,11 @@ function addSky(scene, texture) {
   return sky;
 }
 
-function createSoftShadowMaterial() {
-  return new THREE.ShaderMaterial({
-    transparent: true,
-    depthTest: false,
-    depthWrite: false,
-    uniforms: {
-      uShadow0: { value: new THREE.Vector4(1.8, 10.2, 11.5, 6.4) },
-      uShadow1: { value: new THREE.Vector4(8.2, 8.4, 7.2, 5.2) },
-      uShadow2: { value: new THREE.Vector4(-4.8, 8.0, 5.2, 4.8) },
-    },
-    vertexShader: `
-      varying vec2 vWorldXZ;
-
-      void main() {
-        vec4 world = modelMatrix * vec4(position, 1.0);
-        vWorldXZ = world.xz;
-        gl_Position = projectionMatrix * viewMatrix * world;
-      }
-    `,
-    fragmentShader: `
-      precision highp float;
-      uniform vec4 uShadow0;
-      uniform vec4 uShadow1;
-      uniform vec4 uShadow2;
-      varying vec2 vWorldXZ;
-
-      float ellipseShadow(vec2 position, vec4 shadow) {
-        vec2 d = (position - shadow.xy) / max(shadow.zw, vec2(0.001));
-        return smoothstep(1.0, 0.12, dot(d, d));
-      }
-
-      void main() {
-        float shadow =
-          max(ellipseShadow(vWorldXZ, uShadow0),
-          max(ellipseShadow(vWorldXZ, uShadow1), ellipseShadow(vWorldXZ, uShadow2)));
-        gl_FragColor = vec4(0.08, 0.13, 0.035, shadow * 0.26);
-      }
-    `,
-  });
-}
-
-function addTrees(scene, { trunkScene, leavesScene, leavesAlpha }) {
-  const leafMaterial = new THREE.MeshStandardMaterial({
-    color: 0x4a6b27,
-    alphaMap: leavesAlpha,
-    alphaTest: 0.1,
-    side: THREE.DoubleSide,
-    roughness: 0.8,
-  });
-  leavesAlpha.colorSpace = THREE.NoColorSpace;
-  leavesAlpha.flipY = false;
-  leavesAlpha.needsUpdate = true;
-
-  const placed = [];
-  for (const item of TREE_LAYOUT) {
-    const group = new THREE.Group();
-    group.position.fromArray(item.position);
-    group.rotation.y = item.rotationY;
-    group.scale.setScalar(item.scale);
-
-    const trunk = cloneRenderable(trunkScene);
-    trunk.scale.setScalar(12);
-    group.add(trunk);
-
-    const bushSpecs = [
-      [-0.47, 7.59, 0.48, 0.0, 0.85],
-      [-3.87, 6.79, -4.47, 1.3, 0.76],
-      [-2.08, 10.5, 0.18, 2.5, 0.9],
-    ];
-    for (const [x, y, z, yaw, scale] of bushSpecs) {
-      const bush = cloneRenderable(leavesScene);
-      bush.traverse((child) => {
-        if (child.isMesh) child.material = leafMaterial;
-      });
-      bush.position.set(x, y, z);
-      bush.rotation.y = yaw;
-      bush.scale.setScalar(scale);
-      group.add(bush);
-    }
-
-    scene.add(group);
-    placed.push(group);
-  }
-  return { placed, leafMaterial };
-}
-
 export default {
   initialTime: 9.5,
   renderer: {
     options: { antialias: true },
-    toneMapping: 6,
+    toneMapping: 7,
     exposure: 1,
     clearColor: 0x8ab7ed,
   },
@@ -250,7 +147,6 @@ export default {
     enablePan: true,
   },
   async setup({ scene, resolveAsset }) {
-    scene.fog = new THREE.FogExp2(0xd9e0d7, 0.0075);
     scene.add(new THREE.HemisphereLight(0xdbe9ff, 0x40552a, 1.15));
     const sun = new THREE.DirectionalLight(0xfff1cf, 3.0);
     sun.position.set(18, 16, 10);
@@ -263,8 +159,6 @@ export default {
     loader.setDRACOLoader(dracoLoader);
     const [
       bladeGltf,
-      trunkGltf,
-      leavesGltf,
       grassMap,
       dirtMap,
       normalMap,
@@ -272,11 +166,8 @@ export default {
       pathTexture,
       pathData,
       skyTexture,
-      leavesAlpha,
     ] = await Promise.all([
       loader.loadAsync(stylizedMeadowGrassAssetPaths.blades),
-      loader.loadAsync(resolveAsset("assets/tree-tronk-transformed.glb")),
-      loader.loadAsync(resolveAsset("assets/tree-leaves-mesh.glb")),
       loadTexture(resolveAsset("assets/grass_texture/grass_05_basecolor_1k.webp"), { repeat: [8, 8] })
         .catch(() => loadTexture(resolveAsset("assets/ground_texture/ground_07_4k/ground_07__basecolor_1k.webp"), { repeat: [8, 8] })),
       loadTexture(resolveAsset("assets/ground_texture/ground_07_4k/ground_07__basecolor_1k.webp"), { repeat: [8, 8] }),
@@ -291,7 +182,6 @@ export default {
       loadTexture(stylizedMeadowGrassAssetPaths.pathMask, { colorSpace: THREE.NoColorSpace }),
       loadImageData(stylizedMeadowGrassAssetPaths.pathMask),
       loadTexture(resolveAsset("assets/skybox/sky_88_2k.png")),
-      loadTexture(resolveAsset("assets/leaves-alpha-map.png"), { colorSpace: THREE.NoColorSpace }),
     ]);
 
     const groundMaterial = createGroundMaterial({
@@ -310,11 +200,6 @@ export default {
     scene.add(ground);
 
     const sky = addSky(scene, skyTexture);
-    const trees = addTrees(scene, {
-      trunkScene: trunkGltf.scene,
-      leavesScene: leavesGltf.scene,
-      leavesAlpha,
-    });
 
     const grassGeometry = firstMeshGeometry(bladeGltf.scene);
     const grass = createStylizedGrassField({
@@ -327,21 +212,7 @@ export default {
       sunDirection: sun.position.clone().normalize(),
       groundColorMap: grassMap,
     });
-    grass.material.uniforms.uShadowStrength.value = 0.34;
-    grass.material.uniforms.uShadow0.value.set(1.8, 10.2, 11.5, 6.4);
-    grass.material.uniforms.uShadow1.value.set(8.2, 8.4, 7.2, 5.2);
-    grass.material.uniforms.uShadow2.value.set(-4.8, 8.0, 5.2, 4.8);
     scene.add(grass.object);
-
-    const softShadowMaterial = createSoftShadowMaterial();
-    const softShadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE, 1, 1),
-      softShadowMaterial,
-    );
-    softShadow.rotation.x = -Math.PI / 2;
-    softShadow.position.y = 0.018;
-    softShadow.renderOrder = 2;
-    scene.add(softShadow);
 
     return {
       setDebugMode(mode) {
@@ -360,12 +231,8 @@ export default {
         grass.dispose();
         ground.geometry.dispose();
         groundMaterial.dispose();
-        softShadow.geometry.dispose();
-        softShadowMaterial.dispose();
         sky.geometry.dispose();
         sky.material.dispose();
-        trees.leafMaterial.dispose();
-        for (const group of trees.placed) scene.remove(group);
         for (const texture of [
           grassMap,
           dirtMap,
@@ -373,7 +240,6 @@ export default {
           roughnessMap,
           pathTexture,
           skyTexture,
-          leavesAlpha,
         ]) {
           texture.dispose();
         }

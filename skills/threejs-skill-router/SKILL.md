@@ -22,7 +22,7 @@ Treat the model's Three.js knowledge and official documentation as prerequisites
 | sky scattering, planetary shells, depth-based aerial perspective | `$threejs-atmosphere-aerial-perspective` |
 | weather-driven raymarched clouds and cloud shadows | `$threejs-volumetric-clouds` |
 | FFT oceans, hybrid FFT/Gerstner clear water, stylized above/below ocean optics, spectral cascades, choppy derivatives, Jacobian whitecaps | `$threejs-spectral-ocean` |
-| authored analytic waves, bounded heightfield pools, object ripples, caustics, shared normals, heuristic refraction, fallback absorption, crest foam | `$threejs-water-optics` |
+| authored analytic waves, bounded heightfield pools, object ripples, differential-area caustics, ray-traced pool volume optics, shared normals, heuristic refraction, fallback absorption, crest foam | `$threejs-water-optics` |
 | curved-ray black holes, accretion disks, wormholes | `$threejs-raymarched-space-effects` |
 | particles, trails, plasma, shockwaves, layered event effects | `$threejs-procedural-vfx` |
 | accumulated screen frost, touch clearing, reduced blur, and refraction masks | `$threejs-temporal-surfaces` |

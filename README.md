@@ -135,56 +135,6 @@ controls, pause/time controls, debug-mode routing, standalone launch, runtime
 metrics, and canvas capture. It is repository tooling and is not installed as
 an agent skill.
 
-Current accepted inspection surfaces:
-
-- [Atmosphere and aerial perspective](http://127.0.0.1:4173/?example=threejs-atmosphere-aerial-perspective%2Flut-aerial-perspective)
-  — precomputed sky radiance, sun transmittance, and depth-aware segment
-  scattering;
-- [Sculpted gallery frame](http://127.0.0.1:4173/?example=threejs-procedural-geometry%2Fsculpted-gallery-frame)
-  — profile-swept mesh, authored frame PBR, grazing lights, shadows, and
-  selective bloom;
-- [Ash growth system](http://127.0.0.1:4173/?example=threejs-procedural-vegetation%2Fstructured-ash-growth)
-  — species-specific hierarchy, branch geometry, foliage, wind, and meadow;
-- [Stylized meadow grass](http://127.0.0.1:4173/?example=threejs-procedural-vegetation%2Fstylized-meadow-grass)
-  — instanced authored blade clusters, image path masking, rooted gust wind,
-  color clumps, translucency, and rim light;
-- [Curved-ray accretion volume](http://127.0.0.1:4173/?example=threejs-raymarched-space-effects%2Fcurved-ray-accretion-volume)
-  — bounded ray steering, accretion density, transmittance, and bent
-  environment lookup;
-- [Spectral cascade ocean](http://127.0.0.1:4173/?example=threejs-spectral-ocean%2Fspectral-cascade-ocean)
-  — directional spectra, staged inverse FFT, choppy displacement, and
-  persistent Jacobian foam;
-- [Hybrid clear-water ocean](http://127.0.0.1:4173/?example=threejs-spectral-ocean%2Fhybrid-clear-water-ocean)
-  — spectral cascades, authored swell, clear-water sand-bed refraction,
-  animated bed caustics, absorption, sky reflection, and foam diagnostics;
-- [Stylized above/below ocean](http://127.0.0.1:4173/?example=threejs-spectral-ocean%2Fstylized-above-below-ocean)
-  — stylized FFT displacement, height-gradient body color, sun-path glints,
-  Jacobian foam, water-tinted seafloor caustics, and underwater depth fog;
-- [Procedural planet surface](http://127.0.0.1:4173/?example=threejs-procedural-planets%2Fprocedural-planet-surface)
-  — coupled displacement, geological fields, biome masks, water, and
-  altitude-filtered material detail;
-- [Authored financial tower](http://127.0.0.1:4173/?example=threejs-procedural-architecture%2Fauthored-financial-tower)
-  — semantic massing, façade grammar, grouped mesh emission, and cached
-  clipmap shadows;
-- [Analytic wave optics](http://127.0.0.1:4173/?example=threejs-water-optics%2Fanalytic-wave-optics)
-  — shared displaced waves and normals, filtered microstructure, Fresnel,
-  refraction, absorption, and crest response;
-- [Interactive pool volume](http://127.0.0.1:4173/?example=threejs-water-optics%2Finteractive-pool-volume)
-  — ping-pong heightfield water, draggable sphere ripples, packed normals,
-  refraction, and caustic projection;
-- [Weather volume clouds](http://127.0.0.1:4173/?example=threejs-volumetric-clouds%2Fweather-volume-clouds)
-  — packed weather channels, profile-shaped density, bounded integration,
-  directional lighting, and temporal reconstruction;
-- [Reentry plasma](http://127.0.0.1:4173/?example=threejs-procedural-vfx%2Freentry-plasma)
-  — closed layered wake shells, flow deformation, advected filaments, and
-  additive thermal emission;
-- [Touch-history frost](http://127.0.0.1:4173/?example=threejs-temporal-surfaces%2Ftouch-history-frost)
-  — persistent interaction history, static crystalline fields, reduced blur,
-  and two-scale refraction.
-- [Lava flow surface](http://127.0.0.1:4173/?example=threejs-procedural-materials%2Flava-flow-surface)
-  — raymarched hot terrain, coupled normals/material identity, emissive glow,
-  embers, fog, and diagnostic channels.
-
 Generate deterministic captures and a contact sheet:
 
 ```sh

@@ -10,6 +10,11 @@ export const stylizedOceanDebugModes = new Map([
   ["depth-fog", 4],
 ]);
 
+export const stylizedAboveBelowOceanAssetPaths = {
+  foam: "/skills/threejs-spectral-ocean/assets/stylized-above-below-ocean/foam.webp",
+  sand: "/skills/threejs-spectral-ocean/assets/stylized-above-below-ocean/sand.webp",
+};
+
 const stylizedSky = `
   float skyHash(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
@@ -40,33 +45,23 @@ const stylizedSky = `
   }
 
   vec3 stylizedOceanSky(vec3 direction, vec3 sunDirection, vec3 sunColor) {
-    float up = clamp(direction.y, -1.0, 1.0);
-    vec3 bottom = vec3(0.47, 0.72, 0.85);
-    vec3 top = vec3(0.024, 0.16, 0.35);
-    vec3 deepBelow = vec3(0.01, 0.11, 0.22);
-    vec3 color = up >= 0.0
-      ? mix(bottom, top, pow(up, 0.62))
-      : mix(bottom, deepBelow, clamp(-up * 2.0, 0.0, 1.0));
+    vec3 viewDirection = normalize(direction);
+    vec3 topColor = vec3(0.024, 0.255, 0.537);
+    vec3 bottomColor = vec3(0.475, 0.722, 0.851);
+    float height = max(viewDirection.y, 0.0);
+    float opticalDepth = exp(-height * (8.0 - 1.2));
+    vec3 skyColor = mix(topColor, bottomColor, opticalDepth);
 
-    float cloudMask = 0.0;
-    if (direction.y > 0.05) {
-      vec2 cloudUv = direction.xz / max(direction.y, 0.12);
-      float base = skyFbm(cloudUv * 0.34 + vec2(0.03, -0.02));
-      float detail = skyFbm(cloudUv * 1.15 + vec2(4.0, 8.0));
-      cloudMask = smoothstep(0.55, 0.78, base * 0.72 + detail * 0.28) *
-        smoothstep(0.03, 0.25, direction.y);
-    }
-    vec3 cloudColor = mix(vec3(0.68, 0.78, 0.84), vec3(1.0, 0.93, 0.72),
-      0.35 + 0.65 * max(dot(direction, sunDirection), 0.0));
-    color = mix(color, cloudColor, cloudMask * 0.62);
-
-    float sunDot = max(dot(normalize(direction), normalize(sunDirection)), 0.0);
-    color += sunColor * (
-      pow(sunDot, 1600.0) * 2.5 +
-      pow(sunDot, 32.0) * 0.42 +
-      pow(sunDot, 5.0) * 0.06
-    ) * (1.0 - cloudMask * 0.45);
-    return color;
+    float sunDot = dot(viewDirection, normalize(sunDirection));
+    float sunDisk = smoothstep(0.9999, 1.0, sunDot);
+    float dynamicGlowSize = 0.999 - (6.0 * 0.002);
+    float sunGlow = smoothstep(dynamicGlowSize, 1.0, sunDot);
+    float dynamicDiskIntensity = 1.5 / (1.0 + (6.0 * 0.1));
+    vec3 finalColor =
+      skyColor +
+      sunColor * sunGlow * 4.5 +
+      sunColor * sunDisk * dynamicDiskIntensity;
+    return clamp(finalColor, 0.0, 1.0);
   }
 `;
 
@@ -108,6 +103,7 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
   waterDeep = new THREE.Color(0x15a5ec),
   waterShallow = new THREE.Color(0x59cdff),
   fogColor = new THREE.Color(0x52b9e5),
+  foamTexture = null,
 } = {}) {
   return new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
@@ -126,6 +122,7 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
       uWaterShallow: { value: waterShallow.clone() },
       uWaterSSS: { value: new THREE.Color(0x3b72ba) },
       uFoamColor: { value: new THREE.Color(0xffffff) },
+      uFoamTexture: { value: foamTexture },
       uFogColor: { value: fogColor.clone() },
       uColorMinHeight: { value: -4.5 },
       uColorMaxHeight: { value: 1.5 },
@@ -141,6 +138,9 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
       uSssMaxHeight: { value: 1.0 },
       uFoamThreshold: { value: 0.4 },
       uFoamScale: { value: 7.0 },
+      uFoamSpeed: { value: new THREE.Vector2(0.2, 0.2) },
+      uFoamDistortion: { value: 1.4 },
+      uFoamEdgeSoftness: { value: 0.8 },
       uFoamPower: { value: 0.5 },
       uFresnelSmoothness: { value: 0.5 },
       uFogDensity: { value: 0.0005 },
@@ -195,6 +195,7 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
       uniform vec3 uWaterShallow;
       uniform vec3 uWaterSSS;
       uniform vec3 uFoamColor;
+      uniform sampler2D uFoamTexture;
       uniform vec3 uFogColor;
       uniform float uColorMinHeight;
       uniform float uColorMaxHeight;
@@ -210,6 +211,9 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
       uniform float uSssMaxHeight;
       uniform float uFoamThreshold;
       uniform float uFoamScale;
+      uniform vec2 uFoamSpeed;
+      uniform float uFoamDistortion;
+      uniform float uFoamEdgeSoftness;
       uniform float uFoamPower;
       uniform float uFresnelSmoothness;
       uniform float uFogDensity;
@@ -288,12 +292,21 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
 
         vec3 color = mix(waterInside, reflection + directSpecular, fresnel);
 
+        vec2 foamUv = vOceanXZ / patchLengths.x;
+        vec2 foamUv1 = foamUv * uFoamScale;
+        foamUv1 += uTime * (uFoamSpeed * 0.05);
+        vec2 foamUv2 = foamUv * (uFoamScale * 1.2);
+        foamUv2 += uTime * (-uFoamSpeed * 0.07);
+        float foamNoise =
+          texture2D(uFoamTexture, foamUv1).r *
+          texture2D(uFoamTexture, foamUv2).r;
         float turbulence = max(0.0, (uFoamThreshold - vJacobian) * 10.0);
-        float foamCoverage = smoothstep(0.22, 0.22 + 0.8, turbulence * uFoamPower);
-        vec2 foamUvA = vOceanXZ * (0.0065 * uFoamScale) + uTime * vec2(0.010, 0.006);
-        vec2 foamUvB = vOceanXZ * (0.0078 * uFoamScale) - uTime * vec2(0.014, 0.009);
-        float foamNoise = fbm(foamUvA) * fbm(foamUvB + 9.0);
-        float foamMask = foamCoverage * pow(clamp(foamNoise, 0.0, 1.0), 1.0 / 1.4);
+        turbulence *= uFoamPower * 10.0;
+        float foamCoverage =
+          smoothstep(uFoamThreshold, uFoamThreshold + uFoamEdgeSoftness, turbulence);
+        float foamMask =
+          foamCoverage * pow(foamNoise, 1.0 / max(uFoamDistortion, 0.001));
+        foamMask = clamp(foamMask * 2.4, 0.0, 1.0);
         if (uDebugMode == 3) {
           gl_FragColor = vec4(vec3(foamMask), 1.0);
           return;
@@ -315,6 +328,7 @@ export function createStylizedOceanSurfaceMaterial(cascades, {
 }
 
 export function createStylizedSeaFloorMaterial({
+  sandTexture = null,
   sandColor = new THREE.Color(0xffffff),
   waterDeep = new THREE.Color(0x15a5ec),
   waterShallow = new THREE.Color(0x59cdff),
@@ -330,6 +344,7 @@ export function createStylizedSeaFloorMaterial({
   return new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
+      uSandTexture: { value: sandTexture },
       uSandColor: { value: sandColor.clone() },
       uWaterDeep: { value: waterDeep.clone() },
       uWaterShallow: { value: waterShallow.clone() },
@@ -357,6 +372,7 @@ export function createStylizedSeaFloorMaterial({
       precision highp float;
 
       uniform float uTime;
+      uniform sampler2D uSandTexture;
       uniform vec3 uSandColor;
       uniform vec3 uWaterDeep;
       uniform vec3 uWaterShallow;
@@ -371,22 +387,39 @@ export function createStylizedSeaFloorMaterial({
       varying vec3 vWorldPosition;
       varying vec2 vUv;
 
-      ${noiseFns}
+      vec2 hash(vec2 p) {
+        p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+        return fract(sin(p) * 43758.5453);
+      }
 
-      float causticLines(vec2 uv) {
-        vec2 p = uv * 6.28318;
-        float a = sin(p.x + sin(p.y * 1.7));
-        float b = sin(p.y * 1.31 + cos(p.x * 1.13));
-        float c = sin((p.x + p.y) * 0.83 + sin(p.x * 0.57));
-        float lines = abs(a + b + c) / 3.0;
-        return pow(1.0 - smoothstep(0.08, 0.32, lines), 2.2);
+      float voronoiSeamless(vec2 x, float period) {
+        vec2 n = floor(x);
+        vec2 f = fract(x);
+        float minDist = 8.0;
+        for (int j = -1; j <= 1; j++) {
+          for (int i = -1; i <= 1; i++) {
+            vec2 b = vec2(float(i), float(j));
+            vec2 wrapped = mod(n + b, period);
+            vec2 r = b - f + hash(wrapped);
+            r += 0.3 * sin(uTime * 2.0 + hash(wrapped) * 6.2831);
+            minDist = min(minDist, dot(r, r));
+          }
+        }
+        return minDist;
+      }
+
+      float generatedCaustics(vec2 uv) {
+        float p1 = 4.0;
+        float c1 = voronoiSeamless(uv * p1 + vec2(uTime * 0.1, uTime * 0.05), p1);
+        float p2 = 5.0;
+        float c2 = voronoiSeamless(uv * p2 - vec2(uTime * 0.05, uTime * 0.08), p2);
+        float p3 = 7.0;
+        float c3 = voronoiSeamless(uv * p3 + vec2(-uTime * 0.07, uTime * 0.1), p3);
+        return clamp(pow((c1 + c2 + c3) * 0.6, 2.5) * 3.5, 0.0, 1.0);
       }
 
       void main() {
-        float sandLarge = fbm(vUv * uTextureScale * 0.12);
-        float sandFine = fbm(vUv * uTextureScale * 0.85 + 17.0);
-        vec3 baseSand = uSandColor * mix(vec3(0.76, 0.72, 0.64), vec3(1.0), 0.42 + sandLarge * 0.3);
-        baseSand *= 0.86 + sandFine * 0.18;
+        vec3 baseSand = texture2D(uSandTexture, vUv * uTextureScale).rgb * uSandColor;
 
         float depth = max(0.0, -vWorldPosition.y);
         float verticalAttenuation = exp(-depth / (uMaxDepth * 0.5));
@@ -398,8 +431,8 @@ export function createStylizedSeaFloorMaterial({
 
         vec2 causticUv = vWorldPosition.xz * uCausticScale +
           uTime * uCausticSpeed * vec2(1.0, 0.5);
-        float c1 = causticLines(causticUv);
-        float c2 = causticLines(mat2(0.795, -0.606, 0.606, 0.795) *
+        float c1 = generatedCaustics(causticUv);
+        float c2 = generatedCaustics(mat2(0.795, -0.606, 0.606, 0.795) *
           (causticUv * 0.618 - uTime * uCausticSpeed * 0.3));
         vec3 causticTint = mix(vec3(1.0), uWaterShallow, 0.2);
         color += causticTint * c1 * c2 * 2.5 * uCausticIntensity * verticalAttenuation;
@@ -476,18 +509,9 @@ export function createStylizedUnderwaterCompositeMaterial({
 
         float depth = texture2D(uSceneDepth, vUv).x;
         float viewZ = -perspectiveDepthToViewZ(depth, uCameraNear, uCameraFar);
-        if (depth >= 0.9999) viewZ = 220.0;
-        float fog = clamp(1.0 - exp(-viewZ / uWaterClarity), 0.0, 0.82);
+        if (depth >= 0.9999) viewZ = 10000.0;
+        float fog = clamp(1.0 - exp(-viewZ / uWaterClarity), 0.0, 1.0);
         vec3 color = mix(inputColor.rgb, uFogColor, fog);
-
-        float surfaceBand = smoothstep(0.62, 1.0, vUv.y);
-        float shimmer = sin((vUv.x * 42.0 + uTime * 0.9) +
-          sin(vUv.x * 12.0 - uTime * 0.4) * 1.8) * 0.5 + 0.5;
-        vec3 surfaceTint = mix(vec3(0.02, 0.19, 0.37), vec3(0.08, 0.48, 0.84), shimmer);
-        color = mix(color, surfaceTint, surfaceBand * 0.38);
-
-        float bottomGlow = smoothstep(0.42, 0.0, vUv.y) * 0.28;
-        color += vec3(0.08, 0.44, 0.65) * bottomGlow * (1.0 - fog * 0.35);
 
         if (uDebugMode == 4) {
           gl_FragColor = vec4(vec3(fog), 1.0);

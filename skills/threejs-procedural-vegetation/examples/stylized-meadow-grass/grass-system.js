@@ -318,7 +318,7 @@ export function createStylizedGrassMaterial({
           vec3(0.68, 0.77, 0.28) * back * pow(vBladeT, 1.5) * 0.68 +
           vec3(0.88, 0.92, 0.60) * rim * 0.16;
         float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
-        color = mix(vec3(luma), color, 1.12) * 0.92;
+        color = mix(vec3(luma), color, 1.32) * 1.06;
         float shadow =
           max(ellipseShadow(vWorldXZ, uShadow0),
           max(ellipseShadow(vWorldXZ, uShadow1), ellipseShadow(vWorldXZ, uShadow2)));
