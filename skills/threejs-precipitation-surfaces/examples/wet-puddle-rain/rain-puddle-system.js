@@ -87,7 +87,7 @@ vec3 getRipples(vec2 uv) {
   }
   circles /= float((MAX_RADIUS*2+1)*(MAX_RADIUS*2+1));
   float intensity = mix(0.01, 0.15, smoothstep(0.1, 0.6, abs(fract(0.05*time + 0.5)*2.-1.)));
-  vec3 n = vec3(circles * intensity, sqrt(max(0.0, 1. - dot(circles, circles))));
+  vec3 n = vec3(circles, sqrt(max(0.0, 1. - dot(circles, circles))));
   return n;
 }
 
@@ -170,7 +170,7 @@ export function createPuddleMaterial({
         float normalProgress = smoothstep(0.75, 1.0, uRainFactor);
         normalProgress = clamp(normalProgress, 0.0, 1.0);
         float puddleNoise = getPuddle(vPuddlePosition.xy * 15.0);
-        float puddleNormalMask = smoothstep(0.2, 1.0, puddleNoise) * normalProgress;
+        float puddleNormalMask = smoothstep(0.0, 1.0, puddleNoise) * normalProgress;
         vec3 rippleNormals = getRipples(vPuddlePosition.xy * 40.0);
         float circle = 1. - sdCircle(vPuddleWorldPosition.xz, 0.2);
         circle = smoothstep(0.7, 0.85, circle);`,
@@ -205,7 +205,7 @@ export function createPuddleMaterial({
         #include <opaque_fragment>`,
       );
   };
-  material.customProgramCacheKey = () => "precipitation-wet-puddle-rain-v1";
+  material.customProgramCacheKey = () => "precipitation-wet-puddle-rain-v2";
   material.userData.rainUniforms = uniforms;
   return material;
 }
@@ -301,7 +301,7 @@ export function createRainDropMaterial({ rainProgress } = {}) {
       void main() {
         vPosition = position;
         vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
       }
     `,
     fragmentShader: `
@@ -454,7 +454,7 @@ export function createSplashMaterial({ texture, rainProgress } = {}) {
         vSplashProgress = aSplashProgress;
         vec3 p = position;
         p.y += 0.05;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(p, 1.0);
       }
     `,
     fragmentShader: `
@@ -498,30 +498,4 @@ export function createSplashMaterial({ texture, rainProgress } = {}) {
       }
     `,
   });
-}
-
-export function createThunderLight() {
-  const material = new THREE.MeshBasicMaterial({
-    color: new THREE.Color("#8886f5").multiplyScalar(100),
-    transparent: true,
-    opacity: 0,
-  });
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(), material);
-  mesh.position.set(-2, 1, -1);
-  mesh.scale.set(1, 2, 0.1);
-  return {
-    mesh,
-    update({ elapsed, active }) {
-      if (!active) {
-        material.opacity = 0;
-        return;
-      }
-      const n = Math.sin(elapsed * 37.0) * 0.5 + Math.sin(elapsed * 19.0) * 0.5;
-      material.opacity = THREE.MathUtils.smoothstep(n * 0.5 + 0.5, 0.7, 0.95);
-    },
-    dispose() {
-      mesh.geometry.dispose();
-      material.dispose();
-    },
-  };
 }

@@ -33,8 +33,8 @@ surface composition.
 Read the
 [wet puddle rain implementation](examples/wet-puddle-rain/rain-puddle-system.js)
 for rain-progress wetness, asphalt puddle masks, procedural ripple normals,
-instanced rain streaks, upward-surface splash sampling, flipbook splashes, and
-thunder-light presentation. This example includes GPL-licensed source material;
+instanced rain streaks, upward-surface splash sampling, and flipbook splashes.
+This example includes GPL-licensed source material;
 preserve its license boundary when copying or publishing it.
 
 ## Required controls

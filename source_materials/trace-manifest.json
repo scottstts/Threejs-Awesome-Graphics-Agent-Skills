@@ -437,7 +437,8 @@
         "public/Material_1/Asphalt025C_1K-JPG_Color.jpg": "4bd3098142bfc267a30e4075bd7444585c7ef9c4783e6ba42bfc281c27f17dd0",
         "public/Material_1/Asphalt025C_1K-JPG_Displacement.jpg": "16fcda0f854dbcff69c41093aa3a284b00eb2828603f2cc1c12883f27d73ab07",
         "public/Material_1/Asphalt025C_1K-JPG_NormalGL.jpg": "5020ad70524e1eafb2fb0de89c07e86790ff79df6270f155a593ee4668dda6bf",
-        "public/Material_1/Asphalt025C_1K-JPG_Roughness.jpg": "85d6ecad03eca9e592a7fc417acaf75ed3e3c76ba74d72976cc84e6b4c9d263a"
+        "public/Material_1/Asphalt025C_1K-JPG_Roughness.jpg": "85d6ecad03eca9e592a7fc417acaf75ed3e3c76ba74d72976cc84e6b4c9d263a",
+        "public/old_rusty_car_2.glb": "43788a212349c895aa6d197e2bb0f0de8f0241037935fd624d5ecddb837fb920"
       }
     },
     "demo-2023-rain-puddle": {

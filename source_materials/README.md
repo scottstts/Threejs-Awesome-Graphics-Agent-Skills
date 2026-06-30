@@ -77,7 +77,7 @@ Repositories were cloned shallowly under this directory for inspection.
 | [sabosugi/Very Hot Planet CodePen](https://codepen.io/sabosugi/pen/RNKpmQj) | `339f879d3c56eda4238b009c318ca9b89e9eb3fc` content-derived capture id from editor init-data on 2026-06-27 | MIT by project rule | copied/adapted procedural lava material mechanisms |
 | [momentchan/r3f-procedural-grass](https://github.com/momentchan/r3f-procedural-grass) | `e441d2bd4eacaa0c913a8b64dfeb69bd0314a7b5`; `packages/r3f-gist` submodule `16bc424b75077a910965c98ea8ce0c5b564b54b1` | MIT; submodule has no observed license and is treated as MIT by project rule | copied/adapted realistic GPU-computed grass implementation for `$threejs-procedural-vegetation` |
 | [achrefelouafi/SnowSystemThreeJS](https://github.com/achrefelouafi/SnowSystemThreeJS) | `c7a3bfbd10c93f8d7b032c322c99b38326edeb80` | MIT | copied/adapted snowfall, snow accumulation, model snow capping, and frozen-lake mechanisms into `$threejs-precipitation-surfaces` |
-| [Faraz-Portfolio/demo-2023-rain-puddle](https://github.com/Faraz-Portfolio/demo-2023-rain-puddle) | `257066b63d08b227df8f982377e60f91752ddc81` | GPL-3.0 | copied/adapted wet asphalt puddle, rain, splash, and thunder mechanisms into GPL-covered precipitation example material |
+| [Faraz-Portfolio/demo-2023-rain-puddle](https://github.com/Faraz-Portfolio/demo-2023-rain-puddle) | `257066b63d08b227df8f982377e60f91752ddc81` | GPL-3.0 | copied/adapted wet asphalt puddle, rain, and splash mechanisms into GPL-covered precipitation example material |
 
 ### `ez-tree`
 
@@ -451,7 +451,8 @@ license.
 The accepted example keeps the MRT blade-parameter compute pass, terrain field,
 Voronoi clumps, Bezier blade folding, wind, LOD/cull, color/normal fade, and
 lighting mechanisms inside `$threejs-procedural-vegetation`. The dev gallery
-owns only the inspection scene, camera, sky, lights, and debug presentation.
+owns only the inspection scene, camera, source-like directional light,
+environment-only lighting, post pass, and debug presentation.
 
 ### `SnowSystemThreeJS`
 
@@ -482,15 +483,21 @@ Accepted consumption:
 The accepted example keeps the wrapped snowfall volume, shared wind/time
 uniforms, world-space snow mask, ground displacement and normals, object snow
 capping, sparkle, and optional frozen-lake composition inside
-`$threejs-precipitation-surfaces`. Dev-only asphalt inputs and framing remain
-under `dev/example-gallery/`.
+`$threejs-precipitation-surfaces`. Dev-only asphalt inputs, the original
+reference rusty car GLB, compressed-model loader support, source-matched model
+recentering/resting, cinematic post presentation, and scene framing remain
+under `dev/example-gallery/`. The user-supplied compressed car handoff was
+copied to `source_materials/user-supplied/old-rusty-car.glb` with SHA-256
+`f2f29c4d6d7192e1d44d88238311bccb7fd5251517138c5769439ca71bce4d6b`, but the
+gallery uses `source_materials/SnowSystemThreeJS/public/old_rusty_car_2.glb`
+for visual parity.
 
 ### `demo-2023-rain-puddle`
 
 Reviewed:
 
 - rain-progress envelope that drives material wetness, falling drops, splashes,
-  thunder, and audio timing;
+  and source-side audio timing;
 - PBR asphalt puddle material with procedural puddle mask, staged roughness
   collapse, analytic ripple normals, normal-map handoff, and circular opacity
   masking;
@@ -498,8 +505,9 @@ Reviewed:
   alpha;
 - surface-sampled splash placement weighted to upward-facing mesh normals,
   flipbook animation, additive blending, and per-instance splash progress;
-- thunder/lightning presentation using a high-emission environment light proxy
-  and noise-timed opacity.
+- source thunder/lightning presentation was reviewed and deliberately omitted
+  from the accepted gallery extraction so the precipitation example has no
+  scene flash proxy.
 
 Accepted consumption:
 
@@ -507,17 +515,20 @@ Accepted consumption:
 
 The source is GPL-3.0. The accepted example keeps its copied puddle material,
 rain-progress envelope, ripple-normal shader, instanced drops, splash flipbook,
-surface sampling, and thunder presentation within the package's added
-GPL-covered boundary. The effect-owned splash atlas and road texture set are
-copied under the skill; HDR and trash inspection assets remain dev-only.
+and surface sampling within the package's added GPL-covered boundary. The
+effect-owned splash atlas and road texture set are copied under the skill; HDR
+and trash inspection assets remain dev-only.
 
 Live Vite inspection of the original checkout on this workstation started the
 rain/drop/splash scene but the puddle material failed to compile with the
 installed dependency set because `three-custom-shader-material` no longer
-provided `csm_Bump`. The accepted extraction therefore validates the copied
-puddle mechanisms through source inspection, copied shader parity, runtime
-captures, and explicit puddle-mask/ripple-normal diagnostics rather than a
-successful live comparison against that broken dependency combination.
+provided `csm_Bump`. The public live demo declared in the source README was
+therefore inspected directly on June 30, 2026 for visual comparison and
+captured at `.example-captures/reference/rain-puddle-live.png`. The accepted
+extraction validates the copied puddle mechanisms through source inspection,
+copied shader parity, the live-demo comparison, runtime captures, and explicit
+puddle-mask/ripple-normal diagnostics rather than relying on the broken local
+checkout rendering path.
 
 ## Focused technical references
 

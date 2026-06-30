@@ -1,11 +1,12 @@
 {
   "title": "Snow Accumulation",
-  "description": "A winter surface system with camera-wrapped instanced snowfall, shared wind and time, world-space snow coverage, single-source snow height and normals, matte snow roughness, ice-crystal sparkle, and an optional shared-field frozen lake.",
+  "description": "A winter surface system with camera-wrapped instanced snowfall, shared wind and time, world-space snow coverage, single-source snow height and normals, model snow capping, matte snow roughness, ice-crystal sparkle, and an optional shared-field frozen lake.",
   "backend": "WebGL2 / GLSL material injection and instancing",
   "techniques": [
     "camera-centered wrapped snowfall volume",
     "world-space FBM snow mask and drift height",
     "single-source displacement and finite-difference normals",
+    "upward-facing model snow accumulation",
     "roughness and sparkle material override",
     "shared lake basin and translucent ice field"
   ],

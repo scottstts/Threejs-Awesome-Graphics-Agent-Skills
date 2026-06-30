@@ -1,6 +1,6 @@
 {
   "title": "Wet Puddle Rain",
-  "description": "A GPL-licensed rain surface example with wet asphalt roughness collapse, procedural puddle masking, analytic ripple normals, instanced falling rain streaks, upward-surface splash placement, 4x5 flipbook splashes, and lightning-like environment flashes.",
+  "description": "A GPL-licensed rain surface example with wet asphalt roughness collapse, procedural puddle masking, analytic ripple normals, instanced falling rain streaks, upward-surface splash placement, and 4x5 flipbook splashes.",
   "backend": "WebGL2 / GLSL material injection and instancing",
   "techniques": [
     "rain-progress wetness envelope",

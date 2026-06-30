@@ -702,6 +702,115 @@ void main() {
 }
 `;
 
+const grassVertexMainStart = grassVertexShader.indexOf("void main() {");
+const grassVertexMainEnd = grassVertexShader.lastIndexOf("}");
+const grassVertexPrelude = grassVertexShader.slice(0, grassVertexMainStart);
+const grassVertexBody = `
+vec3 transformed = vec3(position);
+${grassVertexShader
+  .slice(grassVertexMainStart + "void main() {".length, grassVertexMainEnd)
+  .replace(
+    "gl_Position = projectionMatrix * viewMatrix * vec4(posWTilted, 1.0);",
+    "transformed = posObjTilted;",
+  )}
+`;
+const grassFragmentPrelude = grassFragmentShader.slice(
+  0,
+  grassFragmentShader.indexOf("void main() {"),
+);
+const grassPbrColorChunk = `
+{
+  vec3 T = normalize(vTangent);
+  vec3 S = normalize(vSide);
+  vec3 baseNormal = normalize(vN);
+  float u = vUv.x - 0.5;
+  float au = abs(u);
+  float mid01 = smoothstep(-uMidSoft, uMidSoft, u);
+  float rimMask = smoothstep(uRimPos, uRimPos + uRimSoft, au);
+  float v01 = mix(mid01, 1.0 - mid01, rimMask);
+  float ny = v01 * 2.0 - 1.0;
+  float widthNormalStrength = 0.35;
+  vec3 geoNormal = normalize(baseNormal + S * ny * widthNormalStrength);
+  vec3 lightingNormal = computeLightingNormal(
+    geoNormal,
+    vToCenter,
+    vHeight,
+    vWorldPos
+  );
+  vec3 color = mix(uBaseColor, uTipColor, vHeight);
+  float innerClump = smoothstep(0.0, 1.0, length(vToCenter));
+  color *= mix(uClumpInternalRange.x, uClumpInternalRange.y, innerClump);
+  color *= mix(uClumpSeedRange.x, uClumpSeedRange.y, vClumpSeed);
+  color *= mix(uBladeSeedRange.x, uBladeSeedRange.y, vBladeSeed);
+  float ao = mix(0.35, 1.0, clamp(pow(vHeight, uAOPower), 0.0, 1.0));
+  color *= ao;
+  float dist = length(cameraPosition - vWorldPos);
+  float distFade = smoothstep(6.0, 14.0, dist);
+  color = mix(color, vec3(dot(color, vec3(0.333))), distFade * 0.35);
+  float mixToGroundColor = smoothstep(uCullParams.x, uCullParams.y, dist);
+  color = mix(color, uGroundColor, mixToGroundColor * 0.5);
+  vec3 Ng = normalize(baseNormal);
+  vec3 V = normalize(cameraPosition - vWorldPos);
+  vec3 L = normalize(uLightDirection);
+  vec3 N = lightingNormal;
+  float backNdL = clamp(dot(-N, L), 0.0, 1.0);
+  float NdV = dot(Ng, V);
+  float viewGrazing = smoothstep(0.0, 0.6, 1.0 - NdV);
+  float thickness = pow(1.0 - vHeight, 1.3);
+  float backLight = backNdL * viewGrazing * thickness;
+  vec3 trans = uLightColor * backLight * uLightBackStrength;
+  color += trans;
+  float noise = remap(
+    simplexNoise2d(vUv * uNoiseParams.xy + vec2(vBladeSeed, vClumpSeed)),
+    vec2(-1.0, 1.0),
+    uNoiseParams.zw
+  );
+  color *= noise;
+  diffuseColor.rgb = color;
+}
+`;
+const grassPbrNormalChunk = `
+{
+  vec3 T = normalize(vTangent);
+  vec3 S = normalize(vSide);
+  vec3 baseNormal = normalize(vN);
+  float u = vUv.x - 0.5;
+  float au = abs(u);
+  float mid01 = smoothstep(-uMidSoft, uMidSoft, u);
+  float rimMask = smoothstep(uRimPos, uRimPos + uRimSoft, au);
+  float v01 = mix(mid01, 1.0 - mid01, rimMask);
+  float ny = v01 * 2.0 - 1.0;
+  float widthNormalStrength = 0.35;
+  vec3 geoNormal = normalize(baseNormal + S * ny * widthNormalStrength);
+  vec3 lightingNormal = computeLightingNormal(
+    geoNormal,
+    vToCenter,
+    vHeight,
+    vWorldPos
+  );
+  normal = normalize((viewMatrix * vec4(lightingNormal, 0.0)).xyz);
+}
+`;
+const grassDebugOpaqueChunk = `
+if (uDebugMode == 1) {
+  gl_FragColor = vec4(vec3(vHeight, vBladeSeed, vClumpSeed), 1.0);
+  return;
+}
+if (uDebugMode == 2) {
+  gl_FragColor = vec4(vec3(vToCenter * 0.5 + 0.5, vClumpSeed), 1.0);
+  return;
+}
+if (uDebugMode == 3) {
+  gl_FragColor = vec4(vec3(vWindStrength, 0.25 + vCullWeight * 0.75, 1.0 - vCullWeight), 1.0);
+  return;
+}
+if (uDebugMode == 4) {
+  gl_FragColor = vec4(normal * 0.5 + 0.5, 1.0);
+  return;
+}
+#include <opaque_fragment>
+`;
+
 function seededRandom(seed) {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
@@ -824,48 +933,62 @@ export function createGpuComputedGrassSystem(renderer, {
   const computeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const geometry = createGrassGeometry(gridSize, patchSize);
   const groundColor = new THREE.Color(terrain.color);
-  const material = new THREE.ShaderMaterial({
-    vertexShader: grassVertexShader,
-    fragmentShader: grassFragmentShader,
+  const materialUniforms = {
+    uTextureBladeParams: { value: mrt.textures[0] },
+    uTextureClumpData: { value: mrt.textures[1] },
+    uTextureMotionSeeds: { value: mrt.textures[2] },
+    uTextureGrassSize: { value: new THREE.Vector2(gridSize, gridSize) },
+    uGeometryThicknessStrength: { value: 0.02 },
+    uGeometryBaseWidth: { value: 0.35 },
+    uGeometryTipThin: { value: 0.9 },
+    uBladeSegments: { value: BLADE_SEGMENTS },
+    uWindTime: { value: 0 },
+    uWindDir: { value: windDir },
+    uWindSwayFreqMin: { value: 0.4 },
+    uWindSwayFreqMax: { value: 1.5 },
+    uWindSwayStrength: { value: 0.1 },
+    uWindDistanceRange: { value: new THREE.Vector2(10, 30) },
+    uBaseColor: { value: new THREE.Color("#000000") },
+    uTipColor: { value: new THREE.Color("#3e8d2f") },
+    uBladeSeedRange: { value: new THREE.Vector2(0.95, 1.03) },
+    uClumpInternalRange: { value: new THREE.Vector2(0.95, 1.05) },
+    uClumpSeedRange: { value: new THREE.Vector2(0.9, 1.1) },
+    uAOPower: { value: 5.0 },
+    uGroundColor: { value: groundColor },
+    uNoiseParams: { value: new THREE.Vector4(5.0, 10.0, 0.7, 1.0) },
+    uMidSoft: { value: 0.25 },
+    uRimPos: { value: 0.42 },
+    uRimSoft: { value: 0.03 },
+    uLightDirection: { value: lightDirection },
+    uLightColor: { value: lightColor },
+    uLightIntensity: { value: lightIntensity },
+    uLightBackStrength: { value: 0.2 },
+    uLODRange: { value: new THREE.Vector2(5, 15) },
+    uCullParams: { value: new THREE.Vector3(15, 30, 1.5) },
+    uTerrainAmp: { value: terrain.amplitude },
+    uTerrainFreq: { value: terrain.frequency },
+    uTerrainSeed: { value: terrain.seed },
+    uDebugMode: { value: 0 },
+  };
+  const material = new THREE.MeshStandardMaterial({
     side: THREE.DoubleSide,
-    uniforms: {
-      uTextureBladeParams: { value: mrt.textures[0] },
-      uTextureClumpData: { value: mrt.textures[1] },
-      uTextureMotionSeeds: { value: mrt.textures[2] },
-      uTextureGrassSize: { value: new THREE.Vector2(gridSize, gridSize) },
-      uGeometryThicknessStrength: { value: 0.02 },
-      uGeometryBaseWidth: { value: 0.35 },
-      uGeometryTipThin: { value: 0.9 },
-      uBladeSegments: { value: BLADE_SEGMENTS },
-      uWindTime: { value: 0 },
-      uWindDir: { value: windDir },
-      uWindSwayFreqMin: { value: 0.4 },
-      uWindSwayFreqMax: { value: 1.5 },
-      uWindSwayStrength: { value: 0.1 },
-      uWindDistanceRange: { value: new THREE.Vector2(10, 30) },
-      uBaseColor: { value: new THREE.Color("#000000") },
-      uTipColor: { value: new THREE.Color("#3e8d2f") },
-      uBladeSeedRange: { value: new THREE.Vector2(0.95, 1.03) },
-      uClumpInternalRange: { value: new THREE.Vector2(0.95, 1.05) },
-      uClumpSeedRange: { value: new THREE.Vector2(0.9, 1.1) },
-      uAOPower: { value: 5.0 },
-      uGroundColor: { value: groundColor },
-      uNoiseParams: { value: new THREE.Vector4(5.0, 10.0, 0.7, 1.0) },
-      uMidSoft: { value: 0.25 },
-      uRimPos: { value: 0.42 },
-      uRimSoft: { value: 0.03 },
-      uLightDirection: { value: lightDirection },
-      uLightColor: { value: lightColor },
-      uLightIntensity: { value: lightIntensity },
-      uLightBackStrength: { value: 0.2 },
-      uLODRange: { value: new THREE.Vector2(5, 15) },
-      uCullParams: { value: new THREE.Vector3(15, 30, 1.5) },
-      uTerrainAmp: { value: terrain.amplitude },
-      uTerrainFreq: { value: terrain.frequency },
-      uTerrainSeed: { value: terrain.seed },
-      uDebugMode: { value: 0 },
-    },
+    roughness: 0.3,
+    metalness: 0.5,
+    envMapIntensity: 0.5,
   });
+  material.uniforms = materialUniforms;
+  material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, materialUniforms);
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", `#include <common>\n${grassVertexPrelude}`)
+      .replace("#include <begin_vertex>", grassVertexBody);
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", `#include <common>\n${grassFragmentPrelude}`)
+      .replace("#include <map_fragment>", `#include <map_fragment>\n${grassPbrColorChunk}`)
+      .replace("#include <normal_fragment_maps>", `#include <normal_fragment_maps>\n${grassPbrNormalChunk}`)
+      .replace("#include <opaque_fragment>", grassDebugOpaqueChunk);
+  };
+  material.customProgramCacheKey = () => "gpu-computed-grass-pbr-v1";
   const mesh = new THREE.InstancedMesh(geometry, material, gridSize * gridSize);
   mesh.frustumCulled = false;
 
@@ -883,6 +1006,13 @@ export function createGpuComputedGrassSystem(renderer, {
     computeMaterial,
     setDebugMode(mode) {
       material.uniforms.uDebugMode.value = gpuComputedGrassDebugModes.get(mode) ?? 0;
+    },
+    setLight({ direction, color, intensity } = {}) {
+      if (direction) material.uniforms.uLightDirection.value.copy(direction);
+      if (color) material.uniforms.uLightColor.value.copy(color);
+      if (typeof intensity === "number") {
+        material.uniforms.uLightIntensity.value = intensity;
+      }
     },
     update({ elapsed }) {
       material.uniforms.uWindTime.value = elapsed;

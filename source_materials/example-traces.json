@@ -77,13 +77,18 @@
           {
             "sourcePath": "public/Material_1/Asphalt025C_1K-JPG_Roughness.jpg",
             "localPath": "dev/example-gallery/examples/threejs-precipitation-surfaces/snow-accumulation/assets/asphalt/Asphalt025C_1K-JPG_Roughness.jpg"
+          },
+          {
+            "sourcePath": "public/old_rusty_car_2.glb",
+            "localPath": "dev/example-gallery/examples/threejs-precipitation-surfaces/snow-accumulation/assets/old_rusty_car_2.glb"
           }
         ],
         "boundary": "reference-extraction",
         "divergences": [
           "the source studio UI, audio, and model import controls remain gallery/runtime concerns and are not part of the reusable skill example",
+          "the gallery uses the original rusty car GLB as a dev-owned inspection asset while keeping model import controls outside the reusable skill example",
           "the frozen lake is retained as an optional debug/inspection mode instead of a default scene state",
-          "the post-processing stack is represented by the gallery renderer tone mapping while the copied precipitation and surface shaders remain the inspected effect"
+          "the source cinematic post-processing stack is represented in the gallery as presentation while the copied precipitation and surface shaders remain the inspected effect"
         ]
       }
     ],
@@ -95,7 +100,6 @@
           "src/Rain/Drops.tsx",
           "src/Rain/Splashes/index.tsx",
           "src/Rain/Splashes/useSplashPositions.ts",
-          "src/Rain/Thunder.tsx",
           "src/Rain/index.tsx",
           "src/useMakeRain.ts",
           "src/App.tsx",
@@ -107,8 +111,7 @@
           "asphalt puddle material with procedural puddle mask, staged roughness collapse, and analytic expanding-ring ripple normals",
           "camera-facing instanced falling rain streaks shaped by an uneven-capsule SDF",
           "upward-normal weighted mesh surface sampling for splash placement",
-          "4 by 5 flipbook splash animation with per-instance splash progress and additive blending",
-          "high-emission thunder-light proxy for environment flashes"
+          "4 by 5 flipbook splash animation with per-instance splash progress and additive blending"
         ],
         "assets": [
           {
@@ -154,9 +157,9 @@
         ],
         "boundary": "reference-extraction",
         "divergences": [
-          "the source React components and custom-shader-material hooks are translated into standalone Three.js modules while preserving the material, rain, splash, and thunder mechanisms",
+          "the source React components and custom-shader-material hooks are translated into standalone Three.js modules while preserving the material, rain, and splash mechanisms",
           "the click-to-start UI is replaced by an automatic five-second rain-progress ramp for deterministic gallery inspection",
-          "audio playback is omitted because this skill pack covers visual graphics effects"
+          "the source thunder flash and audio playback are omitted because this skill pack covers the visual rain, puddle, ripple, and splash effects without scene-flash presentation"
         ]
       }
     ],

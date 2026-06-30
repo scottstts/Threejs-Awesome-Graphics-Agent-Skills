@@ -56,14 +56,14 @@ in `source_materials/trace-manifest.json`.
   material injection mechanisms.
 - Dev-only copied assets:
   - `dev/example-gallery/examples/threejs-precipitation-surfaces/snow-accumulation/assets/asphalt/`
+  - `dev/example-gallery/examples/threejs-precipitation-surfaces/snow-accumulation/assets/old_rusty_car_2.glb`
 
 ## Faraz-Portfolio/demo-2023-rain-puddle
 
 - Source: https://github.com/Faraz-Portfolio/demo-2023-rain-puddle
 - License: GPL-3.0
 - Used in: `skills/threejs-precipitation-surfaces/examples/wet-puddle-rain/`
-- Includes adapted puddle material, rain streak, splash, and thunder-light
-  mechanisms.
+- Includes adapted puddle material, rain streak, and splash mechanisms.
 - Full GPL-3.0 text is included in `source_materials/GPL-3.0.txt`.
 - Bundled GPL assets:
   - `skills/threejs-precipitation-surfaces/assets/wet-puddle-rain/Splash.png`

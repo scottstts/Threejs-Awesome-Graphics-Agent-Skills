@@ -33,7 +33,7 @@ const state = {
   examples: [],
   filtered: [],
   selectedId: null,
-  mode: "single",
+  mode: "overview",
   paused: false,
   dpr: DEFAULT_GALLERY_DPR,
   timeScale: 1,
@@ -238,6 +238,15 @@ function renderMode() {
   else clearOverview();
 }
 
+function showOverview() {
+  state.mode = "overview";
+  const url = new URL(window.location.href);
+  url.searchParams.delete("example");
+  history.replaceState(null, "", url);
+  renderList();
+  renderMode();
+}
+
 function selectExample(id, { reload = true } = {}) {
   state.selectedId = id;
   const example = selectedExample();
@@ -303,14 +312,16 @@ async function loadExamples({ preserveSelection = true } = {}) {
   elements.runtimeSummary.textContent = "runtime ready";
 
   const requested = new URL(window.location.href).searchParams.get("example");
-  const previous = preserveSelection ? state.selectedId : null;
+  const previous = preserveSelection && state.mode === "single"
+    ? state.selectedId
+    : null;
   const nextId = [requested, previous].find((id) =>
     state.examples.some((example) => example.id === id)
-  ) ?? state.examples[0]?.id ?? null;
+  ) ?? null;
 
+  renderList();
   renderMode();
   if (nextId) selectExample(nextId);
-  else renderList();
 }
 
 function adjacentExample(offset) {
@@ -327,8 +338,12 @@ function adjacentExample(offset) {
 elements.search.addEventListener("input", applyFilter);
 elements.refresh.addEventListener("click", () => loadExamples());
 elements.toggleView.addEventListener("click", () => {
-  state.mode = state.mode === "single" ? "overview" : "single";
-  renderMode();
+  if (state.mode === "single") {
+    showOverview();
+    return;
+  }
+  const nextId = state.selectedId ?? state.filtered[0]?.id ?? null;
+  if (nextId) selectExample(nextId);
 });
 elements.viewport.addEventListener("change", () => {
   state.viewport = elements.viewport.value;

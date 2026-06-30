@@ -1,10 +1,13 @@
 import * as THREE from "three";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import {
   createPuddleMaterial,
   createRainDrops,
   createSplashSystem,
-  createThunderLight,
   loadWetPuddleRainTextures,
   rainPuddleDebugModes,
   wetPuddleRainAssetPaths,
@@ -60,16 +63,15 @@ export default {
     enablePan: true,
   },
   async setup({ renderer, scene, camera, resolveAsset }) {
-    const pmrem = new THREE.PMREMGenerator(renderer);
     const hdr = await new RGBELoader().loadAsync(
       resolveAsset("assets/cyberpunk.hdr"),
     );
     hdr.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = hdr;
-    scene.background = hdr;
-
-    const thunder = createThunderLight();
-    scene.add(thunder.mesh);
+    scene.environmentIntensity = 1.75;
+    scene.background = new THREE.Color(0x00010b);
+    const previousFilter = renderer.domElement.style.filter;
+    renderer.domElement.style.filter = "contrast(1.2) saturate(1.1) brightness(1.1)";
 
     const rainProgress = { value: 0 };
     const maps = await loadWetPuddleRainTextures({
@@ -114,6 +116,10 @@ export default {
     scene.add(splashes.mesh);
 
     let debugMode = "final";
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.05, 0.0, 1.0));
+    composer.addPass(new OutputPass());
 
     return {
       setDebugMode(mode) {
@@ -128,7 +134,6 @@ export default {
         puddleMaterial.userData.rainUniforms.uTime.value += delta;
         drops.update({ camera, delta });
         splashes.update({ camera, delta });
-        thunder.update({ elapsed, active: rainProgress.value > 0.98 && debugMode === "final" });
       },
       metrics() {
         return {
@@ -137,10 +142,19 @@ export default {
           splashes: "1000",
         };
       },
+      resize({ width, height, dpr }) {
+        composer.setPixelRatio(dpr);
+        composer.setSize(width, height);
+      },
+      render({ state }) {
+        if (state.debugMode === "final") composer.render();
+        else renderer.render(scene, camera);
+      },
       dispose() {
         drops.dispose();
         splashes.dispose();
-        thunder.dispose();
+        composer.dispose();
+        renderer.domElement.style.filter = previousFilter;
         floor.geometry.dispose();
         puddleMaterial.dispose();
         trash.geometry.dispose();
@@ -151,7 +165,6 @@ export default {
           texture.dispose();
         }
         hdr.dispose();
-        pmrem.dispose();
       },
     };
   },

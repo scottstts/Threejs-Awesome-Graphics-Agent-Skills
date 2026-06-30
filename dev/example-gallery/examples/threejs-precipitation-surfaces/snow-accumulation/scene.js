@@ -1,6 +1,17 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
+import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import {
+  applySnowToModelMaterial,
+  createModelSnowUniforms,
   createFrozenLake,
   createLakeUniforms,
   createSharedWeatherUniforms,
@@ -28,6 +39,117 @@ async function loadAsphaltTextures(resolveAsset, renderer) {
     displacementMap: await make("Asphalt025C_1K-JPG_Displacement.jpg"),
   };
 }
+
+function disposeMaterial(material, seenTextures) {
+  const textureKeys = [
+    "map",
+    "aoMap",
+    "roughnessMap",
+    "metalnessMap",
+    "normalMap",
+    "emissiveMap",
+    "alphaMap",
+  ];
+  for (const key of textureKeys) {
+    const texture = material[key];
+    if (texture && !seenTextures.has(texture)) {
+      seenTextures.add(texture);
+      texture.dispose();
+    }
+  }
+  material.dispose();
+}
+
+function prepareSnowModel(root, sharedUniforms) {
+  const snowUniforms = createModelSnowUniforms(sharedUniforms);
+  const seenTextures = new Set();
+  root.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(root);
+  const center = box.getCenter(new THREE.Vector3());
+  root.position.x -= center.x;
+  root.position.z -= center.z;
+  root.position.y -= box.min.y;
+
+  const group = new THREE.Group();
+  group.add(root);
+  root.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+    const patchMaterial = (material) => {
+      const patched = (material ?? new THREE.MeshStandardMaterial()).clone();
+      applySnowToModelMaterial(patched, snowUniforms);
+      return patched;
+    };
+    obj.material = Array.isArray(obj.material)
+      ? obj.material.map(patchMaterial)
+      : patchMaterial(obj.material);
+  });
+  function refreshMatrix() {
+    group.updateMatrixWorld(true);
+    snowUniforms.uModelInv.value.copy(group.matrixWorld).invert();
+  }
+  refreshMatrix();
+  return {
+    root: group,
+    snowUniforms,
+    refreshMatrix,
+    dispose() {
+      root.traverse((obj) => {
+        obj.geometry?.dispose?.();
+        if (Array.isArray(obj.material)) {
+          for (const material of obj.material) disposeMaterial(material, seenTextures);
+        } else if (obj.material) {
+          disposeMaterial(obj.material, seenTextures);
+        }
+      });
+    },
+  };
+}
+
+const filmGradeShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime: { value: 0 },
+    uVignette: { value: 0.15 },
+    uVignetteSize: { value: 0.4 },
+    uGrain: { value: 0.095 },
+    uChroma: { value: 0.0025 },
+    uContrast: { value: 1.0 },
+    uSaturation: { value: 1.0 },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uTime, uVignette, uVignetteSize, uGrain, uChroma, uContrast, uSaturation;
+    varying vec2 vUv;
+    float rand(vec2 co) {
+      return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+    void main() {
+      vec2 dir = vUv - 0.5;
+      float ca = uChroma * dot(dir, dir) * 4.0;
+      vec3 col;
+      col.r = texture2D(tDiffuse, vUv - dir * ca).r;
+      col.g = texture2D(tDiffuse, vUv).g;
+      col.b = texture2D(tDiffuse, vUv + dir * ca).b;
+      col = (col - 0.5) * uContrast + 0.5;
+      float luma = dot(col, vec3(0.299, 0.587, 0.114));
+      col = mix(vec3(luma), col, uSaturation);
+      float vig = smoothstep(0.85, uVignetteSize, length(dir));
+      col *= 1.0 - vig * uVignette;
+      float g = rand(vUv + fract(uTime)) - 0.5;
+      col += g * uGrain;
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+};
 
 export default {
   initialTime: 12.0,
@@ -62,6 +184,15 @@ export default {
     const keyLight = new THREE.DirectionalLight(0xfff1dd, 3.0);
     keyLight.position.set(8, 12, 6);
     keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.near = 1;
+    keyLight.shadow.camera.far = 60;
+    keyLight.shadow.camera.left = -15;
+    keyLight.shadow.camera.right = 15;
+    keyLight.shadow.camera.top = 15;
+    keyLight.shadow.camera.bottom = -15;
+    keyLight.shadow.bias = -0.0002;
+    keyLight.shadow.normalBias = 0.02;
     scene.add(keyLight);
 
     const fillLight = new THREE.DirectionalLight(0x4a6cff, 0.6);
@@ -104,7 +235,33 @@ export default {
     });
     scene.add(lake.mesh);
 
+    const ktx2Loader = new KTX2Loader()
+      .setTranscoderPath("/node_modules/three/examples/jsm/libs/basis/")
+      .detectSupport(renderer);
+    const gltfLoader = new GLTFLoader()
+      .setKTX2Loader(ktx2Loader)
+      .setMeshoptDecoder(MeshoptDecoder);
+    const gltf = await gltfLoader.loadAsync(
+      resolveAsset("assets/old_rusty_car_2.glb"),
+    );
+    const snowCar = prepareSnowModel(gltf.scene, shared);
+    scene.add(snowCar.root);
+
     let debugMode = "final";
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bokeh = new BokehPass(scene, camera, {
+      focus: 9.7,
+      aperture: 0.0012,
+      maxblur: 0.005,
+    });
+    bokeh.enabled = false;
+    composer.addPass(bokeh);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.04, 0.7, 0.62);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    const grade = new ShaderPass(filmGradeShader);
+    composer.addPass(grade);
 
     return {
       setDebugMode(mode) {
@@ -119,20 +276,38 @@ export default {
         shared.uTime.value = elapsed;
         snow.update();
         lake.update(camera.position);
+        snowCar.refreshMatrix();
         if (debugMode !== "lake" && lakeUniforms.uLakeEnabled.value !== 0) {
           lakeUniforms.uLakeEnabled.value = 0;
           lake.applyShape();
         }
       },
+      resize({ width, height, dpr }) {
+        composer.setPixelRatio(dpr);
+        composer.setSize(width, height);
+        bloom.setSize(width, height);
+      },
+      render({ state, delta }) {
+        if (state.debugMode === "final") {
+          grade.uniforms.uTime.value += delta;
+          composer.render();
+        } else {
+          renderer.render(scene, camera);
+        }
+      },
       metrics() {
         return {
           flakes: String(snow.mesh.geometry.instanceCount),
+          model: "rusty car",
           snowCoverage: groundMaterial.userData.snowUniforms.uSnowCoverage.value.toFixed(2),
         };
       },
       dispose() {
         snow.dispose();
         lake.dispose();
+        snowCar.dispose();
+        composer.dispose();
+        ktx2Loader.dispose();
         ground.geometry.dispose();
         groundMaterial.dispose();
         for (const texture of Object.values(maps)) texture.dispose();

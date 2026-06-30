@@ -1,6 +1,10 @@
 import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import {
   createGpuComputedGrassSystem,
@@ -14,39 +18,38 @@ const TERRAIN = {
   color: "#1a3310",
 };
 
-function createSky(scene) {
-  const skyGeometry = new THREE.SphereGeometry(120, 48, 24);
-  const skyMaterial = new THREE.ShaderMaterial({
-    side: THREE.BackSide,
-    uniforms: {
-      uTop: { value: new THREE.Color(0x7aa1c7) },
-      uBottom: { value: new THREE.Color(0x101823) },
-    },
-    vertexShader: `
-      varying vec3 vWorld;
-      void main() {
-        vec4 world = modelMatrix * vec4(position, 1.0);
-        vWorld = normalize(world.xyz);
-        gl_Position = projectionMatrix * viewMatrix * world;
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uTop;
-      uniform vec3 uBottom;
-      varying vec3 vWorld;
-      void main() {
-        float h = smoothstep(-0.2, 0.82, vWorld.y);
-        gl_FragColor = vec4(mix(uBottom, uTop, h), 1.0);
-      }
-    `,
-  });
-  const sky = new THREE.Mesh(skyGeometry, skyMaterial);
-  scene.add(sky);
-  return sky;
-}
+const grassToneShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uSaturation: { value: 0.78 },
+    uContrast: { value: 0.94 },
+    uBrightness: { value: 1.03 },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uSaturation;
+    uniform float uContrast;
+    uniform float uBrightness;
+    varying vec2 vUv;
+    void main() {
+      vec3 color = texture2D(tDiffuse, vUv).rgb;
+      color = (color - 0.5) * uContrast + 0.5;
+      float luma = dot(color, vec3(0.299, 0.587, 0.114));
+      color = mix(vec3(luma), color, uSaturation) * uBrightness;
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `,
+};
 
 export default {
-  initialTime: 8.0,
+  initialTime: 0.0,
   renderer: {
     options: { antialias: true },
     toneMapping: 7,
@@ -57,23 +60,32 @@ export default {
     fov: 45,
     near: 0.1,
     far: 120,
-    position: [0, 3.7, 7.4],
+    position: [0, 3, 10],
   },
   controls: {
-    target: [0, 1.0, 0],
-    minDistance: 4,
-    maxDistance: 18,
-    minPolarAngle: Math.PI / 5,
-    maxPolarAngle: Math.PI / 2.15,
+    target: [0, 0, 0],
+    minDistance: 5,
+    maxDistance: 20,
+    minPolarAngle: Math.PI / 4,
+    maxPolarAngle: Math.PI / 2.2,
     enablePan: true,
   },
   async setup({ renderer, scene, camera }) {
-    const hemi = new THREE.HemisphereLight(0xddeeff, 0x26380f, 1.0);
-    scene.add(hemi);
+    scene.background = new THREE.Color(0x000000);
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = environment;
+    scene.environmentIntensity = 0.2;
 
-    const sun = new THREE.DirectionalLight(0xfff2d4, 2.0);
-    sun.position.set(-8, 14, 9);
+    const lightBasePosition = new THREE.Vector3(0, 5, 5);
+    const lightPosition = new THREE.Vector3().copy(lightBasePosition);
+    const lightTarget = new THREE.Vector3(0, 0, 0);
+    const lightRotation = new THREE.Matrix4();
+    const lightDirection = new THREE.Vector3();
+    const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+    sun.position.copy(lightBasePosition);
     scene.add(sun);
+    scene.add(sun.target);
 
     const terrainMaterial = createGpuGrassTerrainMaterial(TERRAIN);
     const terrain = new THREE.Mesh(
@@ -83,12 +95,12 @@ export default {
     terrain.rotation.x = -Math.PI / 2;
     scene.add(terrain);
 
-    const sky = createSky(scene);
-
     const grass = createGpuComputedGrassSystem(renderer, {
-      gridSize: 256,
+      gridSize: 384,
       patchSize: 20,
-      lightDirection: sun.position.clone().multiplyScalar(-1).normalize(),
+      lightDirection: lightDirection
+        .subVectors(lightTarget, lightPosition)
+        .normalize(),
       lightColor: sun.color.clone(),
       lightIntensity: sun.intensity,
       terrain: TERRAIN,
@@ -97,14 +109,32 @@ export default {
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(1280, 720), 0.28, 0.28, 0.35);
+    const bokeh = new BokehPass(scene, camera, {
+      focus: 4.5,
+      aperture: 0.000025,
+      maxblur: 0.003,
+    });
+    composer.addPass(bokeh);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(1280, 720), 0.24, 0.45, 0.42);
     composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    composer.addPass(new ShaderPass(grassToneShader));
 
     return {
       setDebugMode(mode) {
         grass.setDebugMode(mode);
       },
       update({ elapsed }) {
+        lightRotation.makeRotationY(elapsed * 0.5);
+        lightPosition.copy(lightBasePosition).applyMatrix4(lightRotation);
+        sun.position.copy(lightPosition);
+        sun.target.position.copy(lightTarget);
+        sun.target.updateMatrixWorld();
+        grass.setLight({
+          direction: lightDirection.subVectors(lightTarget, lightPosition).normalize(),
+          color: sun.color,
+          intensity: sun.intensity,
+        });
         grass.update({ elapsed });
       },
       resize({ width, height, dpr }) {
@@ -117,7 +147,7 @@ export default {
       },
       metrics() {
         return {
-          blades: "65536",
+          blades: "147456",
           compute: "3 MRT channels",
         };
       },
@@ -126,8 +156,8 @@ export default {
         composer.dispose();
         terrain.geometry.dispose();
         terrainMaterial.dispose();
-        sky.geometry.dispose();
-        sky.material.dispose();
+        environment.dispose();
+        pmrem.dispose();
       },
     };
   },

@@ -128,7 +128,7 @@ becomes heavy.
 float roughnessProgress = smoothstep(0.0, 0.75, uRainFactor);
 float normalProgress = smoothstep(0.75, 1.0, uRainFactor);
 float puddleNoise = getPuddle(vPosition.xy * 15.0);
-float puddleMask = smoothstep(0.2, 1.0, puddleNoise) * normalProgress;
+float puddleMask = smoothstep(0.0, 1.0, puddleNoise) * normalProgress;
 ```
 
 The puddle roughness is intentionally collapsed toward the `0.0..0.1` range
