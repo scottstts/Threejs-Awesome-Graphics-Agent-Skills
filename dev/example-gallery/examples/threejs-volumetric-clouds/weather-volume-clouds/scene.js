@@ -22,10 +22,12 @@ export default {
     fov: 75,
     near: 0.01,
     far: 1000,
-    position: [0, 0.55, 1.75],
+    // Higher above the cloud layer, still pitched downward by about 15°.
+    // pitch = atan((1.35 - 0.12) / 4.6) ≈ 15°
+    position: [0, 1.35, 4.6],
   },
   controls: {
-    target: [0, 0.3, 0],
+    target: [0, 0.12, 0],
     minDistance: 0.7,
     maxDistance: 8,
     maxPolarAngle: Math.PI * 0.58,

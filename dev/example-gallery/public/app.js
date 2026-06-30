@@ -25,9 +25,18 @@ const elements = {
 };
 
 const DEFAULT_GALLERY_DPR = 1.5;
-const OVERVIEW_PREVIEW_ROOT_MARGIN = "360px";
+const OVERVIEW_THUMBNAIL_DPR = DEFAULT_GALLERY_DPR;
+const OVERVIEW_THUMBNAIL_WIDTH = 960;
+const OVERVIEW_THUMBNAIL_HEIGHT = 540;
+const OVERVIEW_THUMBNAIL_CONCURRENCY = 2;
+const OVERVIEW_THUMBNAIL_TIMEOUT_MS = 15000;
 
-let overviewPreviewObserver = null;
+const overviewThumbnailCache = new Map();
+const overviewThumbnailRequests = new Map();
+const overviewThumbnailFrames = new Map();
+const overviewThumbnailQueue = [];
+let activeOverviewThumbnailCount = 0;
+let overviewThumbnailHost = null;
 
 const state = {
   examples: [],
@@ -118,9 +127,164 @@ function updateDebugModes(example) {
   elements.debugMode.value = state.debugMode;
 }
 
+function ensureOverviewThumbnailHost() {
+  if (overviewThumbnailHost) return overviewThumbnailHost;
+  overviewThumbnailHost = document.createElement("div");
+  overviewThumbnailHost.className = "overview-thumbnail-host";
+  overviewThumbnailHost.setAttribute("aria-hidden", "true");
+  document.body.append(overviewThumbnailHost);
+  return overviewThumbnailHost;
+}
+
+function overviewThumbnailUrl(example) {
+  const url = new URL(example.entry, window.location.origin);
+  url.searchParams.set("galleryPaused", "1");
+  url.searchParams.set("galleryDpr", String(OVERVIEW_THUMBNAIL_DPR));
+  url.searchParams.set("galleryTimeScale", "1");
+  url.searchParams.set("galleryDebugMode", "final");
+  url.searchParams.set("galleryThumbnail", "1");
+  return url.href;
+}
+
+function setOverviewThumbnailCache(example, result) {
+  overviewThumbnailCache.set(example.id, result);
+  return result;
+}
+
+function revokeOverviewThumbnailCache() {
+  for (const result of overviewThumbnailCache.values()) {
+    if (result.status === "ready") URL.revokeObjectURL(result.src);
+  }
+  overviewThumbnailCache.clear();
+}
+
+function settleOverviewThumbnailJob(job, result) {
+  if (job.settled) return;
+  job.settled = true;
+  clearTimeout(job.timeoutId);
+  overviewThumbnailFrames.delete(job.frame);
+  job.frame.remove();
+  activeOverviewThumbnailCount = Math.max(0, activeOverviewThumbnailCount - 1);
+
+  overviewThumbnailRequests.delete(job.example.id);
+  job.resolve(setOverviewThumbnailCache(job.example, result));
+  runOverviewThumbnailQueue();
+}
+
+function failOverviewThumbnailJob(job, message) {
+  settleOverviewThumbnailJob(job, {
+    status: "error",
+    message: message || "Thumbnail render failed.",
+  });
+}
+
+function startOverviewThumbnailJob(job) {
+  activeOverviewThumbnailCount += 1;
+
+  const frame = document.createElement("iframe");
+  frame.className = "overview-thumbnail-worker";
+  frame.title = `${job.example.title} thumbnail renderer`;
+  frame.tabIndex = -1;
+  frame.loading = "eager";
+  frame.width = OVERVIEW_THUMBNAIL_WIDTH;
+  frame.height = OVERVIEW_THUMBNAIL_HEIGHT;
+  frame.src = overviewThumbnailUrl(job.example);
+
+  job.frame = frame;
+  job.timeoutId = window.setTimeout(
+    () => failOverviewThumbnailJob(job, "Thumbnail render timed out."),
+    OVERVIEW_THUMBNAIL_TIMEOUT_MS,
+  );
+
+  overviewThumbnailFrames.set(frame, job);
+  ensureOverviewThumbnailHost().append(frame);
+}
+
+function runOverviewThumbnailQueue() {
+  while (
+    activeOverviewThumbnailCount < OVERVIEW_THUMBNAIL_CONCURRENCY &&
+    overviewThumbnailQueue.length > 0
+  ) {
+    startOverviewThumbnailJob(overviewThumbnailQueue.shift());
+  }
+}
+
+function renderOverviewThumbnail(example) {
+  const cached = overviewThumbnailCache.get(example.id);
+  if (cached) return Promise.resolve(cached);
+
+  const active = overviewThumbnailRequests.get(example.id);
+  if (active) return active;
+
+  const request = new Promise((resolve) => {
+    overviewThumbnailQueue.push({ example, resolve, settled: false });
+    runOverviewThumbnailQueue();
+  });
+  overviewThumbnailRequests.set(example.id, request);
+  return request;
+}
+
+function findOverviewThumbnailJob(source) {
+  for (const [frame, job] of overviewThumbnailFrames) {
+    if (frame.contentWindow === source) return job;
+  }
+  return null;
+}
+
+function handleOverviewThumbnailMessage(job, data) {
+  if (data.type === "ready") {
+    job.frame.contentWindow?.postMessage(
+      {
+        source: "threejs-example-gallery",
+        type: "capture",
+        filename: `${job.example.slug}-overview-thumbnail.png`,
+      },
+      window.location.origin,
+    );
+    return true;
+  }
+
+  if (data.type === "runtime-error") {
+    failOverviewThumbnailJob(job, data.message);
+    return true;
+  }
+
+  if (data.type === "capture") {
+    try {
+      if (!data.blob) throw new Error("Thumbnail capture returned no image.");
+      settleOverviewThumbnailJob(job, {
+        status: "ready",
+        src: URL.createObjectURL(data.blob),
+      });
+    } catch (error) {
+      failOverviewThumbnailJob(job, error.message);
+    }
+    return true;
+  }
+
+  if (data.type === "capture-error") {
+    failOverviewThumbnailJob(job, data.message);
+    return true;
+  }
+
+  return ["state", "metrics", "status"].includes(data.type);
+}
+
+function applyOverviewThumbnailResult(shell, image, result) {
+  if (!shell.isConnected) return;
+
+  if (result.status === "ready") {
+    image.src = result.src;
+    shell.dataset.state = "ready";
+    shell.dataset.message = "";
+    return;
+  }
+
+  shell.dataset.state = "error";
+  shell.dataset.message = result.message;
+}
+
 function clearOverview() {
-  overviewPreviewObserver?.disconnect();
-  overviewPreviewObserver = null;
   elements.overview.replaceChildren();
 }
 
@@ -161,25 +325,6 @@ function renderList() {
 
 function renderOverview() {
   clearOverview();
-  overviewPreviewObserver = "IntersectionObserver" in window
-    ? new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            const frame = entry.target;
-            if (frame instanceof HTMLIFrameElement && frame.dataset.src) {
-              frame.src = frame.dataset.src;
-              delete frame.dataset.src;
-            }
-            overviewPreviewObserver?.unobserve(frame);
-          }
-        },
-        {
-          root: elements.overview,
-          rootMargin: OVERVIEW_PREVIEW_ROOT_MARGIN,
-        },
-      )
-    : null;
 
   for (const example of state.filtered) {
     const article = document.createElement("article");
@@ -198,22 +343,23 @@ function renderOverview() {
         inspectExample();
       }
     });
-    const frame = document.createElement("iframe");
-    frame.className = "overview-frame";
-    frame.title = example.title;
-    frame.loading = "lazy";
-    frame.tabIndex = -1;
-    frame.setAttribute("aria-hidden", "true");
-    const url = new URL(example.entry, window.location.origin);
-    url.searchParams.set("galleryPaused", "1");
-    url.searchParams.set("galleryDpr", String(DEFAULT_GALLERY_DPR));
-    url.searchParams.set("galleryDebugMode", "final");
-    if (overviewPreviewObserver) {
-      frame.dataset.src = url.href;
-      overviewPreviewObserver.observe(frame);
-    } else {
-      frame.src = url.href;
-    }
+
+    const thumbnailShell = document.createElement("div");
+    thumbnailShell.className = "overview-thumbnail-shell";
+    thumbnailShell.dataset.state = "loading";
+    thumbnailShell.dataset.message = "Rendering thumbnail…";
+
+    const thumbnail = document.createElement("img");
+    thumbnail.className = "overview-thumbnail";
+    thumbnail.alt = "";
+    thumbnail.decoding = "async";
+    thumbnail.loading = "lazy";
+    thumbnail.setAttribute("aria-hidden", "true");
+    thumbnailShell.append(thumbnail);
+
+    renderOverviewThumbnail(example).then((result) => {
+      applyOverviewThumbnailResult(thumbnailShell, thumbnail, result);
+    });
 
     const footer = document.createElement("footer");
     const title = document.createElement("strong");
@@ -222,7 +368,7 @@ function renderOverview() {
     inspect.className = "inspect-label";
     inspect.textContent = "Inspect";
     footer.append(title, inspect);
-    article.append(frame, footer);
+    article.append(thumbnailShell, footer);
     elements.overview.append(article);
   }
 }
@@ -399,6 +545,11 @@ window.addEventListener("message", (event) => {
   if (event.origin !== window.location.origin) return;
   if (event.data?.source !== "threejs-example") return;
 
+  const thumbnailJob = findOverviewThumbnailJob(event.source);
+  if (thumbnailJob && handleOverviewThumbnailMessage(thumbnailJob, event.data)) {
+    return;
+  }
+
   if (event.data.type === "ready") {
     setFrameStatus("ready", "ready");
   } else if (event.data.type === "runtime-error") {
@@ -418,6 +569,8 @@ window.addEventListener("message", (event) => {
     setFrameStatus(event.data.message, "error");
   }
 });
+
+window.addEventListener("pagehide", revokeOverviewThumbnailCache);
 
 window.addEventListener("keydown", (event) => {
   const typing =

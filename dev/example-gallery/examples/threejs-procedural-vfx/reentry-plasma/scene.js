@@ -16,7 +16,7 @@ export default {
     fov: 42,
     near: 0.01,
     far: 100,
-    position: [0, 1.15, 7.2],
+    position: [5.4, 0.55, 2.2],
   },
   controls: {
     target: [0, 0, -2.55],
@@ -32,7 +32,7 @@ export default {
     renderer.toneMappingExposure = 1.15;
     renderer.setClearColor(0x000000, 1);
 
-    camera.position.set(0, 1.15, 7.2);
+    camera.position.set(5.4, 0.55, 2.2);
     camera.lookAt(0, 0, -2.55);
 
     const plasma = createReentryPlasma();

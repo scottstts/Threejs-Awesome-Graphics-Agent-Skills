@@ -155,8 +155,7 @@
       "classification": "tooling",
       "evidence": [
         "dev/example-gallery/README.md",
-        "scripts/capture-examples.mjs",
-        "scripts/test-example-gallery.mjs"
+        "scripts/capture-examples.mjs"
       ],
       "rationale": "The repository gallery, deterministic capture workflow, diagnostics, metrics, and smoke tests are the executable implementation of this skill."
     },

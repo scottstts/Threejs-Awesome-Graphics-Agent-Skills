@@ -92,7 +92,8 @@ export default {
     fov: 50,
     near: 0.01,
     far: 20,
-    position: [0, 0.14, 2.35],
+    // Start from the side, slightly above the accretion disk.
+    position: [0, -1.5, 0.15],
   },
   controls: {
     target: [0, 0, 0],
