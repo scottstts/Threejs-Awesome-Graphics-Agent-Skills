@@ -38,6 +38,11 @@ const targets = {
     project: [".codex", "skills"],
     user: [".codex", "skills"],
   },
+  dsh: {
+    label: "DeepSeek Harness",
+    project: [".dsh", "skills"],
+    user: [".dsh", "skills"],
+  },
   "claude-code": {
     label: "Claude Code",
     project: [".claude", "skills"],
@@ -82,7 +87,7 @@ Usage:
   threejs-awesome-graphics-agent-skills uninstall --agent <target> [options]
 
 Targets:
-  universal, grok, codex, claude-code, cursor, github-copilot, gemini-cli, windsurf
+  universal, grok, codex, dsh, claude-code, cursor, github-copilot, gemini-cli, windsurf
   custom (requires --path)
 
 Options:
@@ -183,6 +188,11 @@ function resolveDestination(agent, options) {
 
   if (!["user", "project"].includes(options.scope)) {
     throw new Error("--scope must be user or project.");
+  }
+
+  if (agent === "dsh" && options.scope === "user" && process.env.DSH_HOME?.trim()) {
+    const dshHome = process.env.DSH_HOME.replace(/^~(?=$|\/|\\)/, os.homedir());
+    return path.join(path.resolve(dshHome), "skills");
   }
 
   const base = options.scope === "user"

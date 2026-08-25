@@ -67,6 +67,7 @@ Every graphics system is expected to expose:
 ```sh
 # global installation
 npx threejs-awesome-graphics-agent-skills@latest install --agent codex
+npx threejs-awesome-graphics-agent-skills@latest install --agent dsh
 npx threejs-awesome-graphics-agent-skills@latest install --agent claude-code
 npx threejs-awesome-graphics-agent-skills@latest install --agent cursor
 
@@ -90,6 +91,7 @@ Supported targets:
 | `universal` | `~/.agents/skills` | `.agents/skills` |
 | `grok` | `~/.grok/skills` | `.grok/skills` |
 | `codex` | `~/.codex/skills` | `.codex/skills` |
+| `dsh` | `${DSH_HOME:-~/.dsh}/skills` | `.dsh/skills` |
 | `claude-code` | `~/.claude/skills` | `.claude/skills` |
 | `cursor` | `~/.cursor/skills` | `.cursor/skills` |
 | `github-copilot` | `~/.copilot/skills` | `.github/skills` |

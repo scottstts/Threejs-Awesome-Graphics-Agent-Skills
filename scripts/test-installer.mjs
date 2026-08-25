@@ -24,6 +24,7 @@ const targetPaths = {
   universal: [".agents", "skills"],
   grok: [".grok", "skills"],
   codex: [".codex", "skills"],
+  dsh: [".dsh", "skills"],
   "claude-code": [".claude", "skills"],
   cursor: [".cursor", "skills"],
   "github-copilot": [".copilot", "skills"],
@@ -34,6 +35,7 @@ const projectPaths = {
   universal: [".agents", "skills"],
   grok: [".grok", "skills"],
   codex: [".codex", "skills"],
+  dsh: [".dsh", "skills"],
   "claude-code": [".claude", "skills"],
   cursor: [".cursor", "skills"],
   "github-copilot": [".github", "skills"],
@@ -55,10 +57,20 @@ for (const [agent, relativePath] of Object.entries(targetPaths)) {
     "install",
     "--agent",
     agent,
-  ], { env: { ...process.env, HOME: home } });
+  ], { env: { ...process.env, HOME: home, DSH_HOME: "" } });
   await stat(path.join(home, ...relativePath, "threejs-skill-router", "SKILL.md"));
   await stat(path.join(home, ...relativePath, "threejs-procedural-fields", "SKILL.md"));
 }
+
+const dshHome = path.join(temporaryRoot, "configured-dsh-home");
+await execFileAsync(process.execPath, [
+  cli,
+  "install",
+  "--agent",
+  "dsh",
+], { env: { ...process.env, DSH_HOME: dshHome } });
+await stat(path.join(dshHome, "skills", "threejs-skill-router", "SKILL.md"));
+await stat(path.join(dshHome, "skills", "threejs-procedural-fields", "SKILL.md"));
 
 for (const [agent, relativePath] of Object.entries(projectPaths)) {
   const project = path.join(temporaryRoot, `project-${agent}`);
