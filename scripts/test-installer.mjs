@@ -28,8 +28,11 @@ try {
     "claude-code": [".claude", "skills"],
     cursor: [".cursor", "skills"],
     "github-copilot": [".copilot", "skills"],
-    "gemini-cli": [".gemini", "skills"],
-    windsurf: [".codeium", "windsurf", "skills"],
+    antigravity: [".gemini", "config", "skills"],
+    devin: [".config", "devin", "skills"],
+    "hermes-agent": [".hermes", "skills"],
+    openclaw: [".openclaw", "skills"],
+    "muse-code": [".config", "muse", "skills"],
   };
   const projectPaths = {
     universal: [".agents", "skills"],
@@ -38,8 +41,11 @@ try {
     "claude-code": [".claude", "skills"],
     cursor: [".cursor", "skills"],
     "github-copilot": [".github", "skills"],
-    "gemini-cli": [".gemini", "skills"],
-    windsurf: [".windsurf", "skills"],
+    antigravity: [".agents", "skills"],
+    devin: [".devin", "skills"],
+    "hermes-agent": [".hermes", "skills"],
+    openclaw: ["skills"],
+    "muse-code": [".agents", "skills"],
   };
 
   const help = await execFileAsync(process.execPath, [cli, "--help"]);
@@ -144,6 +150,41 @@ try {
     partialRejected = true;
   }
   if (!partialRejected) throw new Error("Installer still accepts partial installation.");
+
+  for (const removedAgent of ["windsurf", "gemini-cli", "gemini"]) {
+    let rejected = false;
+    try {
+      await execFileAsync(process.execPath, [
+        cli,
+        "install",
+        "--agent",
+        removedAgent,
+        "--dry-run",
+      ]);
+    } catch {
+      rejected = true;
+    }
+    if (!rejected) throw new Error(`Removed agent target still accepted: ${removedAgent}`);
+  }
+
+  for (const [alias, expectedRelative] of [
+    ["hermes", [".hermes", "skills"]],
+    ["muse", [".config", "muse", "skills"]],
+    ["meta-muse-code", [".config", "muse", "skills"]],
+  ]) {
+    const aliasHome = path.join(temporaryRoot, `alias-${alias}`);
+    const result = await execFileAsync(process.execPath, [
+      cli,
+      "install",
+      "--agent",
+      alias,
+      "--dry-run",
+    ], { env: { ...process.env, HOME: aliasHome } });
+    const expectedDest = path.join(aliasHome, ...expectedRelative);
+    if (!result.stdout.includes(expectedDest)) {
+      throw new Error(`Alias ${alias} did not resolve to ${expectedDest}`);
+    }
+  }
 
   console.log("Installer smoke test passed.");
 } finally {

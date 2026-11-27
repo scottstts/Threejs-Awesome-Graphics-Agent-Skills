@@ -53,15 +53,30 @@ const targets = {
     project: [".github", "skills"],
     user: [".copilot", "skills"],
   },
-  "gemini-cli": {
-    label: "Gemini CLI",
-    project: [".gemini", "skills"],
-    user: [".gemini", "skills"],
+  antigravity: {
+    label: "Antigravity",
+    project: [".agents", "skills"],
+    user: [".gemini", "config", "skills"],
   },
-  windsurf: {
-    label: "Windsurf / Devin Desktop",
-    project: [".windsurf", "skills"],
-    user: [".codeium", "windsurf", "skills"],
+  devin: {
+    label: "Devin",
+    project: [".devin", "skills"],
+    user: [".config", "devin", "skills"],
+  },
+  "hermes-agent": {
+    label: "Hermes Agent",
+    project: [".hermes", "skills"],
+    user: [".hermes", "skills"],
+  },
+  openclaw: {
+    label: "OpenClaw",
+    project: ["skills"],
+    user: [".openclaw", "skills"],
+  },
+  "muse-code": {
+    label: "Meta Muse Code",
+    project: [".agents", "skills"],
+    user: [".config", "muse", "skills"],
   },
 };
 
@@ -69,8 +84,9 @@ const aliases = {
   agents: "universal",
   claude: "claude-code",
   copilot: "github-copilot",
-  gemini: "gemini-cli",
-  devin: "windsurf",
+  hermes: "hermes-agent",
+  muse: "muse-code",
+  "meta-muse-code": "muse-code",
 };
 
 function printHelp() {
@@ -82,7 +98,7 @@ Usage:
   threejs-awesome-graphics-agent-skills uninstall --agent <target> [options]
 
 Targets:
-  universal, grok, codex, claude-code, cursor, github-copilot, gemini-cli, windsurf
+  universal, grok, codex, claude-code, cursor, github-copilot, antigravity, devin, hermes-agent, openclaw, muse-code
   custom (requires --path)
 
 Options:

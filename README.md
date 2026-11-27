@@ -81,7 +81,7 @@ npx threejs-awesome-graphics-agent-skills@latest install --agent github-copilot 
 npx threejs-awesome-graphics-agent-skills@latest install --agent custom --path designated-agent-skills-dir
 
 # Force a reinstall of the exact currently installed version
-npx threejs-awesome-graphics-agent-skills@latest install --agent gemini-cli --force
+npx threejs-awesome-graphics-agent-skills@latest install --agent antigravity --force
 
 # To uninstall it
 npx threejs-awesome-graphics-agent-skills uninstall --agent codex
@@ -97,8 +97,11 @@ Supported targets:
 | `claude-code` | `~/.claude/skills` | `.claude/skills` |
 | `cursor` | `~/.cursor/skills` | `.cursor/skills` |
 | `github-copilot` | `~/.copilot/skills` | `.github/skills` |
-| `gemini-cli` | `~/.gemini/skills` | `.gemini/skills` |
-| `windsurf` | `~/.codeium/windsurf/skills` | `.windsurf/skills` |
+| `antigravity` | `~/.gemini/config/skills` | `.agents/skills` |
+| `devin` | `~/.config/devin/skills` | `.devin/skills` |
+| `hermes-agent` | `~/.hermes/skills` | `.hermes/skills` |
+| `openclaw` | `~/.openclaw/skills` | `skills` |
+| `muse-code` | `~/.config/muse/skills` | `.agents/skills` |
 | `custom` | exact `--path` | exact `--path` |
 
 ## Development
