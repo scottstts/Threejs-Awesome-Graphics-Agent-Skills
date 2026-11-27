@@ -16,6 +16,7 @@ const officialDisplayName = "Three.js Awesome Graphics Agent Skills";
 const officialRepositoryIdentity = "scottstts/Threejs-Awesome-Graphics-Agent-Skills";
 const developmentSourcePatterns = [
   /procedural-bank/i,
+  /ivory-kingdom/i,
   /\bez-tree\b/i,
   /three-geospatial/i,
   /mecs-tower-defense-example/i,

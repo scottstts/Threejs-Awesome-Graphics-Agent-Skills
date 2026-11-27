@@ -87,9 +87,10 @@
     "threejs-procedural-architecture": {
       "classification": "example-required",
       "evidence": [
-        "threejs-procedural-architecture/procedural-financial-tower"
+        "threejs-procedural-architecture/procedural-financial-tower",
+        "threejs-procedural-architecture/sculpted-castle"
       ],
-      "rationale": "Massing, exposed-edge analysis, façade grammar, semantic modules, and grouped mesh emission require implementation evidence."
+      "rationale": "Massing, exposed-edge analysis, façade grammar, recessed portals, pier-buttresses, spandrel roses, ribbed domes, dual-LOD instanced parts, and grouped material-slot mesh emission require implementation evidence."
     },
     "threejs-procedural-fields": {
       "classification": "example-required",

@@ -1,0 +1,45 @@
+{
+  "title": "Sculpted Castle",
+  "description": "A multi-tier sculpted keep compiled from rectangular and polygonal massing plans with colossal six-order recessed gate portals, ribbed barrel vaults, projecting pier-buttresses, breaking entablatures, spandrel roses, carved niche walls, arcaded balustrades, ribbed fish-scale domes, dual-LOD instanced parts, and pure procedural TSL relief and glazed-ivory shading.",
+  "backend": "WebGPU / TSL node materials with GTAO, glare, and dual-LOD instancing",
+  "techniques": [
+    "multi-tier rectangular and polygonal architectural compiler",
+    "multi-order recessed arched portals and ribbed vaults",
+    "projecting pier-buttresses with breaking entablatures",
+    "sunk spandrels with inscribed carved roses and niche walls",
+    "ribbed fish-scale domes with columned lantern and finials",
+    "dual-LOD instanced architectural part library",
+    "procedural height-field carved relief with derivative bump LOD"
+  ],
+  "defaultViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "defaultDpr": 1,
+  "debugModes": [
+    {
+      "value": "final",
+      "label": "Final"
+    },
+    {
+      "value": "clay",
+      "label": "Single-sided clay"
+    },
+    {
+      "value": "recess-tint",
+      "label": "Recess & relief"
+    },
+    {
+      "value": "chunk-topology",
+      "label": "Chunk topology"
+    }
+  ],
+  "controls": [
+    "orbit",
+    "pause",
+    "timeScale",
+    "dpr",
+    "debugMode",
+    "capture"
+  ]
+}

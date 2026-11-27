@@ -1,6 +1,23 @@
 {
   "schemaVersion": 1,
   "sources": {
+    "scottstts-ivory-kingdom": {
+      "repository": "https://github.com/scottstts/ivory-kingdom",
+      "revision": "d3a496d87d95c5a841d9d2112d4f4b397b9a9ccf",
+      "license": "MIT",
+      "files": {
+        "js/kit.js": "4b8e35baf5cc125e5cbafb74fddb7aaad584736e6ca03f20a5bbf8e02b8cfa20",
+        "js/parts.js": "8df05c0e8a84ece4d688dfc685427540cdec2013c5d3b9bf9f0882f5486eb93b",
+        "js/tier.js": "177d66a051c842470d1788e81a7253bd9e608b2cdd629680679d2d9d42183d6c",
+        "js/plan.js": "ac4467d57da35523b2c9ff2d17a24a2b5848cdf6cdeb660a3da92ec2ae550e6f",
+        "js/structures.js": "160acd0d64bdaa4b1d61807cc5b4bda29cc608995d8bd8999de8b23f029a90e6",
+        "js/materials.js": "a24630707ac4b6fb0313ff26e57d1aceb0f68e08cf2e03d07b87da9a1ed29870",
+        "js/world.js": "2d6aa988a443a11c9cc856e01422efc5bf1da67d15311f8cf1cdc9bf01e5a1e1",
+        "js/sky.js": "96385d4e3329de6978357e5b23719da36614780dcc49352960ec5634e1997fc6",
+        "js/main.js": "cee49544f3576c340048de2225e1f5ec6a69b3350aabb6abc04515dc1c64c2f3",
+        "js/palace.js": "34e203e05c19aba360f53ae62964689e8d59414edc328402de951d30497460aa"
+      }
+    },
   "author-local-luminescent-water": {
     "repository": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills",
     "revision": "897aaa0a49f9346f342993e1eb74a30479f82614",

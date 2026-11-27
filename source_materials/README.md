@@ -48,6 +48,7 @@ input.
 | [scottstts/Elysium-Mars-Park](https://github.com/scottstts/Elysium-Mars-Park) | `4ccaea9a8c0d5e2057203a7fb38bbf314a75f4a4` | complete geometry-craft contract, Three.js polygon modeling layer, same-mesh coplanar and inter-part clash audit, planted-defect self-tests, semantic and swept-clearance gates | `$threejs-procedural-geometry` |
 | [scottstts/Sandboard](https://github.com/scottstts/Sandboard) | `489cb01e81b11ba575887f7c76760498eb41aaa8` | fixed-step GPU granular transport, mass-carrying impact particles, procedural mineral grains, bed-space lighting, airborne/tree shadows, and HDR glints | `$threejs-procedural-materials` |
 | [iamtechartist/coastal-simulation](https://github.com/iamtechartist/coastal-simulation) | `2e95e1a3e757ca1268247417dee01606e5e3d55c` | positivity-preserving shallow-water beach solver, reconstructed wet-sand and film fields, procedural rocks, TSL water/sand optics, foam, reflected sky, and impact spray | `$threejs-spectral-ocean` |
+| [scottstts/ivory-kingdom](https://github.com/scottstts/ivory-kingdom) | `d3a496d87d95c5a841d9d2112d4f4b397b9a9ccf` | growable architectural mesh writer, rectangular/polygonal multi-tier storey compiler, multi-order recessed portals and ribbed vaults, projecting pier-buttresses with breaking entablatures, carved spandrel roses and niche walls, monumental gate portals, ribbed fish-scale domes with lantern and finials, dual-LOD instanced architectural parts, and procedural carved-relief TSL shading | `$threejs-procedural-architecture` |
 
 ### Author-supplied local files
 
@@ -147,6 +148,49 @@ wireframe view of the otherwise hidden picking proxies.
 - A camera handoff needs one interpolation owner; stacked transition and follow smoothing creates a visible half-halt.
 - Authored motion should separate analytic travel phases, spring convergence, exact terminal poses, and secondary motion.
 - Rotating-frame docking is stable when axial/radial error, alignment, and spin are solved independently.
+
+### `ivory-kingdom/`
+
+Reviewed (`d3a496d87d95c5a841d9d2112d4f4b397b9a9ccf`, MIT):
+
+- the pure-JS growable mesh writer (`kit.js`) emitting `position`, `normal`,
+  authored recess `tint`, and carved-relief `carve` channels across profile
+  sweeps, mitred hard sweeps, lobed/faceted lathes, arch paths/outlines,
+  ear-clipped caps, and hole bridging;
+- the unit-scale dual-LOD instanced architectural part library (`parts.js`)
+  covering three-piece columns, modillions, pierced arcaded parapet bays,
+  urns, spikes, spires, two-stage turrets, octagonal domed kiosks, and
+  pinnacles;
+- the tier, recessed portal, projecting pier-buttress, carved spandrel rose,
+  niche wall, breaking entablature, clipped string course, balustrade, and
+  ribbed fish-scale dome compiler (`tier.js`) plus the monumental six-order
+  vaulted gate portal (`structures.js`);
+- the Central Keep massing plan (`plan.js`: `keep0`–`crown` plus the
+  companion rotunda `compBody` grounded onto `keep1`), totaling `1,720,646`
+  merged triangles across `5` chunks and `17,482` dual-LOD instances;
+- the baked `512 × 512` carved-relief height field, pixel-footprint
+  derivative bump fade, specular AA, warm enclosure bounce, wrapped ivory
+  scattering, fish-scale glazed roof tiles, and gilding (`materials.js`),
+  alongside sky radiance, PMREM environment probe, static shadow fitting, and
+  denoised GTAO + glare + soft-knee grade + FXAA frame graph (`sky.js`,
+  `main.js`).
+
+Accepted consumption:
+
+- `$threejs-procedural-architecture` (`sculpted-castle`)
+
+On author instruction, only one complete building — the Central Keep,
+recentered cleanly at `(0, 0)` with flat base at `y = 0` — is extracted,
+using a pure procedural glazed-ivory TSL material (no external PBR texture
+assets) so the example focuses on architectural geometry. The skill example
+owns the mesh kit, part library, tier/dome/gate compiler, keep massing plan,
+pure procedural TSL materials, chunk compilation, dual-LOD switching,
+diagnostics, and disposal. The dev gallery uses a single `scene.js` adapter
+owning sky radiance, PMREM probe, sun and bounce lighting, static shadow fit,
+ground plinth, denoised GTAO + 4× MSAA + glare + grade + FXAA pipeline,
+bounded orbit/pan camera controls, and metrics. Terrain, clouds, birds,
+stairs, causeway, flanking castle buildings, audio, collision, cinematics,
+and UI are omitted. Visual inspection is delegated to the author.
 
 ### `Sandboard/`
 

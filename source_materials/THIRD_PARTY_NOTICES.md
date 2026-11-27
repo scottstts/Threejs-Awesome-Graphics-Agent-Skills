@@ -4,6 +4,19 @@ This package includes or adapts MIT Three.js reference material and
 assets used by distributed skills. Source revisions and file hashes are recorded
 in `source_materials/trace-manifest.json`.
 
+## scottstts/ivory-kingdom
+
+- Source: https://github.com/scottstts/ivory-kingdom
+- License: MIT
+- Used in: `skills/threejs-procedural-architecture/examples/sculpted-castle/`
+  and its corresponding `example-gallery/` scene
+- Includes adapted architectural mesh writer, dual-LOD instanced part library,
+  rectangular and polygonal multi-tier storey compiler, multi-order recessed
+  portals and vaulted gate, projecting pier-buttresses, carved spandrel roses
+  and niche walls, ribbed fish-scale domes, Central Keep massing plan, and
+  pure procedural TSL carved-relief shading. No external texture assets are
+  distributed.
+
 ## scottstts/Pearl-Sea-Park
 
 - Source: https://github.com/scottstts/Pearl-Sea-Park

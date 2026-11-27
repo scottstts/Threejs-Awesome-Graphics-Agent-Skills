@@ -1224,5 +1224,89 @@ async function testWaterAndDenimContracts() {
 
 }
 
+async function testSculptedCastleParity() {
+  const {
+    createSculptedCastle,
+    bakeCarveTexture,
+    CASTLE_GATE,
+    LOD_NEAR,
+  } = await import("../skills/threejs-procedural-architecture/examples/sculpted-castle/sculpted-castle.js");
+  const { Vector3 } = await import("three");
+
+  const castle = createSculptedCastle();
+  try {
+    assert.equal(castle.root.name, "SCULPTED_CASTLE_KEEP", "sculpted castle root name");
+    assert.equal(LOD_NEAR, 120, "sculpted castle LOD near threshold");
+    assert.deepEqual(
+      [castle.stats.chunkCount, castle.stats.tierCount, castle.stats.domeCount],
+      [5, 11, 2],
+      "sculpted castle chunk, tier, and dome counts",
+    );
+    assert.equal(castle.stats.mergedTriangles, 1720646, "sculpted castle merged triangle count");
+    assert.equal(castle.stats.instanceCount, 17482, "sculpted castle total instance count");
+    assert.deepEqual(
+      castle.stats.partCounts,
+      {
+        colBase: 3934,
+        colShaft: 3934,
+        colCap: 3934,
+        modillion: 2030,
+        turret: 102,
+        urn: 56,
+        kiosk: 20,
+        balArc: 3366,
+        spike: 104,
+        spire: 2,
+      },
+      "sculpted castle instanced part counts",
+    );
+    assertVector(
+      castle.stats.bounds.min,
+      [-48.124107360839844, 0, -49.95613158228787],
+      "sculpted castle bounds minimum",
+      1e-5,
+    );
+    assertVector(
+      castle.stats.bounds.max,
+      [48.124107360839844, 159.65428924560547, 49.95613158228787],
+      "sculpted castle bounds maximum",
+      1e-5,
+    );
+    assertVector(
+      [CASTLE_GATE.frontZ, CASTLE_GATE.backZ, CASTLE_GATE.halfOpen],
+      [48, -48, 6.35],
+      "sculpted castle gate coordinates",
+      1e-5,
+    );
+
+    const carveTex = bakeCarveTexture(64);
+    try {
+      const data = carveTex.image.data;
+      let nonZeroR = 0;
+      let nonZeroG = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 0) nonZeroR++;
+        if (data[i + 1] > 0) nonZeroG++;
+      }
+      assert.ok(nonZeroR > 0 && nonZeroG > 0, "sculpted castle baked relief channels populated");
+    } finally {
+      carveTex.dispose();
+    }
+
+    castle.updateLOD(new Vector3(0, 40, 60));
+    assert.ok(castle.chunks.some((g) => g.userData.lod === 0), "sculpted castle near LOD activates close up");
+    castle.updateLOD(new Vector3(0, 200, 600));
+    assert.ok(castle.chunks.every((g) => g.userData.lod === 1), "sculpted castle far LOD activates at distance");
+
+    for (const mode of ["clay", "recess-tint", "chunk-topology", "final"]) {
+      castle.setDebugMode(mode);
+      assert.equal(castle.debugMode, mode, `sculpted castle debug mode ${mode}`);
+    }
+  } finally {
+    castle.dispose();
+  }
+}
+
 await testWaterAndDenimContracts();
+await testSculptedCastleParity();
 console.log("Reference example parity checks passed.");

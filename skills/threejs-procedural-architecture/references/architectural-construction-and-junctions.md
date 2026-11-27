@@ -44,6 +44,7 @@ For richly articulated masonry or carved stone facades where no bare flat wall p
 
 1. Cut the primary wall mass into **structural depth layers first** (`0.15–1.5 m`): projecting clustered piers, recessed arched orders stepping inward ring by ring, deep sunk panels in moulded frames, and cornices breaking forward over every bay.
 2. Verify the unornamented massing in single-sided white/clay lighting before adding ornament (`references/ornament-and-relief-systems.md`).
+3. Study the `sculpted-castle` example (`examples/sculpted-castle/sculpted-castle.js`) for a complete multi-tier implementation: `11` rectangular and polygonal storeys plus `2` ribbed fish-scale domes (`1,720,646` merged triangles across `5` chunks and `17,482` dual-LOD instanced columns, modillions, arcaded parapet bays, turrets, kiosks, and finials), combining `6`-order recessed vaulted portals, projecting pier-buttresses with breaking entablatures, sunk spandrels with inscribed eight-petalled roses, and a `512 × 512` procedural carved-relief height field with pixel-footprint derivative-bump fade.
 
 ## Junction rules and exact contact versus safe sinking
 

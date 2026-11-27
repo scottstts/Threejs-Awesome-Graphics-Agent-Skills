@@ -1,6 +1,39 @@
 {
   "schemaVersion": 1,
   "examples": {
+    "threejs-procedural-architecture/sculpted-castle": [
+      {
+        "source": "scottstts-ivory-kingdom",
+        "files": [
+          "js/kit.js",
+          "js/parts.js",
+          "js/tier.js",
+          "js/plan.js",
+          "js/structures.js",
+          "js/materials.js",
+          "js/world.js",
+          "js/sky.js",
+          "js/main.js",
+          "js/palace.js"
+        ],
+        "mechanisms": [
+          "growable architectural mesh writer with position, normal, authored recess tint, and carved-relief coordinates supporting sweeps, mitred hard sweeps, lathes, arch paths, ear-clipped caps, and hole bridging",
+          "multi-tier rectangular and polygonal storey compiler emitting multi-order beaded recessed portals, ribbed barrel vaults, projecting pier-buttresses with breaking entablatures, clipped string courses, spandrels with inscribed carved eight-petalled roses, carved niche walls, and arcaded balustrades",
+          "monumental six-order recessed gate portal with gilded arch band, ribbed barrel tunnel, and two-storey flanking arcades",
+          "ribbed fish-scale domes with ring cornices, gilded springing bands, finials, columned lantern, and gilded spires",
+          "unit-scale dual-LOD instanced architectural part library with distance-hysteresis switching across spatial chunks",
+          "pure procedural WebGPU/TSL carved-relief height field with pixel-footprint derivative-bump fade, specular AA, warm enclosure bounce, wrapped scattering, and fish-scale roof glaze"
+        ],
+        "boundary": "reference-extraction",
+        "divergences": [
+          "extracts one complete standalone building from the palace — the Central Keep (keep0 through crown plus companion rotunda compBody with its carved keep1 plinth) — translated cleanly to center (0, 0) with flat base at y = 0; flanking rotundas, wings, towers, terraces, pavilions, stair, causeway, terrain, clouds, birds, reflections, audio, collision, cinematics, and page UI are omitted",
+          "replaces the three porcelain PBR scan images with a pure procedural glazed-ivory TSL base (retaining the exact baked 512x512 carved-relief height field, derivative bump LOD, specular AA, enclosure bounce, wrapped scattering, fish-scale dome tiles, and gilding) on explicit author instruction so the example stays focused on geometry with zero external texture assets",
+          "the dev gallery shim uses a single scene.js adapter owning sky radiance, PMREM environment probe, sun light, static tight-fitted shadow map, ground plinth, denoised GTAO pre-pass, 4x MSAA beauty pass, glare, soft-knee grade, FXAA, bounded orbit/pan controls, and metrics",
+          "single-sided clay, recess-tint/relief, and chunk-topology diagnostics are inspection-only views that leave the calibrated final branch unchanged",
+          "visual inspection is explicitly delegated to the author; automated parity, asset-origin, routing, and pack validation checks plus 1080p thumbnail rendering are executed"
+        ]
+      }
+    ],
   "threejs-water-optics/luminescent-water": [
     {
       "source": "author-local-luminescent-water",

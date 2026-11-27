@@ -262,6 +262,21 @@
       ]
     },
     {
+      "request": "Build a multi-tier sculpted keep with recessed portals, projecting pier-buttresses, spandrel roses, ribbed domes, carved relief, and a dual-LOD instanced architectural kit.",
+      "routes": [
+        {
+          "skill": "threejs-procedural-architecture",
+          "signals": [
+            "recessed portals",
+            "pier-buttresses",
+            "spandrel roses",
+            "domes",
+            "dual-LOD instanced architectural kits"
+          ]
+        }
+      ]
+    },
+    {
       "request": "Create a terrestrial planet with continents, coastlines, biomes, terrain displacement, and close-approach detail.",
       "routes": [
         {

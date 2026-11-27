@@ -1,6 +1,6 @@
 ---
 name: threejs-procedural-architecture
-description: Build authored procedural buildings, architectural kits, and composed architectural ornament and relief in Three.js. Use for massing grammars, exposed-edge analysis, façade bays, full-thickness walls with cut openings, curved-wall trims, classical orders, arches, vaults, domes, cornices, roofs, stairs, architectural junctions, carved versus applied relief, rinceau scrolls, acanthus, cartouches, coffers, height-field carving, material-slot mesh compilation, deterministic variants, and procedural city assets.
+description: Build authored procedural buildings, architectural kits, and composed architectural ornament and relief in Three.js. Use for massing grammars, exposed-edge analysis, façade bays, full-thickness walls with cut openings, curved-wall trims, classical orders, recessed portals, pier-buttresses, spandrel roses, arches, vaults, domes, cornices, roofs, stairs, architectural junctions, carved versus applied relief, rinceau scrolls, acanthus, cartouches, coffers, height-field carving, material-slot mesh compilation, dual-LOD instanced architectural kits, deterministic variants, and procedural city assets.
 ---
 
 # Procedural Architecture
@@ -34,6 +34,14 @@ Read the
 for seeded tier planning, semantic façade placement, reserved zones,
 material-slot BufferGeometry output, projected detail, and mechanism-specific
 diagnostics.
+
+Read the
+[sculpted castle keep compiler](examples/sculpted-castle/sculpted-castle.js)
+for multi-tier rectangular and polygonal massing, recessed multi-order arched
+portals and ribbed barrel vaults, projecting pier-buttresses with breaking
+entablatures, sunk spandrels with carved eight-petalled roses, carved niche
+walls, ribbed fish-scale domes with lantern and finials, dual-LOD instanced
+architectural parts, and procedural height-field relief shading.
 
 ## Rules
 
