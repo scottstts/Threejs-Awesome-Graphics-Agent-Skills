@@ -36,6 +36,39 @@
       ],
       "rationale": "This skill owns signal contracts and ordering across atomic effects; practical pass graphs and ownership tables are the directly applicable artifact."
     },
+    "threejs-lighting-and-gi": {
+      "classification": "reference-sufficient",
+      "evidence": [
+        "skills/threejs-lighting-and-gi/references/sun-sky-and-hdri-lighting.md",
+        "skills/threejs-lighting-and-gi/references/irradiance-probes-and-reflections.md",
+        "skills/threejs-lighting-and-gi/references/practical-emissive-and-subject-lighting.md"
+      ],
+      "rationale": "Direct sun-to-sky ratios, HDRI second-sun removal, GPU-baked irradiance probe placement, reflection contracts, practical/emissive illumination, and the headless sun-sky calculator are fully specified as numeric contracts, TSL/Three.js snippets, and diagnostics."
+    },
+    "threejs-reference-reading": {
+      "classification": "reference-sufficient",
+      "evidence": [
+        "skills/threejs-reference-reading/references/reference-decoding-and-misreadings.md",
+        "skills/threejs-reference-reading/references/style-method-and-open-design.md"
+      ],
+      "rationale": "Reference decoding, recurring misreading verification tests, precedence rules, style-to-method contracts, and open-design taste criteria are analytical and design methodology contracts rather than a single visual shader."
+    },
+    "threejs-temporal-stability": {
+      "classification": "reference-sufficient",
+      "evidence": [
+        "skills/threejs-temporal-stability/references/temporal-stability-and-aa.md",
+        "skills/threejs-temporal-stability/references/motion-bisection-and-plausibility.md"
+      ],
+      "rationale": "Whole-renderer antialiasing policy, amortised-pass invariants, guard-band sizing, update-rate parity, periodic-wrap alignment, and fixed-step motion bisection are cross-cutting pipeline contracts with concrete numeric bounds and diagnostics."
+    },
+    "threejs-terrain-and-landscapes": {
+      "classification": "reference-sufficient",
+      "evidence": [
+        "skills/threejs-terrain-and-landscapes/references/terrain-rock-and-ground-contact.md",
+        "skills/threejs-terrain-and-landscapes/references/distance-layers-and-far-landscapes.md"
+      ],
+      "rationale": "Geological rock forms, height-matched displacement, dune and snow deposition angles, foundation grounding, projected-size distance layering, and far-landscape shading rules are specified with concrete geometric/optical contracts and diagnostics."
+    },
     "threejs-precipitation-surfaces": {
       "classification": "example-required",
       "evidence": [

@@ -65,7 +65,8 @@ Adjust import paths and scene plumbing as needed; preserve the geometry and
 audit contracts.
 
 - [procedural-mesh.js](assets/geometry-quality-kit/procedural-mesh.js) provides
-  `MeshData`, polygon cleanup, winding reconstruction, profiles, offsets,
+  `MeshData`, polygon cleanup, winding reconstruction, automatic winding flip on
+  negative-determinant mirroring, `smoothAngleForSegments`, profiles, offsets,
   extrusion, loft, revolve, sweeps, solidify, subdivision, bevels, apertures,
   smooth-angle normals, material-slot builds, and Three.js emission.
 - [mesh-topology-audit.js](assets/geometry-quality-kit/mesh-topology-audit.js)
@@ -73,7 +74,9 @@ audit contracts.
   detached components, signed volume, and emitted positions/normals.
 - [geometry-audit.js](assets/geometry-quality-kit/geometry-audit.js) audits a
   built `Object3D` hierarchy for true clipped coplanar overlap, invalid mesh
-  data, missing materials, and substantial triangle-crossing clashes.
+  data, missing materials, substantial triangle-crossing clashes, unintended
+  curved-surface `auditFaceting`, ground-chain `auditSupport`, and group-filtered
+  `auditGroupClearance` (e.g., `['plant', 'solid']`).
 - [geometry-contract.js](assets/geometry-quality-kit/geometry-contract.js)
   runs object-specific measurements without imposing project-specific shape
   semantics.

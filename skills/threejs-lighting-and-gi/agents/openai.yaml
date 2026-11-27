@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Lighting and GI"
+  short_description: "Author coherent lighting, HDRI fill, GI, and reflections"
+  default_prompt: "Use $threejs-lighting-and-gi to set up single-sun physical sun-to-sky ratios, sun-stripped HDRI fill, practical and emissive illumination, LightProbeGrid GI, and real-time reflections."

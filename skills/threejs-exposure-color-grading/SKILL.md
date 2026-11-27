@@ -1,39 +1,38 @@
 ---
 name: threejs-exposure-color-grading
-description: Build a measured exposure and grading path in Three.js. Use for a 64x36 encoded luminance meter, asynchronous readback, weighted log-average exposure, asymmetric adaptation, single tone-map ownership, and a generated 32-cube post-tone-map LUT.
+description: Build a measured exposure, tone-mapping, and color-grading path in Three.js. Use for deliberate AgX, ACES, and Neutral tone-mapper selection, RenderPipeline outputColorTransform ownership, scene-referred contrast, TSL gamut-limited class-aware saturation, encoded 64x36 luminance metering, asymmetric eye adaptation, 3D LUT grading, and subtle photographic lens and sensor traits.
 ---
 
 # Exposure and Color Grading
 
-Treat exposure, tone mapping, grading, and output conversion as distinct stages. Tune them from measured HDR signal, not by stacking compensating color operations.
+Treat exposure, tone mapping, grading, and lens traits as distinct stages applied **on top of correct lighting**. A grade never substitutes for key-to-fill lighting (`$threejs-lighting-and-gi`) or atmospheric clarity.
 
 ## Order
 
 ```text
-HDR scene
-  → luminance meter
-  → adapted exposure
-  → tone map
-  → creative grade / 3D LUT
+HDR scene (after AO / atmosphere / HDR bloom)
+  → anchored or adapted exposure + scene-referred contrast
+  → single tone map (AgX / ACES / Neutral)
+  → display-referred grade (gamut-limited class-aware saturation / 3D LUT)
+  → subtle photographic lens & sensor traits
   → final output conversion
 ```
 
-Read [references/scene-referred-color-pipeline.md](references/scene-referred-color-pipeline.md)
-for the exact 64x36 meter, encoded readback, adaptation constants, 32-cube LUT,
-and signal-ownership ambiguities.
+Read [references/tonemapping-grading-and-lens.md](references/tonemapping-grading-and-lens.md) for choosing between `AgXToneMapping`, `ACESFilmicToneMapping`, and `NeutralToneMapping`, `RenderPipeline.outputColorTransform` ownership, avoiding post-tonemap S-curve flatness, TSL `saturateInGamut`, and restrained lens/sensor traits.
+
+Read [references/scene-referred-color-pipeline.md](references/scene-referred-color-pipeline.md) for the `64×36` encoded luminance meter, asynchronous readback, asymmetric eye adaptation, display-domain `32³` LUT construction, and metering diagnostics.
 
 ## Failure conditions
 
-- tone mapping occurs in both materials and post;
-- exposure is used to repair physically inconsistent light ratios;
-- meter weighting and scene framing are not inspected;
-- adaptation speed is the same toward light and dark;
-- LUT input/output spaces are undocumented;
-- sRGB encoding happens twice;
-- a display-domain LUT is moved before tone mapping without being rebuilt.
+- tone mapping occurs twice (e.g., `outputColorTransform = true` alongside an explicit `renderOutput` or material tone map);
+- a heavy post-tonemap S-curve flattens shadow and highlight surface texture (measured by `8×8` local contrast dropping after grade);
+- exposure or grading is abused to repair physically inconsistent light ratios or stacked fog/glare veils;
+- naive saturation clips channels, shifts hues, or tints sunlit whites and neutral stone;
+- brightness-keyed teal/orange tinting overrides light-driven color;
+- adaptation speed is symmetric toward light and dark, or meter weighting is uninspected;
+- a display-domain LUT or `[0, 1]` gamut clamp is run on unbounded scene-referred HDR;
+- unrequested lens flares, sunbursts, dirty-lens overlays, or heavy film grain hide render noise.
 
 ## Routing boundary
 
-Use `$threejs-bloom` for HDR glow contribution and
-`$threejs-image-pipeline` when this color path must share ownership with AO,
-atmosphere, or effect-local render targets.
+This skill owns exposure anchoring/adaptation, tone-map ownership, scene- and display-referred grading, LUTs, and subtle lens/sensor traits. Use `$threejs-lighting-and-gi` for key-to-fill contrast and warm/cool light balance; `$threejs-bloom` for HDR veiling glare; `$threejs-procedural-vfx` for standalone filmic HDR lens-flare compositors; `$threejs-temporal-stability` for AA and motion noise; and `$threejs-image-pipeline` when coordinating shared buffers across multiple image-space systems.

@@ -5,11 +5,13 @@ Use this reference to compose shared scene buffers, lighting effects, atmosphere
 ## Contents
 
 - WebGPU whole-scene graph
+- Modern RenderPipeline output ownership, AA, and guard bands
 - Selective gallery graph
 - Depth-prepass composer graph
 - Temporal-surface effect-local graph
 - Buffer and ownership rules
 - Resolution policies
+- Veil audit and per-layer isolation
 - Failure analysis
 - Diagnostics
 
@@ -48,6 +50,25 @@ classifies sky, and owns aerial haze, height fog, sun disc/shaft, lens flare,
 and distance grading. Its optional post-process cloud shadow is explicitly
 disabled in its configuration, avoiding duplicate ownership with material
 lighting.
+
+## Modern RenderPipeline output ownership, AA, and guard bands
+
+For current Three.js WebGPU `RenderPipeline` graphs (verify exact method names against the installed Three.js build), prefer native indirect-only AO and explicit scene-vs-display color ownership:
+
+```text
+opaque depth + normalView prePass
+  -> GTAONode (masked off sky/water/emissives, far-faded)
+  -> MSAA scenePass (samples: 4, reversedDepthBuffer: true, contextNode = builtinAOContext(maskedAO))
+  -> HDR bloom (veiling glare)
+  -> scene-referred contrast / exposure trims
+  -> single tone map via renderOutput(sceneReferred, toneMapping, colorSpace)  [outputColorTransform = false]
+  -> display-referred grade (gamut-limited saturation / Lut3DNode)
+  -> subtle lens & sensor traits -> outputNode
+```
+
+- **Single tone-map invariant:** when `pipeline.outputColorTransform = true`, `outputNode` is scene-referred and tone mapping runs automatically after it. When adding display-referred grading or lens traits after tone mapping, set `pipeline.outputColorTransform = false` and call `renderOutput(...)` once.
+- **AA policy:** rely on `4x` MSAA on `scenePass`, specular AA in materials, and mipmapped/anisotropic textures (`$threejs-temporal-stability`). Keep TAA light or off; TAA without MSAA smears moving geometry.
+- **Guard bands (`15–20%` overscan):** whenever screen-space refraction, SSR, GTAO, or wide blurs read outside `[0, 1]`, render internal buffers `15–20%` wider/taller than the display viewport and crop at presentation, blending residual out-of-band rays toward the pixel's own UV or a local probe rather than clamping edge rows.
 
 ## Selective gallery graph
 
@@ -157,6 +178,25 @@ composite, history, output = display DPR
 
 Choose global DPR budgeting for scene cost and per-pass scaling for effect
 bandwidth. They solve different problems.
+
+## Veil audit and per-layer isolation
+
+A grey, washed-out frame with lifted blacks (`p1`) rarely comes from one single parameter — it typically results from five additive/blended contributors stacking together:
+
+```text
+1. distance fog / aerial perspective
+2. local height fog or mist volumes
+3. cloud ambient haze
+4. wide low-threshold bloom / veiling glare
+5. display-referred grade black lift
+```
+
+Before touching contrast or black-point sliders, expose per-layer taps and toggle each veil term off individually while measuring `p1` and local contrast (`$threejs-visual-validation`):
+
+- **Albedo only:** verifies base material values and scan micro-contrast.
+- **Clay sun-only / clay sun+sky+GI:** verifies lighting structure independent of post.
+- **Pre-tonemap HDR / pre-grade:** separates lighting and atmosphere from tone mapping and grading.
+- **Final:** confirms grading improves medians without flattening surface contrast.
 
 ## Failure analysis
 

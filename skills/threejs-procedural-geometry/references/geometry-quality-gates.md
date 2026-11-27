@@ -12,9 +12,10 @@ into a project, with import paths and scene plumbing adjusted as needed.
 - World-space collection contract
 - Coplanar overlap audit
 - Solid-clash audit
+- Faceting, support-chain, and group-clearance audits
 - Semantic geometry contracts
 - Support, clearance, and motion
-- Visual gate
+- Visual gate and flicker sweep
 - Observed limitations and defects
 - Diagnostics
 - Failure diagnosis
@@ -194,6 +195,47 @@ finding a substantial solid running through another solid. `clashDepth`,
 options; their defaults are `0.03 m`, `0.4 m`, `256`, and `3`. Use stable
 semantic prefixes in `clashAllow`; never allow entire material classes.
 
+## Faceting, support-chain, and group-clearance audits
+
+In addition to `auditGeometry()`, `geometry-audit.js` exports three scene-wide
+audits that catch whole-scene smoothing, floating, and vegetation-vs-solid
+defects:
+
+```js
+import {
+  auditFaceting,
+  auditSupport,
+  auditGroupClearance,
+} from "./geometry-audit.js";
+
+const faceting = auditFaceting(root, { maxDeg: 50, minEdges: 6 });
+const support = auditSupport(root, { contactTol: 0.02, groundHeight: (x, z) => 0 });
+const plantClearance = auditGroupClearance(root, {
+  between: ["plant", "solid"],
+  seat: 0.01,
+  sampleStep: 0.05,
+});
+```
+
+- **`auditFaceting`:** flags `material.flatShading === true` and hard normal
+  breaks across edges whose adjacent faces meet between `1°` and `50°` (catching
+  low-segment curved parts split by a naive crease threshold as well as
+  unshared-vertex flat normals). Opt out intentionally faceted meshes with
+  `mesh.userData.faceted = true`.
+- **`auditSupport`:** builds a contact graph from `mesh.userData.ground = true`
+  or `groundHeight(x, z)` via vertex-to-triangle proximity (`contactTol = 2 cm`)
+  and closed-solid penetration, then reports every disconnected floating
+  component with its world centroid and `lowestY`.
+- **`auditGroupClearance`:** tests edge-sampled points (`sampleStep = 5 cm`) of
+  group A inside closed solids of group B (`between: ["plant", "solid"]`),
+  reporting penetration deeper than `seat` (`1 cm`). Edge sampling catches thin
+  branches, rails, or beams passing straight through a solid even when no
+  vertices lie inside it.
+
+Triage hits by **visibility** (visible from any reachable camera angle vs buried
+or closed-interior) and fix every visible defect **as a class at the generator
+that emitted it** rather than nudging single instances.
+
 ## Semantic geometry contracts
 
 Generic triangles cannot know that a window must remain open or a wheel must
@@ -255,19 +297,29 @@ Raise the sample count where rotation or curvature changes fastest. For a
 critical thin clearance, supplement samples with analytic extrema or a swept
 silhouette/voxel test. Record the pose of the minimum clearance in diagnostics.
 
-## Visual gate
+## Visual gate and flicker sweep
 
-An agent or human must inspect fixed views after all scripts pass:
+An agent or human must inspect fixed views after all scripts pass, using
+**single-sided clay** (`THREE.FrontSide`) so flipped or missing faces are never
+masked:
 
 - orthographic front/rear/side/top/underside silhouettes;
 - opposing three-quarter views;
-- grazing-light close views of bevels, caps, seams, and apertures;
+- grazing-light close views of bevels, caps, seams, and apertures from both sides;
 - clay, wireframe, material-slot, and normal-orientation views;
 - human-height or interaction-height views;
 - every extreme pose and at least one intermediate pose.
 
+**Visual flicker sweep (proving zero visible z-fighting):** across the hero view,
+`8–24` orbit views at multiple heights, and junction close-ups, render frame A
+with post/temporal effects disabled, nudge the camera by `~0.3 px` of screen
+motion, render frame B, and diff `|A - B|`. Isolated pixels flipping sharply
+between two surface colors along edges or ledges indicate z-fighting; raycast
+through each cluster to name the two fighting surfaces and fix the class at the
+generator.
+
 Reject geometry that looks implausible, primitive-assembled, unsupported,
-paper-thin, or poorly finished even when no numeric gate fires.
+paper-thin, faceted, or poorly finished even when no numeric gate fires.
 
 ## Observed limitations and defects
 

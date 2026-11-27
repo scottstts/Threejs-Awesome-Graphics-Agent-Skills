@@ -48,9 +48,4 @@ background refraction, stochastic disc blur, aspect fill, and presentation.
 
 ## Routing boundary
 
-Use `$threejs-procedural-vfx` for world- or object-space residue and particles.
-Use `$threejs-precipitation-surfaces` for world-space rain, puddles, snow, and
-weather-surface coupling. Use `$threejs-procedural-materials` when a body must
-transmit its surroundings through its own volume rather than through a
-screen-aligned pane. This skill owns view-aligned wet-glass optics and
-screen-space persistent history.
+Use `$threejs-temporal-stability` for general frame-to-frame antialiasing, guard bands, amortised pass contracts, and motion bisection across the whole renderer. Use `$threejs-procedural-vfx` for world- or object-space residue and particles. Use `$threejs-precipitation-surfaces` for world-space rain, puddles, snow, and weather-surface coupling. Use `$threejs-procedural-materials` when a body must transmit its surroundings through its own volume rather than through a screen-aligned pane. This skill owns view-aligned wet-glass optics and screen-space persistent history.

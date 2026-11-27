@@ -11,8 +11,10 @@ dimensions and audit tolerances together.
 - Polygon-first design model
 - Modeling operation selection
 - Modifier and emission order
+- Smooth shading and the crease rule
 - Join and assembly discipline
-- Detail and geometry budgets
+- Detail, pixel footprint, and geometry budgets
+- Supplied model placement and repair
 - Visual inspection contract
 - Observed limitations and defects
 - Diagnostics
@@ -156,6 +158,29 @@ moulded sections, `45°` for shells, `38°` for cast forms, `50°` for tight
 rolls, and `32°` for broad tops. Inspect the actual highlight before accepting
 the value.
 
+## Smooth shading and the crease rule
+
+Default every curved surface to **smooth shading**. Reserve flat facets strictly
+for genuinely faceted forms (cut gems, faceted crystal, flat-sided polygonal
+towers, dressed ashlar faces, folded sheet metal) and mark those meshes with
+`userData.faceted = true` so the faceting audit skips them intentionally.
+
+- **The crease rule:** the smooth-angle threshold must exceed the dihedral angle
+  between neighbouring faces on a curved surface (`360° / sides` around a lathe
+  or cylinder; per-segment bend along a sweep or loft). An `8`-sided baluster or
+  branch meets at `45°`, so a `34°` or `40°` crease splits every longitudinal edge
+  flat. Use `smoothAngleForSegments(sides)` from `procedural-mesh.js` to keep low-
+  segment curved parts smooth while preserving crisp `90°` caps and steps.
+- **Silhouette sagitta:** smooth normals hide facets in shading, never in the
+  outline. Choose radial segment count `n` for radius `r` so chord sagitta
+  `r * (1 - cos(pi / n))` stays below `~0.5 px` at the closest viewing distance.
+- **Shared vertices and `flatShading`:** `BufferGeometry.computeVertexNormals()`
+  averages across shared indexed vertices only; calling it on non-indexed
+  geometry returns flat face normals. Keep `material.flatShading = false` on
+  smooth surfaces, and transform normals with the sign-corrected cofactor normal
+  matrix whenever mirroring (`scaleMesh` and `transform4` flip winding
+  automatically when `det < 0`).
+
 ## Join and assembly discipline
 
 Keep one `MeshData` per semantic part. Do not join separate components before
@@ -173,7 +198,10 @@ gap meant to read at 2 m        >= 0.004 m
 Flush but unrelated faces are forbidden. Choose one of four explicit states:
 
 1. One continuous polygon mesh.
-2. A declared structural penetration with a narrow named allowance.
+2. Exact contact on shared coordinates (opposite-facing back face on host face,
+   safe under single-sided materials) or safe sinking (`2–5 mm`) **only** when
+   no side face of the sunk piece lands coplanar with a host end face, opening
+   reveal, or slab edge (sinking a flush trim creates a z-fighting side strip).
 3. A proud part with a readable offset.
 4. A reveal or open gap.
 
@@ -184,7 +212,23 @@ merging can contain coplanar triangles inside one mesh. Named audit parts must
 have unique stable names; duplicate names fail assembly construction rather
 than merging unrelated evidence under one label.
 
-## Detail and geometry budgets
+## Detail, pixel footprint, and geometry budgets
+
+Size detail tiers to viewing distance using the projected pixel footprint at
+distance `d`, vertical FOV `phi`, and render height `H_px`:
+
+```text
+footprint ≈ 2 * d * tan(phi / 2) / H_px    (metres per pixel)
+
+< 1 px       sub-pixel shimmer; handle via roughness/normal AA or omit
+1–3 px       reads as flat drawn lines; no real form or shadow
+3–10 px      texture-like relief; reads only if it catches light and casts shadow
+> 10 px      true 3D form casting shadows and occluding neighbors
+```
+
+Build massing projections (`tenths of a metre to metres`) before medium forms,
+and medium forms before fine close-up detail. Relief that must cast shadows must
+also exceed `shadowTexelWidth + bias` (`$threejs-shadow-systems`).
 
 Allocate segments by visible radius and camera distance:
 
@@ -203,10 +247,28 @@ points before hidden planar faces. Add the small parts that explain assembly—
 fasteners, collars, gussets, pads, seams—only after the primary form and joins
 are correct.
 
+## Supplied model placement and repair
+
+When integrating exported third-party meshes into a procedural scene:
+
+- **Rigid placement only:** translate, rotate, and scale uniformly; never warp,
+  remesh, or destructively edit the asset file.
+- **Ground and support explicitly:** place at true contact points without
+  floating or sinking past soles/bases; build matching plinths, sockets, or
+  niches where the model sits on procedural geometry, and keep cast/receive
+  shadows active.
+- **Repair detached sub-parts rigidly at load:** split into connected components
+  to locate loose floating strands/parts, move them rigidly to their anatomical
+  or mechanical attachment point, and confirm clean contact without altering the
+  asset file on disk.
+- **Derive missing PBR maps in shader code** (`$threejs-procedural-materials`)
+  when an export ships base color only.
+
 ## Visual inspection contract
 
 Mechanical checks cannot decide whether a form is plausible or well modeled.
-Inspect at least:
+Always review structural clay views **single-sided** (`THREE.FrontSide`) because
+double-sided clay hides inverted faces and missing wall backs. Inspect at least:
 
 - front, rear, both sides, top, underside, and opposing three-quarter views;
 - orthographic silhouette views;

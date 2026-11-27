@@ -16,8 +16,9 @@ Use this reference for planetary or large-world volumetric clouds built from pac
 10. Quarter-resolution temporal upscale
 11. Cloud shadow representation
 12. Quality tiers must remove expensive mechanisms intentionally
-13. Required diagnostics
-14. Failure diagnosis
+13. Raymarch planning and amortisation safeguards
+14. Required diagnostics
+15. Failure diagnosis
 
 ## 1. Preserve the four-layer vector model
 
@@ -526,7 +527,20 @@ cloud shadows at reduced quality
 This is a legitimate fallback because silhouette, weather control, and
 directional self-shadowing survive.
 
-## 13. Required diagnostics
+## 13. Raymarch planning and amortisation safeguards
+
+Run `node scripts/march-plan.mjs` (or `--self-test`) before locking march step counts and growth rates. On a curved Earth shell, grazing view elevations (`0.5°–5°`) traverse tens of kilometres of layer path; geometric step growth (`> 1.03`) easily stretches the final step to `300–800 m` against `100 m` cumulus billows, creating stair-stepped bands near the horizon.
+
+- **Bound step length by feature size:** keep `lastStepM <= 1.5 * featureSize` across every visible elevation, or terminate active marching at `maxDist` and fade smoothly into a matched baked far cloud layer/panorama that extends past the horizon (no hard snap when rays exhaust steps).
+- **Noise resolution matches feature size:** never stretch a coarse `96³` volume over kilometres where billows collapse into smooth cotton balls; combine domain-warped Perlin–Worley macro shapes with curl-warped edge erosion.
+- **Ceiling plateau prevention:** place cloud-sea billow decks below the upper altitude ceiling so billowing tops form the upper surface organically rather than slicing off into a flat white plateau.
+- **Amortisation invariants (`$threejs-temporal-stability`):**
+  1. Fill untraced pixels in a `1`-in-`N` tile from the current low-resolution trace, never a stale cube (prevents dark grids).
+  2. Fill newly disoccluded turn-edge pixels from a direction-correct baked full-quality sky cube (prevents slanted fading stripes after fast turns).
+  3. Provide a `fullQuality` switch that traces all pixels at full resolution every frame with zero history reuse for stills and offline captures.
+  4. Avoid under-sampled grazing marches through ultra-thin layers (prevents fabric-like moiré patterns); thicken, add grazing steps, or bake thin cirrus.
+
+## 14. Required diagnostics
 
 Expose:
 
@@ -554,7 +568,7 @@ shadow cascade index
 shadow structured-sampling planes
 ```
 
-## 14. Failure diagnosis
+## 15. Failure diagnosis
 
 ```text
 clouds disappear between low and high layers:
@@ -575,8 +589,17 @@ bright flat interior:
 dark featureless cloud:
   multi-scattering, sky light, or powder balance is absent
 
-edge trails:
-  representative depth/velocity is wrong or history lacks variance clipping
+edge trails or slanted stripes on fast turns:
+  representative depth/velocity is wrong, history lacks variance clipping, or disocclusions lack a direction-correct sky-cube fallback
+
+dark checkerboard grid in clouds:
+  amortised 1-in-N tracing filled untraced pixels from a stale/mismatched fallback
+
+horizon stair-steps or thin-layer fabric pattern:
+  step length grew past feature size at grazing elevation (verify with scripts/march-plan.mjs)
+
+flat sliced plateau over cloud sea:
+  billow deck clipped against the upper altitude bound
 
 flickering cloud shadows:
   beauty jitter was reused instead of temporally stable structured sampling

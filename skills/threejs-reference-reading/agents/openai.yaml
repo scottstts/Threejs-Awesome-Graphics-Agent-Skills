@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Reference Reading"
+  short_description: "Decode visual references into coherent 3D builds"
+  default_prompt: "Use $threejs-reference-reading to decode a visual reference into physical element identities, construction methods, light evidence, style-to-method rules, misreading checks, and open-design plans."

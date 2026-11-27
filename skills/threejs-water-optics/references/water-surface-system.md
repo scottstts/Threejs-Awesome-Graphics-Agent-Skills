@@ -13,6 +13,7 @@ Use `$threejs-spectral-ocean` for stochastic FFT seas and open interfaces.
 - Optical hierarchy
 - Normal-only wave bundle
 - Side-aware refraction and absorption
+- Guard bands, shadowed caustics, fountains, and luminous water
 - Foam and distance response
 - Objective limits
 - Diagnostics
@@ -109,6 +110,14 @@ transmittance = exp(-absorptionPerMetre * path)
 This is a depth estimate, not reconstructed object thickness. An open ocean or
 a camera that crosses the interface needs forward projection and the optical
 contract owned by `$threejs-spectral-ocean`.
+
+## Guard bands, shadowed caustics, fountains, and luminous water
+
+- **Screen-space refraction guard band (`15–20%`):** render the opaque scene buffer `15–20%` wider and taller than the viewport and crop on output (`$threejs-temporal-stability`). For extreme refraction rays that still exit the overscan margin, blend smoothly back toward the pixel's own UV rather than clamping to a single edge row (clamping smears vertical border stripes).
+- **Sun-shadowed bed caustics:** derive caustics on shallow beds from surface curvature or refracted-ray convergence, blur by the sun's angular **radius** (`~0.265°`, half the `0.53°` disc), and mask strictly by the sun shadow map so caustics never appear inside shadows.
+- **Planar reflection of surroundings:** give pools and calm rivers a waterline-clipped planar mirror reflection updated every frame (or a local probe for tiny basins) so nearby architecture and foliage reflect authentically.
+- **Fountains and ballistic jets:** model water jets as ballistic streams of drops following gravity arcs, motion-blurred across frame shutter time, width-clamped near `~1 px` at distance with energy conserved, paired with an impact splash ring and spreading heightfield ripples.
+- **Emissive or luminous water:** glowing water or illuminated reefs must illuminate nearby banks and rocks via local lights or probes (`$threejs-lighting-and-gi`), with underwater glow attenuated through real Beer–Lambert absorption rather than painted onto the water surface.
 
 ## Foam and distance response
 

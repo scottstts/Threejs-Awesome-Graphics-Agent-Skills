@@ -58,7 +58,10 @@ texture, pass ordering, integration, camera-clearance and diagnostic contracts.
 - micro-waves alias into sparkling noise;
 - foam is a scrolling texture unrelated to the shared crest metric;
 - Fresnel is replaced by constant opacity;
-- reflection, refraction, and transparency are all added without energy control.
+- reflection, refraction, and transparency are all added without energy control;
+- screen-space refraction smears into vertical border stripes because it lacks a `15–20%` guard band and pixel-position fallback;
+- bed caustics appear inside shadows or use an unshadowed scrolling texture instead of surface-curvature / refracted-ray density;
+- glowing/luminous water fails to illuminate surrounding rocks and walls (`$threejs-lighting-and-gi`).
 
 ## Routing boundary
 

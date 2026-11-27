@@ -65,7 +65,7 @@ preserve its license boundary when copying or publishing it.
 
 ## Routing boundary
 
-Use `$threejs-water-optics` for bounded pool simulation, caustics, Fresnel,
+Use `$threejs-terrain-and-landscapes` for static landform snow distribution, rock/cliff strata, dunes, and ground foundations without active falling weather particles. Use `$threejs-water-optics` for bounded pool simulation, caustics, Fresnel,
 refraction, and Beer-Lambert water volumes. Use `$threejs-procedural-vfx` for
 general sparks, plasma, trails, and non-weather particles. Use
 `$threejs-temporal-surfaces` for screen-space touch history or frost clearing.

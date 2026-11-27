@@ -604,8 +604,480 @@ function logAuditReport(report) {
   if (report.noMaterial.length) console.log("  no material:", report.noMaterial);
   return report;
 }
+
+// ---------------------------------------------------------------- faceting, support-chain, and group-clearance audits
+const _vSub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const _vDot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const _vCross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const _vLen = (a) => Math.hypot(a[0], a[1], a[2]);
+const _tpMat = (m, x, y, z) => [
+  m[0] * x + m[4] * y + m[8] * z + m[12],
+  m[1] * x + m[5] * y + m[9] * z + m[13],
+  m[2] * x + m[6] * y + m[10] * z + m[14],
+];
+
+function _closestOnTri(p, a, b, c) {
+  const ab = _vSub(b, a), ac = _vSub(c, a), ap = _vSub(p, a);
+  const d1 = _vDot(ab, ap), d2 = _vDot(ac, ap);
+  if (d1 <= 0 && d2 <= 0) return a;
+  const bp = _vSub(p, b), d3 = _vDot(ab, bp), d4 = _vDot(ac, bp);
+  if (d3 >= 0 && d4 <= d3) return b;
+  const vc = d1 * d4 - d3 * d2;
+  if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+    const v = d1 / (d1 - d3);
+    return [a[0] + ab[0] * v, a[1] + ab[1] * v, a[2] + ab[2] * v];
+  }
+  const cp = _vSub(p, c), d5 = _vDot(ab, cp), d6 = _vDot(ac, cp);
+  if (d6 >= 0 && d5 <= d6) return c;
+  const vb = d5 * d2 - d1 * d6;
+  if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+    const w = d2 / (d2 - d6);
+    return [a[0] + ac[0] * w, a[1] + ac[1] * w, a[2] + ac[2] * w];
+  }
+  const va = d3 * d6 - d5 * d4;
+  if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
+    const w = (d4 - d3) / (d4 - d3 + (d5 - d6));
+    return [b[0] + (c[0] - b[0]) * w, b[1] + (c[1] - b[1]) * w, b[2] + (c[2] - b[2]) * w];
+  }
+  const den = 1 / (va + vb + vc), v = vb * den, w = vc * den;
+  return [a[0] + ab[0] * v + ac[0] * w, a[1] + ab[1] * v + ac[1] * w, a[2] + ab[2] * v + ac[2] * w];
+}
+
+function _collectObjectEntries(root, opts = {}) {
+  const entries = [];
+  root.updateMatrixWorld?.(true);
+  const visit = (o) => {
+    if (!o.visible) return;
+    if (o.isMesh === true && !o.userData?.auditSkip) {
+      const name = qualifiedName(o);
+      if (!opts.skip?.(o, name)) {
+        const g = o.geometry;
+        const pos = g?.getAttribute?.("position");
+        if (pos && pos.count > 0) {
+          const idx = g.getIndex?.() ? g.getIndex().array : null;
+          const nrm = g.getAttribute?.("normal") ? g.getAttribute("normal").array : null;
+          const part = g.getAttribute?.("part") ? g.getAttribute("part").array : null;
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          const flatShading = mats.some((mat) => !!mat?.flatShading);
+          const group = o.userData?.auditGroup || "solid";
+          const ground = !!o.userData?.ground;
+          const faceted = !!o.userData?.faceted || group === "faceted";
+          const instanced = o.isInstancedMesh === true && opts.includeInstanced !== false;
+          for (const wt of worldTransforms(o, name, instanced)) {
+            entries.push({
+              name: wt.name,
+              position: pos.array,
+              index: idx,
+              normal: nrm,
+              part,
+              matrix: wt.matrix,
+              group,
+              ground,
+              faceted,
+              flatShading,
+            });
+          }
+        }
+      }
+    }
+    if (o.children) for (const child of o.children) visit(child);
+  };
+  visit(root);
+  return entries;
+}
+
+function auditFaceting(root, { maxDeg = 50, minDeg = 1, minEdges = 6, includeInstanced = false, skip } = {}) {
+  const entries = _collectObjectEntries(root, { includeInstanced, skip });
+  const hits = [];
+  const cosSameN = Math.cos((0.5 * Math.PI) / 180);
+  for (const m of entries) {
+    if (m.faceted) continue;
+    if (m.flatShading) {
+      hits.push({
+        mesh: m.name,
+        facetEdges: null,
+        hint: "material.flatShading is enabled: every face renders flat regardless of normals",
+      });
+      continue;
+    }
+    if (!m.normal) continue;
+    const P = m.position, N = m.normal;
+    const countVerts = P.length / 3;
+    const I = m.index || Array.from({ length: countVerts }, (_, i) => i);
+    const wid = new Map();
+    const weld = (i) => {
+      const k =
+        (m.part ? `${m.part[i]}#` : "") +
+        `${Math.round(P[i * 3] * 1e4)},${Math.round(P[i * 3 + 1] * 1e4)},${Math.round(P[i * 3 + 2] * 1e4)}`;
+      if (!wid.has(k)) wid.set(k, wid.size);
+      return wid.get(k);
+    };
+    const edges = new Map();
+    const faceN = [];
+    for (let t = 0; t + 2 < I.length; t += 3) {
+      const v = [I[t], I[t + 1], I[t + 2]];
+      const p = v.map((i) => [P[i * 3], P[i * 3 + 1], P[i * 3 + 2]]);
+      const n = _vCross(_vSub(p[1], p[0]), _vSub(p[2], p[0]));
+      const l = _vLen(n);
+      if (l < 1e-12) {
+        faceN.push(null);
+        continue;
+      }
+      faceN.push([n[0] / l, n[1] / l, n[2] / l]);
+      for (let e = 0; e < 3; e++) {
+        const a = v[e], b = v[(e + 1) % 3], wa = weld(a), wb = weld(b);
+        const k = wa < wb ? `${wa}:${wb}` : `${wb}:${wa}`;
+        if (!edges.has(k)) edges.set(k, []);
+        edges.get(k).push({ t: t / 3, a, b, wa });
+      }
+    }
+    const sameN = (i, j) =>
+      i === j ||
+      N[i * 3] * N[j * 3] + N[i * 3 + 1] * N[j * 3 + 1] + N[i * 3 + 2] * N[j * 3 + 2] > cosSameN;
+    let facetEdges = 0;
+    let edgeLength = 0;
+    let at = null;
+    for (const list of edges.values()) {
+      if (list.length !== 2) continue;
+      const [e1, e2] = list;
+      const f1 = faceN[e1.t], f2 = faceN[e2.t];
+      if (!f1 || !f2) continue;
+      const deg = (Math.acos(Math.max(-1, Math.min(1, _vDot(f1, f2)))) * 180) / Math.PI;
+      if (deg < minDeg || deg > maxDeg) continue;
+      const a2 = e2.wa === e1.wa ? e2.a : e2.b;
+      const b2 = e2.wa === e1.wa ? e2.b : e2.a;
+      if (sameN(e1.a, a2) && sameN(e1.b, b2)) continue;
+      facetEdges++;
+      const pa = [P[e1.a * 3], P[e1.a * 3 + 1], P[e1.a * 3 + 2]];
+      const pb = [P[e1.b * 3], P[e1.b * 3 + 1], P[e1.b * 3 + 2]];
+      edgeLength += _vLen(_vSub(pa, pb));
+      if (!at) at = [+(pa[0] + pb[0]) / 2, +(pa[1] + pb[1]) / 2, +(pa[2] + pb[2]) / 2].map((x) => +x.toFixed(3));
+    }
+    const shared = m.index ? new Set(I).size < I.length : false;
+    if (facetEdges >= minEdges) {
+      hits.push({
+        mesh: m.name,
+        facetEdges,
+        facetEdgeLength: +edgeLength.toFixed(2),
+        at,
+        sharedVertices: shared,
+        hint: shared
+          ? "crease angle below facet angle (360/sides), or smoothing split by construction"
+          : "unshared vertices or split corner normals below facet angle",
+      });
+    }
+  }
+  hits.sort((a, b) => (b.facetEdges ?? 1e9) - (a.facetEdges ?? 1e9));
+  return { hits, summary: { meshesChecked: entries.length, meshesWithFacets: hits.length } };
+}
+
+function _prepareComponents(entries) {
+  const tris = [];
+  const comps = [];
+  entries.forEach((m, mi) => {
+    const P = m.position;
+    const nv = P.length / 3;
+    const I = m.index || Array.from({ length: nv }, (_, i) => i);
+    const W = new Array(nv);
+    for (let i = 0; i < nv; i++) W[i] = _tpMat(m.matrix, P[i * 3], P[i * 3 + 1], P[i * 3 + 2]);
+    const wid = new Map();
+    const weld = W.map((p, i) => {
+      const k = (m.part ? `${m.part[i]}#` : "") + `${Math.round(p[0] * 1e4)},${Math.round(p[1] * 1e4)},${Math.round(p[2] * 1e4)}`;
+      if (!wid.has(k)) wid.set(k, wid.size);
+      return wid.get(k);
+    });
+    const parent = Array.from({ length: wid.size }, (_, i) => i);
+    const find = (x) => {
+      while (parent[x] !== x) x = parent[x] = parent[parent[x]];
+      return x;
+    };
+    for (let t = 0; t + 2 < I.length; t += 3) {
+      const a = find(weld[I[t]]), b = find(weld[I[t + 1]]), c = find(weld[I[t + 2]]);
+      parent[a] = b;
+      parent[find(c)] = b;
+    }
+    const compOf = new Map();
+    for (let t = 0; t + 2 < I.length; t += 3) {
+      const a = W[I[t]], b = W[I[t + 1]], c = W[I[t + 2]];
+      const nRaw = _vCross(_vSub(b, a), _vSub(c, a));
+      const A2 = _vLen(nRaw);
+      if (A2 < 1e-12) continue;
+      const rootId = find(weld[I[t]]);
+      if (!compOf.has(rootId)) {
+        const id = comps.length;
+        compOf.set(rootId, id);
+        comps.push({ id, mesh: mi, name: m.name, group: m.group, ground: m.ground, tris: [] });
+      }
+      const comp = compOf.get(rootId);
+      const tri = { a, b, c, comp, w: [weld[I[t]], weld[I[t + 1]], weld[I[t + 2]]] };
+      tris.push(tri);
+      comps[comp].tris.push(tri);
+    }
+  });
+  for (const c of comps) {
+    const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity], verts = [];
+    for (const t of c.tris) {
+      for (const p of [t.a, t.b, t.c]) {
+        for (let k = 0; k < 3; k++) {
+          if (p[k] < min[k]) min[k] = p[k];
+          if (p[k] > max[k]) max[k] = p[k];
+        }
+        verts.push(p);
+      }
+    }
+    c.min = min;
+    c.max = max;
+    c.verts = verts;
+  }
+  return { tris, comps };
+}
+
+function _buildTriGrid(tris, cell) {
+  const g = new Map();
+  const k = (i, j, l) => `${i},${j},${l}`;
+  tris.forEach((t, ti) => {
+    const lo = [0, 1, 2].map((d) => Math.floor(Math.min(t.a[d], t.b[d], t.c[d]) / cell));
+    const hi = [0, 1, 2].map((d) => Math.floor(Math.max(t.a[d], t.b[d], t.c[d]) / cell));
+    for (let i = lo[0]; i <= hi[0]; i++) {
+      for (let j = lo[1]; j <= hi[1]; j++) {
+        for (let l = lo[2]; l <= hi[2]; l++) {
+          const kk = k(i, j, l);
+          if (!g.has(kk)) g.set(kk, []);
+          g.get(kk).push(ti);
+        }
+      }
+    }
+  });
+  return {
+    near(p, r) {
+      const s = new Set();
+      const lo = p.map((v) => Math.floor((v - r) / cell));
+      const hi = p.map((v) => Math.floor((v + r) / cell));
+      for (let i = lo[0]; i <= hi[0]; i++) {
+        for (let j = lo[1]; j <= hi[1]; j++) {
+          for (let l = lo[2]; l <= hi[2]; l++) {
+            for (const ti of g.get(k(i, j, l)) || []) s.add(ti);
+          }
+        }
+      }
+      return s;
+    },
+  };
+}
+
+function _isClosedComponent(c) {
+  const E = new Map();
+  for (const t of c.tris) {
+    for (const [x, y] of [[t.w[0], t.w[1]], [t.w[1], t.w[2]], [t.w[2], t.w[0]]]) {
+      const k = `${x}>${y}`;
+      E.set(k, (E.get(k) || 0) + 1);
+    }
+  }
+  for (const [k, n] of E) {
+    if (n > 1) return false;
+    const [x, y] = k.split(">");
+    if ((E.get(`${y}>${x}`) || 0) === 0) return false;
+  }
+  return c.tris.length >= 4;
+}
+
+function _sampleCompPoints(c, step, cap) {
+  if (c._samples && c._step === step) return c._samples;
+  const pts = [...c.verts];
+  for (const t of c.tris) {
+    for (const [a, b] of [[t.a, t.b], [t.b, t.c], [t.c, t.a]]) {
+      const L = _vLen(_vSub(b, a));
+      const n = Math.floor(L / step);
+      for (let k = 1; k < n; k++) {
+        pts.push([a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n, a[2] + ((b[2] - a[2]) * k) / n]);
+      }
+    }
+  }
+  const every = Math.max(1, Math.floor(pts.length / cap));
+  c._samples = pts.filter((_, i) => i % every === 0);
+  c._step = step;
+  return c._samples;
+}
+
+function _pointInSolid(p, c) {
+  if (!c._yz) {
+    const div = 48;
+    const sy = (c.max[1] - c.min[1]) / div || 1;
+    const sz = (c.max[2] - c.min[2]) / div || 1;
+    const g = new Map();
+    for (const t of c.tris) {
+      const y0 = Math.floor((Math.min(t.a[1], t.b[1], t.c[1]) - c.min[1]) / sy);
+      const y1 = Math.floor((Math.max(t.a[1], t.b[1], t.c[1]) - c.min[1]) / sy);
+      const z0 = Math.floor((Math.min(t.a[2], t.b[2], t.c[2]) - c.min[2]) / sz);
+      const z1 = Math.floor((Math.max(t.a[2], t.b[2], t.c[2]) - c.min[2]) / sz);
+      for (let y = y0; y <= y1; y++) {
+        for (let z = z0; z <= z1; z++) {
+          const k = y * 4096 + z;
+          if (!g.has(k)) g.set(k, []);
+          g.get(k).push(t);
+        }
+      }
+    }
+    c._yz = (q) => g.get(Math.floor((q[1] - c.min[1]) / sy) * 4096 + Math.floor((q[2] - c.min[2]) / sz)) || [];
+  }
+  const dir = [1, 1e-4, 2e-4];
+  let crossings = 0;
+  for (const t of c._yz(p)) {
+    if (Math.max(t.a[0], t.b[0], t.c[0]) < p[0]) continue;
+    const e1 = _vSub(t.b, t.a), e2 = _vSub(t.c, t.a);
+    const h = _vCross(dir, e2), det = _vDot(e1, h);
+    if (Math.abs(det) < 1e-14) continue;
+    const s = _vSub(p, t.a), u = _vDot(s, h) / det;
+    if (u < 0 || u > 1) continue;
+    const qv = _vCross(s, e1), v = _vDot(dir, qv) / det;
+    if (v < 0 || u + v > 1) continue;
+    if (_vDot(e2, qv) / det > 0) crossings++;
+  }
+  return crossings % 2 === 1;
+}
+
+function _nearestSurfaceDist(p, c) {
+  if (!c._g3) {
+    const ext = Math.max(c.max[0] - c.min[0], c.max[1] - c.min[1], c.max[2] - c.min[2]);
+    c._cell = Math.max(ext / 24, 1e-3);
+    c._g3 = _buildTriGrid(c.tris, c._cell);
+  }
+  for (let r = c._cell; ; r *= 2) {
+    let best = Infinity;
+    for (const ti of c._g3.near(p, r)) {
+      const t = c.tris[ti];
+      best = Math.min(best, _vLen(_vSub(p, _closestOnTri(p, t.a, t.b, t.c))));
+    }
+    if (best <= r || r > 1e6) return best;
+  }
+}
+
+function _overlapComponentPairs(comps, pad, fn) {
+  const order = [...comps].sort((a, b) => a.min[0] - b.min[0]);
+  for (let i = 0; i < order.length; i++) {
+    const A = order[i];
+    for (let j = i + 1; j < order.length && order[j].min[0] <= A.max[0] + pad; j++) {
+      const B = order[j];
+      if (A.min[1] - pad <= B.max[1] && B.min[1] - pad <= A.max[1] && A.min[2] - pad <= B.max[2] && B.min[2] - pad <= A.max[2]) {
+        fn(A, B);
+      }
+    }
+  }
+}
+
+function auditSupport(root, { contactTol = 0.02, groundHeight = null, groundTol = 0.02, includeInstanced = false, skip } = {}) {
+  const entries = _collectObjectEntries(root, { includeInstanced, skip });
+  const { tris, comps } = _prepareComponents(entries);
+  const grid = _buildTriGrid(tris, Math.max(contactTol * 20, 0.25));
+  const grounded = new Array(comps.length).fill(false);
+  const adj = comps.map(() => new Set());
+  for (const c of comps) {
+    if (c.ground) {
+      grounded[c.id] = true;
+      continue;
+    }
+    if (groundHeight) {
+      for (const v of c.verts) {
+        if (v[1] <= groundHeight(v[0], v[2]) + groundTol) {
+          grounded[c.id] = true;
+          break;
+        }
+      }
+    }
+    const step = Math.max(1, Math.floor(c.verts.length / 4000));
+    for (let i = 0; i < c.verts.length; i += step) {
+      const v = c.verts[i];
+      for (const ti of grid.near(v, contactTol)) {
+        const t = tris[ti];
+        if (t.comp === c.id || adj[c.id].has(t.comp)) continue;
+        if (_vLen(_vSub(v, _closestOnTri(v, t.a, t.b, t.c))) <= contactTol) {
+          adj[c.id].add(t.comp);
+          adj[t.comp].add(c.id);
+        }
+      }
+    }
+  }
+  const closed = comps.map((c) => _isClosedComponent(c));
+  _overlapComponentPairs(comps, contactTol, (A, B) => {
+    if (adj[A.id].has(B.id)) return;
+    const inB = closed[B.id] && _sampleCompPoints(A, 0.05, 3000).some((v) => B.min.every((m, k) => v[k] >= m && v[k] <= B.max[k]) && _pointInSolid(v, B));
+    const inA = !inB && closed[A.id] && _sampleCompPoints(B, 0.05, 3000).some((v) => A.min.every((m, k) => v[k] >= m && v[k] <= A.max[k]) && _pointInSolid(v, A));
+    if (inB || inA) {
+      adj[A.id].add(B.id);
+      adj[B.id].add(A.id);
+    }
+  });
+  const q = comps.filter((c) => grounded[c.id]).map((c) => c.id);
+  const reach = new Set(q);
+  while (q.length) {
+    const x = q.pop();
+    for (const y of adj[x]) {
+      if (!reach.has(y)) {
+        reach.add(y);
+        q.push(y);
+      }
+    }
+  }
+  const hits = comps
+    .filter((c) => !reach.has(c.id))
+    .map((c) => ({
+      mesh: c.name,
+      group: c.group,
+      at: c.min.map((v, k) => +((v + c.max[k]) / 2).toFixed(3)),
+      size: c.max.map((v, k) => +(v - c.min[k]).toFixed(3)),
+      lowestY: +c.min[1].toFixed(3),
+    }));
+  return { hits, summary: { components: comps.length, unsupported: hits.length } };
+}
+
+function auditGroupClearance(root, { seat = 0.01, between = null, sampleStep = 0.05, maxPointsPerComp = 6000, includeInstanced = false, skip } = {}) {
+  const entries = _collectObjectEntries(root, { includeInstanced, skip });
+  const { comps } = _prepareComponents(entries);
+  const closed = comps.map((c) => _isClosedComponent(c));
+  const rawHits = [];
+  const test = (A, B) => {
+    if (!closed[B.id]) return;
+    if (between && !(A.group === between[0] && B.group === between[1])) return;
+    let depth = 0, worst = null, inside = 0;
+    for (const v of _sampleCompPoints(A, sampleStep, maxPointsPerComp)) {
+      if (!B.min.every((m, k) => v[k] >= m && v[k] <= B.max[k])) continue;
+      if (!_pointInSolid(v, B)) continue;
+      inside++;
+      const d = _nearestSurfaceDist(v, B);
+      if (d > depth) {
+        depth = d;
+        worst = v;
+      }
+    }
+    if (depth > seat) {
+      rawHits.push({
+        meshes: [A.name, B.name],
+        ids: [A.id, B.id],
+        groups: [A.group, B.group],
+        depth: +depth.toFixed(4),
+        insidePoints: inside,
+        at: worst.map((x) => +x.toFixed(3)),
+      });
+    }
+  };
+  _overlapComponentPairs(comps, 0, (A, B) => {
+    test(A, B);
+    test(B, A);
+  });
+  const best = new Map();
+  for (const h of rawHits) {
+    const k = `${Math.min(...h.ids)}:${Math.max(...h.ids)}`;
+    if (!best.has(k) || best.get(k).depth < h.depth) best.set(k, h);
+  }
+  const hits = [...best.values()].map(({ ids, ...h }) => h).sort((a, b) => b.depth - a.depth);
+  return { hits, summary: { pairs: hits.length, worstDepth: hits[0]?.depth || 0 } };
+}
+
 export {
   GEOMETRY_AUDIT_DEFAULTS,
+  auditFaceting,
   auditGeometry,
+  auditGroupClearance,
+  auditSupport,
   logAuditReport
 };

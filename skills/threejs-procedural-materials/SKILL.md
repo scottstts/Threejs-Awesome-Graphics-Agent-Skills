@@ -24,8 +24,13 @@ stable coordinates
 ```
 
 Read [references/procedural-pbr-system.md](references/procedural-pbr-system.md)
-for atlas filtering, specular AA, planetary coordinates,
-world-height wetness, per-instance dissolve, and authored PBR response bundles.
+for atlas filtering, specular AA, planetary coordinates, world-height wetness,
+per-instance dissolve, and authored PBR response bundles. Read
+[references/pbr-scans-projection-and-ranges.md](references/pbr-scans-projection-and-ranges.md)
+(and optional [scripts/scan-stats.py](scripts/scan-stats.py)) for physical
+albedo/metal/dielectric/roughness tables, PBR map measurement before
+thresholding, TSL triplanar whiteout normals, multi-scale tiling breakup,
+derived shader maps for basecolor-only models, and thick-media absorption traps.
 
 Read the
 [sculpted gallery frame geometry](../threejs-procedural-geometry/examples/sculpted-gallery-frame/frame-geometry.js)
@@ -170,16 +175,11 @@ inside expressions;
 - emissive-material debug modes when the material owns glow or volumetric
 accumulation.
 
-Read [references/hybrid-soil-moss-surface.md](references/hybrid-soil-moss-surface.md)
-and the
-[hybrid soil and moss implementation](examples/hybrid-soil-moss-surface/hybrid-soil-moss-surface.js)
-for texture-backed soil and moss albedo, AO, roughness, and normal microdetail
-combined with procedural mound displacement, moisture, moss coverage/height,
-and warped cellular cracks. Do not describe its surface identity as fully
-procedurally synthesized. When moss must also settle onto a model, read the
-[model moss implementation](examples/hybrid-soil-moss-surface/model-moss-accumulation.js)
-for model-locked coverage, upward-face accumulation, displaced thickness, and
-shared moss PBR identity.
+Read [references/hybrid-soil-moss-surface.md](references/hybrid-soil-moss-surface.md),
+[hybrid soil and moss implementation](examples/hybrid-soil-moss-surface/hybrid-soil-moss-surface.js),
+and [model moss implementation](examples/hybrid-soil-moss-surface/model-moss-accumulation.js)
+for texture-backed soil/moss PBR combined with procedural mound displacement,
+moisture, warped cracks, and upward-facing model moss accumulation.
 
 ## Failure conditions
 

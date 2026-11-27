@@ -7,6 +7,7 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshStandardMaterial,
 } from "three";
 import {
   annularPrism,
@@ -47,6 +48,7 @@ import {
   roundedRect,
   runMolding,
   scaleMesh,
+  smoothAngleForSegments,
   smoothShade,
   solidify,
   subsurf,
@@ -62,7 +64,12 @@ import {
   writeAll,
   writeInto,
 } from "./procedural-mesh.js";
-import { auditGeometry } from "./geometry-audit.js";
+import {
+  auditFaceting,
+  auditGeometry,
+  auditGroupClearance,
+  auditSupport,
+} from "./geometry-audit.js";
 import { auditMeshData, auditTriangleSoup } from "./mesh-topology-audit.js";
 import {
   assertGeometryContract,
@@ -921,6 +928,69 @@ function triangleMesh(points, name = "triangle") {
   const onAxis = poleMesh.verts.filter((v) => Math.hypot(v[0], v[1]) < 1e-9).length;
   check("revolve: one vertex per pole", onAxis === 2, String(onAxis));
   check("circle helper remains usable", circle(1, 16).length === 16);
+}
+
+{
+  // Negative-determinant mirroring flips winding automatically
+  const mirrored = scaleMesh(box(0, 0, 0, 1, 1, 1), [-1, 1, 1]);
+  check("mirror: negative scale preserves outward signed volume", auditMeshData(mirrored).signedVolume > 0);
+  const matMirrored = transform4(box(0, 0, 0, 1, 1, 1), [[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]);
+  check("mirror: negative-det transform4 preserves outward signed volume", auditMeshData(matMirrored).signedVolume > 0);
+}
+
+{
+  // Faceting audit catches 8-sided cylinder shaded below its 45 deg facet angle and flatShading
+  const badCyl = prism(circle(0.3, 8), 0, 1);
+  smoothShade(badCyl, 34); // 8 sides = 45 deg between faces -> every vertical edge splits
+  const goodCyl = prism(circle(0.3, 8), 0, 1);
+  smoothShade(goodCyl, smoothAngleForSegments(8));
+  const gemCyl = prism(circle(0.3, 8), 0, 1);
+  flatShade(gemCyl);
+
+  const root = new Group();
+  const badMesh = solidMesh(badCyl, "column:faceted-by-mistake");
+  const goodMesh = solidMesh(goodCyl, "column:smooth-by-crease-rule");
+  const gemMesh = solidMesh(gemCyl, "gem:intended-facets");
+  gemMesh.userData.faceted = true;
+  const flatMatMesh = solidMesh(goodCyl, "column:flatShading-flag");
+  flatMatMesh.material = new MeshStandardMaterial({ flatShading: true });
+  root.add(badMesh, goodMesh, gemMesh, flatMatMesh);
+
+  const fReport = auditFaceting(root);
+  const flagged = new Set(fReport.hits.map((h) => h.mesh));
+  check("faceting: catches low-crease 8-sided cylinder", flagged.has("column:faceted-by-mistake"), JSON.stringify(fReport.hits));
+  check("faceting: catches material.flatShading", flagged.has("column:flatShading-flag"), JSON.stringify(fReport.hits));
+  check("faceting: passes smoothAngleForSegments(8)", !flagged.has("column:smooth-by-crease-rule"), JSON.stringify(fReport.hits));
+  check("faceting: skips userData.faceted opt-out", !flagged.has("gem:intended-facets"), JSON.stringify(fReport.hits));
+  disposeHierarchy(root, true);
+}
+
+{
+  // Support chain audit catches floating parts and passes grounded stacks
+  const root = new Group();
+  const base = solidMesh(box(0, 0, 0, 1, 1, 0.5), "pedestal");
+  const cap = solidMesh(box(0.1, 0.1, 0.5, 0.9, 0.9, 1.0), "statue");
+  const floater = solidMesh(box(2, 2, 0.4, 2.5, 2.5, 0.8), "floating-lamp");
+  root.add(base, cap, floater);
+  const sReport = auditSupport(root, { groundHeight: () => 0 });
+  const unsupported = sReport.hits.map((h) => h.mesh);
+  check("support: catches floating part and passes grounded chain", unsupported.length === 1 && unsupported[0] === "floating-lamp", JSON.stringify(sReport.hits));
+  disposeHierarchy(root, true);
+}
+
+{
+  // Group-filtered clearance audit catches vegetation piercing a solid wall/roof
+  const root = new Group();
+  const wall = solidMesh(box(0, 0, 0, 2, 0.4, 2), "wall:main");
+  wall.userData.auditGroup = "solid";
+  const branchIn = solidMesh(box(0.8, -0.3, 0.8, 1.0, 0.7, 1.0), "branch:piercing");
+  branchIn.userData.auditGroup = "plant";
+  const branchClear = solidMesh(box(0.8, 0.6, 0.8, 1.0, 1.2, 1.0), "branch:clear");
+  branchClear.userData.auditGroup = "plant";
+  root.add(wall, branchIn, branchClear);
+  const cReport = auditGroupClearance(root, { between: ["plant", "solid"], seat: 0.01 });
+  check("group clearance: catches plant piercing solid", cReport.hits.length === 1 && cReport.hits[0].meshes[0] === "branch:piercing", JSON.stringify(cReport.hits));
+  disposeHierarchy(root, true);
 }
 
 console.log(`${checks - failures}/${checks} checks passed`);

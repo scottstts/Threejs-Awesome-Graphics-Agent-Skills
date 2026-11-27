@@ -1,11 +1,11 @@
 ---
 name: threejs-procedural-architecture
-description: Build authored procedural buildings and architectural kits in Three.js. Use for massing grammars, exposed-edge analysis, façade bays, profiles, arches, cornices, roofs, ornaments, material-slot mesh compilation, deterministic variants, and procedural city assets.
+description: Build authored procedural buildings, architectural kits, and composed architectural ornament and relief in Three.js. Use for massing grammars, exposed-edge analysis, façade bays, full-thickness walls with cut openings, curved-wall trims, classical orders, arches, vaults, domes, cornices, roofs, stairs, architectural junctions, carved versus applied relief, rinceau scrolls, acanthus, cartouches, coffers, height-field carving, material-slot mesh compilation, deterministic variants, and procedural city assets.
 ---
 
 # Procedural Architecture
 
-Separate design planning from mesh emission. A building generator should produce an inspectable plan before it produces triangles.
+Separate design planning from mesh emission and construct architectural elements the way real masonry, stone, and timber are built. A building generator should produce an inspectable structural plan — with real wall thickness, through-openings, resolved junctions, and composed ornament — before emitting triangles.
 
 This skill contains exemplary examples and assets beyond descriptive guidance,
 they're worth studying, referencing, or even copying. Use them sufficiently
@@ -15,15 +15,19 @@ when relevant and do NOT blindly skip them.
 
 ```text
 settings
-  → mass grammar
+  → mass grammar & depth layers
   → exposed-surface graph
-  → façade/roof placements
-  → module registry
+  → façade/roof/opening placements
+  → structural & ornament module registry
   → material-slot mesh writer
   → geometries
 ```
 
-Read [references/grammar-and-mesh-compiler.md](references/grammar-and-mesh-compiler.md) before implementing the generator.
+Read [references/grammar-and-mesh-compiler.md](references/grammar-and-mesh-compiler.md) for deterministic mass grammars, compound footprints, exposed-edge subtraction, bay quantization, and material-slot compilation.
+
+Read [references/architectural-construction-and-junctions.md](references/architectural-construction-and-junctions.md) for full-thickness walls with through-openings, curved-wall sweeps, classical orders, arches/vaults/domes, roofs/stairs, exact-contact versus safe-sinking junction rules, and the architectural junction catalogue.
+
+Read [references/ornament-and-relief-systems.md](references/ornament-and-relief-systems.md) for carved versus applied relief, complete ornament composition vocabulary (rinceau scrolls, mirrored scrolls, candelabra, cartouches, acanthus clusters, rhythmic friezes, strapwork, coffers, swags), motif geometry (Euler spirals, cupped leaves, rosettes), `max`-union height-field relief, and banned stand-ins.
 
 Read the
 [procedural financial tower compiler](examples/procedural-financial-tower/building-system.js)
@@ -33,28 +37,25 @@ diagnostics.
 
 ## Rules
 
-- Massing, façade rhythm, and detail modules are separate layers.
-- Resolve exposed edges before façade placement. Do not decorate hidden internal faces.
-- Modules own semantic anchors and construction depth, not global building coordinates.
-- Compile by material slot to reduce draw calls without destroying material separation.
-- Preserve real dimensions for floor height, bay width, trim projection, and texture density.
-- Randomness may select among valid designs; it must not repair invalid geometry.
-- Provide topology, façade ownership, material/geometry, and shadow diagnostics
-  appropriate to the renderer path.
+- Massing, façade rhythm, openings, and ornament modules are separate layers; settle primary depth breaks in single-sided clay before adding ornament.
+- Resolve exposed edges before façade placement; build convex corners once and never decorate hidden internal faces.
+- Cut openings through full wall thickness and every backing layer; sweep trims on curved walls along the host curve rather than straight chords.
+- Stop string courses, mouldings, and friezes cleanly at openings and blank faces.
+- Decide carved versus applied relief from structural evidence; compose ornament continuously from stems/axes with full rounded sections rather than scattering disconnected primitives or tracing raw image pixels.
+- Size architectural and relief depth tiers to viewing pixel footprint and shadow-map resolution (`reliefDepth > shadowTexelWidth + bias`).
+- Compile by material slot to reduce draw calls without destroying material separation, preserving real dimensions for bay width, floor height, trim projection, and texel density.
+- Provide topology, façade ownership, material/geometry, and shadow diagnostics appropriate to the renderer path.
 
 ## Acceptance
 
-The generated building must survive:
+The generated architecture must survive:
 
-- silhouette-only view;
-- flat untextured material;
-- grazing light;
-- close inspection of corners and roof transitions;
-- seed variation without broken bays, overlapping ownership, or floating ornament;
+- silhouette-only view and single-sided untextured clay view from hero + 4 orbit angles;
+- raking grazing light verifying massing breaks, rounded relief sections, and real shadow casting;
+- close inspection of openings, curved hosts, corners, roof transitions, and ornament junctions;
+- seed variation without broken bays, overlapping ownership, coplanar flicker, or floating ornament;
 - triangle and module-count reporting.
 
 ## Routing boundary
 
-Use `$threejs-procedural-geometry` for a reusable profile, sweep, ring, or mesh
-writer without a building grammar. This skill owns massing, façade semantics,
-architectural modules, and building-plan compilation.
+Use `$threejs-procedural-geometry` for general hard-surface/vehicle modeling, reusable mesh-writer primitives, and whole-scene geometry audits (`geometry-quality-kit`). Use `$threejs-terrain-and-landscapes` for building-to-slope foundations, retaining walls, and distant city/horizon tiers. This skill owns building grammars, architectural construction patterns, junctions, composed ornament/relief, and building-plan compilation.

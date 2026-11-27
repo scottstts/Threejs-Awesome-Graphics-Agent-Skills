@@ -44,7 +44,7 @@
   },
   "scripts": {
     "validate": "node scripts/validate-pack.mjs",
-    "test": "npm run validate && npm run test:routing && npm run test:references && npm run test:installer && npm run test:assets && npm run test:geometry-kit",
+    "test": "npm run validate && npm run test:routing && npm run test:references && npm run test:installer && npm run test:assets && npm run test:geometry-kit && npm run test:skill-tools",
     "dev": "node example-gallery/server.mjs --open",
     "dev:examples:no-open": "node example-gallery/server.mjs",
     "dev:examples:fixture": "node example-gallery/server.mjs --open --include-fixtures",
@@ -54,6 +54,7 @@
     "test:installer": "node scripts/test-installer.mjs",
     "test:assets": "node scripts/test-example-asset-origins.mjs",
     "test:geometry-kit": "node skills/threejs-procedural-geometry/assets/geometry-quality-kit/selftest.js",
+    "test:skill-tools": "node skills/threejs-lighting-and-gi/scripts/sun-sky.mjs --self-test && node skills/threejs-camera-direction/scripts/camera-solve.mjs --self-test && node skills/threejs-volumetric-clouds/scripts/march-plan.mjs --self-test && node skills/threejs-spectral-ocean/scripts/ocean-spectrum-check.mjs --self-test",
     "check:freshness": "node scripts/check-three-freshness.mjs",
     "test:all": "npm test && npm run check:freshness",
     "prepack": "npm run test:all",

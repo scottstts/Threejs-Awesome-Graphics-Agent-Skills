@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Temporal Stability"
+  short_description: "Eliminate grain, shimmer, ghosting, and motion artifacts"
+  default_prompt: "Use $threejs-temporal-stability to design frame-to-frame stable Three.js rendering with MSAA and specular AA, guard bands, amortised-pass contracts, continuous updates, and motion bisection."

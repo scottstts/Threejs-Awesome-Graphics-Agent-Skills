@@ -52,6 +52,4 @@ The body must remain intentional in:
 
 ## Routing boundary
 
-Use `$threejs-procedural-fields` for a reusable field bundle without a complete
-body, and `$threejs-atmosphere-aerial-perspective` for scattering independent
-of planet generation. This skill owns the coupled planetary surface.
+Use `$threejs-terrain-and-landscapes` for non-orbital terrestrial terrain, geological cliffs, dunes, foundations, and near-to-horizon distance layers. Use `$threejs-procedural-fields` for a reusable field bundle without a complete body, and `$threejs-atmosphere-aerial-perspective` for scattering independent of planet generation. This skill owns the coupled spherical planetary surface.

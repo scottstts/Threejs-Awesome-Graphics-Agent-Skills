@@ -28,6 +28,8 @@ when relevant and do NOT blindly skip them.
 
 Read [references/structured-ash-growth-system.md](references/structured-ash-growth-system.md) and preserve its preset, continuation, child-placement, leaf, material, wind, and composition contracts before tuning.
 
+Read [references/botanical-archetypes-lod-and-wind.md](references/botanical-archetypes-lod-and-wind.md) for the universal species archetype table (broadleaf, flowering, conifer, pine, cypress, palm, shrub, topiary, grass, crops), pipe-model rooting and build-time solid clearance against buildings, banned stand-ins, area-conserving structural LOD, and physical wind/shadow rules.
+
 Read the [Ash Growth System implementation](examples/structured-ash-growth/tree-system.js)
 with its [authored preset](examples/structured-ash-growth/ash-preset.js) for a
 contract-accurate implementation and its diagnostic attributes.
@@ -87,6 +89,4 @@ only implementation; the entry file only re-exports them.
 
 ## Routing boundary
 
-Use `$threejs-procedural-geometry` for generic branch-ring emission without a
-growth model. This skill owns species tables, vine and branch topology,
-surface-following growth, foliage, grass fields, roots, and rooted wind.
+Use `$threejs-procedural-geometry` for generic branch-ring emission and scene-wide `auditGroupClearance` (`['plant', 'solid']`) checks. Use `$threejs-terrain-and-landscapes` for multi-kilometre forest/horizon terrain layers. This skill owns species tables, botanical archetypes, vine and branch topology, surface-following growth, rooting, area-conserving LOD, foliage, grass fields, and physical wind.

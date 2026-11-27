@@ -190,10 +190,20 @@ function scaleMesh(m, s, pivot = [0, 0, 0]) {
     v[1] = pivot[1] + (v[1] - pivot[1]) * sv[1];
     v[2] = pivot[2] + (v[2] - pivot[2]) * sv[2];
   }
+  if (sv[0] * sv[1] * sv[2] < 0) {
+    for (let i = 0; i < m.faces.length; i++) {
+      m.faces[i].reverse();
+      if (m.uvs?.[i]) m.uvs[i].reverse();
+    }
+  }
   m.provenance = null;
   return m;
 }
 function transform4(m, M) {
+  const det =
+    M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) -
+    M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) +
+    M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
   for (const v of m.verts) {
     const x = v[0];
     const y = v[1];
@@ -202,8 +212,18 @@ function transform4(m, M) {
     v[1] = M[1][0] * x + M[1][1] * y + M[1][2] * z + M[1][3];
     v[2] = M[2][0] * x + M[2][1] * y + M[2][2] * z + M[2][3];
   }
+  if (det < 0) {
+    for (let i = 0; i < m.faces.length; i++) {
+      m.faces[i].reverse();
+      if (m.uvs?.[i]) m.uvs[i].reverse();
+    }
+  }
   m.provenance = null;
   return m;
+}
+function smoothAngleForSegments(segments, floorDeg = 40) {
+  const safeSegments = Math.max(3, Math.floor(segments));
+  return Math.min(89, Math.max(floorDeg, 360 / safeSegments + 5));
 }
 function placeYaw(m, center, yaw) {
   const c = Math.cos(yaw);
@@ -1652,6 +1672,7 @@ export {
   roundedRect,
   runMolding,
   scaleMesh,
+  smoothAngleForSegments,
   smoothShade,
   solidify,
   subsurf,

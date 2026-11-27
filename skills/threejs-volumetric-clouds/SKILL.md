@@ -21,7 +21,7 @@ when relevant and do NOT blindly skip them.
 6. Reconstruct low-resolution output temporally.
 7. Project a separate low-cost cloud-shadow solution.
 
-Read [references/weather-volume-and-reconstruction.md](references/weather-volume-and-reconstruction.md) before implementing or auditing the cloud system.
+Read [references/weather-volume-and-reconstruction.md](references/weather-volume-and-reconstruction.md) before implementing or auditing the cloud system, and run [scripts/march-plan.mjs](scripts/march-plan.mjs) before authoring the march loop to verify spherical-shell step lengths against target feature size across view elevations (`90°` down to `0.5°`).
 
 Read the [weather volume cloud entry](examples/weather-volume-clouds/cloud-effect.js)
 and its `source/` modules for weather-layer ownership, spherical shell bounds,
@@ -44,13 +44,17 @@ atmospheric composition, and package-owned diagnostics.
 - the raymarch traverses the full camera range;
 - detail noise adds density instead of eroding shaped masses;
 - temporal history is accepted across disocclusion;
+- amortised tracing fills untraced pixels from a stale/mismatched fallback (dark checkerboard grid) or leaves slanted turn stripes instead of falling back to a direction-correct baked sky cube;
+- no full-quality non-amortised path exists for stills and offline captures;
+- geometric step growth blows past feature size near the horizon (stair-step banding), or a cloud deck clips flat against a ceiling plateau;
 - shadows use the full beauty raymarch;
 - every cloud layer shares the same wind and density profile.
 
 ## Routing boundary
 
 Use `$threejs-atmosphere-aerial-perspective` for molecular/aerosol scattering
-without weather density. Use `$threejs-procedural-vfx` for emissive aurora
+without weather density; `$threejs-temporal-stability` for general amortised-pass
+and motion-stability contracts; and `$threejs-procedural-vfx` for emissive aurora
 curtain slabs or bounded interactive voxel fire and smoke with velocity,
 pressure, emitter, and collision fields. This skill owns weather-shaped cloud
-volumes, reconstruction, cloud lighting, and cloud shadows.
+volumes, raymarch planning, reconstruction, cloud lighting, and cloud shadows.

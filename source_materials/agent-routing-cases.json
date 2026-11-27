@@ -784,12 +784,142 @@
           ]
         }
       ]
+    },
+    {
+      "request": "Decode a concept-art reference image into physical element identities, carved versus applied construction, light direction evidence, and stylized-method rules before building.",
+      "routes": [
+        {
+          "skill": "threejs-reference-reading",
+          "signals": [
+            "decoding a visual reference",
+            "physical element identities",
+            "style-decides-method"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Set up physically coherent clear-sky sun-to-sky lighting, strip the HDRI second-sun, bake a LightProbeGrid for occluded alcove GI, and configure planar floor reflections.",
+      "routes": [
+        {
+          "skill": "threejs-lighting-and-gi",
+          "signals": [
+            "sun-to-sky ratios",
+            "sun-stripped hdri fill",
+            "lightprobegrid",
+            "planar and cube-probe reflections"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Eliminate moving grain, TAA smear, disocclusion stripes, and screen-edge refraction streaks using MSAA, 15-20% guard bands, full-quality still paths, and motion bisection.",
+      "routes": [
+        {
+          "skill": "threejs-temporal-stability",
+          "signals": [
+            "frame-to-frame temporal stability",
+            "15-20% screen-space guard bands",
+            "motion bisection"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Build jointed limestone cliffs with height-matched displacement, terraces and foundations into sloped ground, and backlit far mountain ranges stepped into the horizon.",
+      "routes": [
+        {
+          "skill": "threejs-terrain-and-landscapes",
+          "signals": [
+            "geological rock and cliffs",
+            "terraces and foundations",
+            "backlit and front-lit far mountain ranges"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Carve composed architectural ornament with rinceau scrolls, acanthus clusters, cartouches, and max-union height-field relief inside full-thickness arched walls.",
+      "routes": [
+        {
+          "skill": "threejs-procedural-architecture",
+          "signals": [
+            "carved versus applied relief",
+            "rinceau scrolls",
+            "full-thickness walls with through-openings"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Solve camera FOV, pitch, roll, eye height, and back-projected ground landmarks from vanishing points and known-height scale cues so the scene stays level and true-shaped.",
+      "routes": [
+        {
+          "skill": "threejs-camera-direction",
+          "signals": [
+            "pinhole camera solving",
+            "back-projected landmarks",
+            "real-world scale cues"
+          ]
+        }
+      ]
+    },
+    {
+      "request": "Eliminate vertical horizon-barcode stripes below the sea horizon by masking AO, matching sky-map mips, fading far depth terms, and integrating reflections over wave slopes.",
+      "routes": [
+        {
+          "skill": "threejs-spectral-ocean",
+          "signals": [
+            "horizon-barcode elimination",
+            "slope-integrated sky and planar mirror reflections"
+          ]
+        }
+      ]
     }
   ],
   "boundaries": [
     {
+      "skill": "threejs-reference-reading",
+      "mustMention": [
+        "$threejs-camera-direction",
+        "$threejs-lighting-and-gi",
+        "$threejs-visual-validation"
+      ]
+    },
+    {
+      "skill": "threejs-lighting-and-gi",
+      "mustMention": [
+        "$threejs-shadow-systems",
+        "$threejs-screen-space-ambient-occlusion",
+        "$threejs-atmosphere-aerial-perspective",
+        "$threejs-exposure-color-grading",
+        "$threejs-bloom",
+        "$threejs-reference-reading"
+      ]
+    },
+    {
+      "skill": "threejs-temporal-stability",
+      "mustMention": [
+        "$threejs-temporal-surfaces",
+        "$threejs-procedural-animation",
+        "$threejs-image-pipeline",
+        "$threejs-visual-validation"
+      ]
+    },
+    {
+      "skill": "threejs-terrain-and-landscapes",
+      "mustMention": [
+        "$threejs-procedural-planets",
+        "$threejs-procedural-materials",
+        "$threejs-precipitation-surfaces",
+        "$threejs-procedural-vegetation",
+        "$threejs-atmosphere-aerial-perspective"
+      ]
+    },
+    {
       "skill": "threejs-camera-direction",
       "mustMention": [
+        "$threejs-reference-reading",
         "$threejs-procedural-animation"
       ]
     },
@@ -828,6 +958,7 @@
     {
       "skill": "threejs-procedural-planets",
       "mustMention": [
+        "$threejs-terrain-and-landscapes",
         "$threejs-procedural-fields",
         "$threejs-atmosphere-aerial-perspective"
       ]
@@ -873,6 +1004,7 @@
     {
       "skill": "threejs-temporal-surfaces",
       "mustMention": [
+        "$threejs-temporal-stability",
         "$threejs-procedural-vfx",
         "$threejs-precipitation-surfaces",
         "$threejs-procedural-materials"
@@ -881,23 +1013,36 @@
     {
       "skill": "threejs-precipitation-surfaces",
       "mustMention": [
+        "$threejs-terrain-and-landscapes",
         "$threejs-water-optics",
         "$threejs-procedural-vfx",
         "$threejs-temporal-surfaces"
       ]
     },
     {
+      "skill": "threejs-shadow-systems",
+      "mustMention": [
+        "$threejs-lighting-and-gi",
+        "$threejs-screen-space-ambient-occlusion",
+        "$threejs-temporal-stability"
+      ]
+    },
+    {
       "skill": "threejs-screen-space-ambient-occlusion",
       "mustMention": [
+        "$threejs-lighting-and-gi",
+        "$threejs-spectral-ocean",
         "$threejs-image-pipeline"
       ]
     },
     {
       "skill": "threejs-image-pipeline",
       "mustMention": [
+        "$threejs-lighting-and-gi",
         "$threejs-screen-space-ambient-occlusion",
         "$threejs-bloom",
-        "$threejs-exposure-color-grading"
+        "$threejs-exposure-color-grading",
+        "$threejs-temporal-stability"
       ]
     },
     {

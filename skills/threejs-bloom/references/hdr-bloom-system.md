@@ -6,6 +6,7 @@ Use this reference to choose bloom ownership, signal order, selective contributi
 
 - WebGPU pipeline signal order
 - WebGPU bloom-node controls
+- Veiling-glare calibration, edge stability, and sprite depth
 - Gallery selective ownership
 - Material substitution invariant
 - Composer baseline
@@ -54,6 +55,15 @@ This path does not implement a custom pyramid. Its contract is signal placement
 and parameter ownership around the renderer’s bloom node.
 Verify the installed Three.js node API before using the exact constructor or
 property names.
+
+## Veiling-glare calibration, edge stability, and sprite depth
+
+For realistic daylight and interior scenes, treat whole-scene bloom as **optical veiling glare**:
+
+- **Threshold above non-emissive whites:** place threshold above the brightest sunlit stone, snow, or cloud top so only genuinely high-radiance emitters (sun disc, lamps, sparks, molten cores) trigger spread.
+- **Avoid double-counting sun glow:** atmospheric Mie forward scattering (`$threejs-atmosphere-aerial-perspective`) already produces the sky's sun aureole. Measure the radial glow profile (`10 / 25 / 50 / 90 / 140 px`) and balance sky aureole width against bloom radius/strength rather than stacking two wide glows into a milky half-sky.
+- **Off-screen edge pops:** when a small, intense HDR emitter exits the viewport edge, screen-space bloom drops abruptly across a single frame. Keep emitter luminance proportional to physical area, render a `15–20%` guard band (`$threejs-temporal-stability`) on scenes with bright near-border sources, and verify with a fast turn across the sun and lamps.
+- **Emissive sprite depth ownership:** transparent glow sprites with `depthWrite = false` inherit whatever background depth lies behind them during depth-aware DOF or bloom pre-passes, causing one identical sprite to blur/bloom strongly against distant sky while another vanishes in front of a near wall. Give glow sprites their own depth representation for the pass or composite them after DOF.
 
 ## Gallery selective ownership
 

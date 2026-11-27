@@ -30,6 +30,8 @@ when relevant and do NOT blindly skip them.
 
 Read [references/spectral-cascade-ocean-system.md](references/spectral-cascade-ocean-system.md) before implementing or auditing a spectral ocean.
 
+Read [references/horizon-and-slope-optics.md](references/horizon-and-slope-optics.md) (and run [scripts/ocean-spectrum-check.mjs](scripts/ocean-spectrum-check.mjs) to validate JONSWAP/Parseval/Cox–Munk cascade budgets) for 3-cause horizon-barcode elimination, slope-integrated sky and planar object reflections, Cox–Munk roughness hand-off, and breaking-wave volumetric life cycles.
+
 Read
 [references/coastal-breaker-and-swash-ocean.md](references/coastal-breaker-and-swash-ocean.md)
 before implementing or auditing the water-to-wet-sand transition of a coastal
@@ -83,6 +85,8 @@ impact-triggered spray.
 - Persist foam in simulation state; do not infer all foam anew per frame.
 - Submit FFT stages with the synchronization required by the active backend.
 - Share sun and sky parameters between the visible sky and ocean reflection.
+- Close all three horizon-barcode causes from day one: exclude water/sky from AO with distance fade and reversed depth (`$threejs-screen-space-ambient-occlusion`), sample sky reflections at footprint-matched mip levels, and fade depth-buffer water terms (refraction, depth absorption, depth contact foam) before depth precision fails. Verify with `measure.py --stripes` (`$threejs-visual-validation`).
+- Hand lost cascade slope variance to surface roughness against Cox–Munk (`0.003 + 0.00512·U`) and integrate reflections/glitter across the pixel's slope distribution (plus waterline-clipped planar mirrors for scene objects).
 - Transport opposite-medium structures by FORWARD projection: rasterize their own vertices at their refracted screen positions. On an open interface, never trace a water pixel backward to a source screen position, and never gate transported radiance on whether a direction's vanishing point lands on screen. (A bounded pool seen only from air can still use the screen-space offset in `$threejs-water-optics`; an ocean whose camera changes medium cannot.)
 - Bracket a water-side crossing solve by the critical angle (`tan θc ≈ 1.1346` times the ray's own distance from the interface), not by the camera-to-source span.
 - Scale spectral LOD by PIXEL FOOTPRINT — `distance² · pixelAngle / heightGap` — and apply it to vertex displacement, derivatives, and every band that rides them. Fade each band to its own mean when the band is an albedo or radiance term.

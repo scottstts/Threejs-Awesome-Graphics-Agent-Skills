@@ -1445,3 +1445,73 @@ four guides, excludes dev-shim assets and intake projects, and retains 0.12.0.
 The skill usability audit checked standalone wording, exact numeric contracts,
 example purpose clauses, navigation ownership and reciprocal routing boundaries.
 No GPU execution or visual parity is claimed.
+
+## Pipeline and environment-craft synthesis upgrade
+
+A cross-cutting upgrade absorbed generalized 3D rendering-pipeline contracts,
+physical anchors, and headless diagnostic tools from the author's local
+environment-building skill pack (`artisticEnvSkills`, treated read-only) while
+keeping all curated visual examples untouched and omitting workflow-specific
+session/goal-loop procedures.
+
+- **New atomic skills added (4):**
+  - `$threejs-reference-reading`: generalized visual-reference decoding,
+    recurring misreading checks, style-decides-method/anchor principle, and
+    open-design craft.
+  - `$threejs-lighting-and-gi`: single-sun alignment, Kasten–Young/Meinel/
+    Haurwitz clear-sky ratios (`scripts/sun-sky.mjs`), sun-stripped HDRI fill,
+    flat/overcast diagnosis, practical/emissive/subject lighting, GPU-baked
+    `LightProbeGrid` GI, and planar/probe/SSR reflection architecture.
+  - `$threejs-temporal-stability`: MSAA + specular AA vs TAA policy, stochastic
+    and amortised-pass contracts + full-quality still paths, `15–20%` guard
+    bands, update-rate parity, periodic-wrap alignment, and motion bisection.
+  - `$threejs-terrain-and-landscapes`: non-orbital rock geology, projection-
+    matched cliff displacement, dunes, slope-driven snow, foundations/terraces,
+    and projected-size near-to-horizon distance layers.
+- **Existing skills upgraded (11 + router):**
+  - `$threejs-shadow-systems`: built-in WebGPU `CSMShadowNode`, tight depth-
+    range bias calibration, small-relief threshold, static vs every-frame
+    dynamic caster updates, matte test-plane isolation.
+  - `$threejs-screen-space-ambient-occlusion`: native TSL `GTAONode` +
+    `builtinAOContext`, horizon-barcode masking and distance fade, AO-vs-GI
+    boundary.
+  - `$threejs-exposure-color-grading`: `AgX`/`ACES`/`Neutral` selection,
+    `RenderPipeline.outputColorTransform` ownership, scene-referred contrast vs
+    post-tonemap S-curve trap, TSL `saturateInGamut`, subtle photographic lens
+    and sensor traits.
+  - `$threejs-image-pipeline` & `$threejs-bloom`: modern `RenderPipeline` chain,
+    guard bands, 5-term veil audit, veiling-glare framing, off-screen pop and
+    emissive-sprite depth ownership.
+  - `$threejs-procedural-architecture`: architectural construction/junctions
+    plus complete carved-vs-applied ornament and relief systems (rinceau,
+    acanthus, cartouches, coffers, `max`-union height-field relief).
+  - `$threejs-procedural-materials`: physical linear albedo/metal/dielectric/
+    roughness tables, PBR map measurement (`scripts/scan-stats.py`), TSL
+    triplanar whiteout normals, multi-scale tiling, derived shader maps for
+    basecolor-only models, thick-media absorption/refraction pitfalls.
+  - `$threejs-procedural-geometry`: smooth-by-default `360°/sides` crease rule,
+    pixel-footprint detail sizing, exact-contact vs safe-sinking rule, visual
+    flicker sweep, supplied-model placement/repair, plus `auditFaceting`,
+    `auditSupport`, `auditGroupClearance`, `smoothAngleForSegments`, and
+    negative-determinant mirroring winding flip added to `geometry-quality-kit`.
+  - `$threejs-procedural-vegetation`: multi-species botanical archetypes,
+    rooting and solid-clearance pruning, area-conserving structural LOD,
+    physical member-length-scaled wind and every-frame foliage shadows.
+  - `$threejs-spectral-ocean` & `$threejs-water-optics`: 3-cause horizon
+    barcode elimination, slope-integrated sky/planar reflections, Cox–Munk
+    roughness hand-off (`scripts/ocean-spectrum-check.mjs`), breaking-wave
+    volumetric life cycles, `15–20%` guard-band bounded refraction, shadowed
+    caustics, and fountains.
+  - `$threejs-atmosphere-aerial-perspective` & `$threejs-volumetric-clouds`:
+    built sky vs IBL-only HDRI, `0.53°` sun disc/aureole, 5-term veil audit,
+    world-space participating media, spherical-shell `scripts/march-plan.mjs`,
+    and amortised-tracing disocclusion remedies.
+  - `$threejs-camera-direction` & `$threejs-visual-validation`: pinhole camera
+    solver (`scripts/camera-solve.mjs`) + scale-cue table; per-layer isolation
+    and gap attribution + `scripts/measure.py` + sub-pixel flicker sweep +
+    cost-by-redesign rules.
+
+Version-sensitive Three.js r187 patterns (`LightProbeGrid`, `CSMShadowNode`,
+`GTAONode` + `builtinAOContext`, `RenderPipeline.outputColorTransform`) are
+documented with explicit target-version verification requirements, not as a
+package-wide minimum.

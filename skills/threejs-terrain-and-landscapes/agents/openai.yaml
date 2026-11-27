@@ -1,0 +1,4 @@
+interface:
+  display_name: "Three.js Terrain and Landscapes"
+  short_description: "Build geological rock, terrain, ground contact, and far worlds"
+  default_prompt: "Use $threejs-terrain-and-landscapes to author jointed rock cliffs, multi-scale terrain, dunes, slope-driven snow, resolved building foundations, and continuous near-to-horizon distance layers."
