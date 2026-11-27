@@ -1,6 +1,6 @@
 # Three.js Awesome Graphics Agent Skills
 
-[![GitHub stars](https://img.shields.io/github/stars/scottstts/Threejs-Awesome-Graphics-Agent-Skills?style=flat)](https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/scottstts/Threejs-Awesome-Graphics-Agent-Skills?style=flat&logo=github)](https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/stargazers)
 [![npm version](https://img.shields.io/npm/v/threejs-awesome-graphics-agent-skills?style=flat)](https://www.npmjs.com/package/threejs-awesome-graphics-agent-skills)
 [![npm downloads](https://img.shields.io/npm/dm/threejs-awesome-graphics-agent-skills?style=flat)](https://www.npmjs.com/package/threejs-awesome-graphics-agent-skills)
 ![three.js](https://img.shields.io/badge/three.js-agent%20skills-blue?style=flat)
