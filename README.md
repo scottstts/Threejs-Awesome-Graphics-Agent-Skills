@@ -102,6 +102,9 @@ Supported targets:
 | `hermes-agent` | `~/.hermes/skills` | `.hermes/skills` |
 | `openclaw` | `~/.openclaw/skills` | `skills` |
 | `muse-code` | `~/.config/muse/skills` | `.agents/skills` |
+| `opencode` | `~/.config/opencode/skills` | `.opencode/skills` |
+| `pi` | `~/.pi/agent/skills` | `.pi/skills` |
+| `deepseek-harness` | `~/.dsh/skills` | `.dsh/skills` |
 | `custom` | exact `--path` | exact `--path` |
 
 ## Development

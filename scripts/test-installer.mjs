@@ -33,6 +33,9 @@ try {
     "hermes-agent": [".hermes", "skills"],
     openclaw: [".openclaw", "skills"],
     "muse-code": [".config", "muse", "skills"],
+    opencode: [".config", "opencode", "skills"],
+    pi: [".pi", "agent", "skills"],
+    "deepseek-harness": [".dsh", "skills"],
   };
   const projectPaths = {
     universal: [".agents", "skills"],
@@ -46,6 +49,9 @@ try {
     "hermes-agent": [".hermes", "skills"],
     openclaw: ["skills"],
     "muse-code": [".agents", "skills"],
+    opencode: [".opencode", "skills"],
+    pi: [".pi", "skills"],
+    "deepseek-harness": [".dsh", "skills"],
   };
 
   const help = await execFileAsync(process.execPath, [cli, "--help"]);
@@ -171,6 +177,8 @@ try {
     ["hermes", [".hermes", "skills"]],
     ["muse", [".config", "muse", "skills"]],
     ["meta-muse-code", [".config", "muse", "skills"]],
+    ["dsh", [".dsh", "skills"]],
+    ["deepseek", [".dsh", "skills"]],
   ]) {
     const aliasHome = path.join(temporaryRoot, `alias-${alias}`);
     const result = await execFileAsync(process.execPath, [

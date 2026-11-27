@@ -78,6 +78,21 @@ const targets = {
     project: [".agents", "skills"],
     user: [".config", "muse", "skills"],
   },
+  opencode: {
+    label: "OpenCode",
+    project: [".opencode", "skills"],
+    user: [".config", "opencode", "skills"],
+  },
+  pi: {
+    label: "Pi",
+    project: [".pi", "skills"],
+    user: [".pi", "agent", "skills"],
+  },
+  "deepseek-harness": {
+    label: "DeepSeek Harness",
+    project: [".dsh", "skills"],
+    user: [".dsh", "skills"],
+  },
 };
 
 const aliases = {
@@ -87,6 +102,8 @@ const aliases = {
   hermes: "hermes-agent",
   muse: "muse-code",
   "meta-muse-code": "muse-code",
+  dsh: "deepseek-harness",
+  deepseek: "deepseek-harness",
 };
 
 function printHelp() {
@@ -98,7 +115,7 @@ Usage:
   threejs-awesome-graphics-agent-skills uninstall --agent <target> [options]
 
 Targets:
-  universal, grok, codex, claude-code, cursor, github-copilot, antigravity, devin, hermes-agent, openclaw, muse-code
+  universal, grok, codex, claude-code, cursor, github-copilot, antigravity, devin, hermes-agent, openclaw, muse-code, opencode, pi, deepseek-harness
   custom (requires --path)
 
 Options:
